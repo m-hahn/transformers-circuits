@@ -229,11 +229,6 @@ class Embeddings(nn.Module):
         self.d_model = d_model
 
     def forward(self, x):
-#        print("===========forward embeddings")
-#        print(x)
-#        print(x.max())
-#        print(self.lut(x))
-#        print(math.sqrt(self.d_model))
         return self.lut(x) * math.sqrt(self.d_model)
 
 
@@ -410,20 +405,10 @@ import random
 def data_gen(V, batch, nbatches):
     "Generate random data for a src-tgt copy task."
     for i in range(nbatches):
-        seqLength = 10 #random.choice([10,20,30,40])
-        data = torch.from_numpy(np.random.randint(1, V, size=(batch, seqLength)))
+        data = torch.from_numpy(np.random.randint(1, V, size=(batch, 10)))
         data[:, 0] = 1
         src = Variable(data, requires_grad=False)
-        tgt = (src.sum(dim=1) % 2 == 1).long().unsqueeze(1).repeat(1,2)
-#        print(tgt)
-        tgt[:,0] = 1
-#        tgt[:,1] = src[:,1]
- #       print(tgt)
-  #      quit()
- #       data = torch.from_numpy(np.random.randint(1, V, size=(batch, 3)))
-#        tgt = Variable(data, requires_grad=False)
-#        print(tgt)
-
+        tgt = Variable(data, requires_grad=False)
         yield Batch(src, tgt, 0)
 
 
@@ -431,23 +416,18 @@ class SimpleLossCompute:
     "A simple loss compute and train function."
     def __init__(self, generator, criterion, opt=None):
         self.generator = generator
-        self.criterion = torch.nn.NLLLoss()
+        self.criterion = torch.nn.NLLLoss(reduce="sum")
         self.opt = opt
         
     def __call__(self, x, y, norm):
         x = self.generator(x)
         V_here = x.size(-1)
-        assert V_here == 3
-#        print(x.contiguous().size())
-    #    print(x.contiguous())
-#        print(torch.exp(x.contiguous().view(-1, V_here)).sum(dim=1))
-   #     print(y.contiguous().view(-1))
-        loss = self.criterion(x.contiguous().view(-1, V_here), 
+#        assert V_here == 3
+        loss = self.criterion(x.contiguous().view(-1, x.size(-1)), 
                               y.contiguous().view(-1)) / norm
-    #    print(loss)
         loss.backward()
-        if random.random() > 0.5: # compute accuracy
-           _, predictions = torch.max(x.contiguous().view(-1, V_here), dim=1)
+        if random.random() > 0.8: # compute accuracy
+           _, predictions = torch.max(x.contiguous().view(-1, x.size(-1)), dim=1)
            print("ACCURACY", (predictions == y.contiguous().view(-1)).float().mean())
         if self.opt is not None:
             self.opt.step()
@@ -457,13 +437,13 @@ class SimpleLossCompute:
 
 
 # Train the simple copy task.
-V = 3
+V = 11
 criterion = LabelSmoothing(size=V, padding_idx=0, smoothing=0.0)
 model = make_model(V, V, N=2)
 model_opt = NoamOpt(model.src_embed[0].d_model, 1, 400,
         torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
 
-for epoch in range(10):
+for epoch in range(20):
     model.train()
     run_epoch(data_gen(V, 30, 20), model, 
               SimpleLossCompute(model.generator, criterion, model_opt))
@@ -489,8 +469,7 @@ def greedy_decode(model, src, src_mask, max_len, start_symbol):
     return ys
 
 model.eval()
-quit()
-src = Variable(torch.LongTensor([[1,0,1,0,1]]) )
+src = Variable(torch.LongTensor([[1,2,1,2,1,2,1,2,1,2]]) )
 src_mask = Variable(torch.ones(1, 1, 10) )
 print(greedy_decode(model, src, src_mask, max_len=10, start_symbol=1))
 

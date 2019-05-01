@@ -15,12 +15,28 @@ from torch.autograd import Variable
 #matplotlib inline
 
 
-# https://discuss.pytorch.org/t/global-gpu-flag/17195
-#use_gpu = lambda x=True: torch.set_default_tensor_type(torch.cuda.FloatTensor 
-#                                             if torch.cuda.is_available() and x 
-#                                             else torch.FloatTensor)
+V = 11
+beta1 = 0.9
+beta2 = 0.98
+eps=1e-9
+factor = 1
+warmup=400
+batchSize = 30
+epochCount = 20
+n_layers = 1
+d_model_global = 512
+d_ff_global = 2048
+h_global = 8
+dropout_global = 0.1
 
-#use_gpu()
+
+
+# https://discuss.pytorch.org/t/global-gpu-flag/17195
+use_gpu = lambda x=True: torch.set_default_tensor_type(torch.cuda.FloatTensor 
+                                             if torch.cuda.is_available() and x 
+                                             else torch.FloatTensor)
+
+use_gpu()
 
 
 class EncoderDecoder(nn.Module):
@@ -229,11 +245,6 @@ class Embeddings(nn.Module):
         self.d_model = d_model
 
     def forward(self, x):
-#        print("===========forward embeddings")
-#        print(x)
-#        print(x.max())
-#        print(self.lut(x))
-#        print(math.sqrt(self.d_model))
         return self.lut(x) * math.sqrt(self.d_model)
 
 
@@ -263,7 +274,7 @@ class PositionalEncoding(nn.Module):
 
 
 def make_model(src_vocab, tgt_vocab, N=6, 
-               d_model=512, d_ff=2048, h=8, dropout=0.1):
+               d_model=d_model_global, d_ff=d_ff_global, h=h_global, dropout=dropout_global):
     "Helper: Construct a model from hyperparameters."
     c = copy.deepcopy
     attn = MultiHeadedAttention(h, d_model)
@@ -320,7 +331,7 @@ def run_epoch(data_iter, model, loss_compute):
  #       print("loss_compute")
         loss = loss_compute(out, batch.trg_y, batch.ntokens)
         total_loss += loss
-        print(loss, batch.ntokens)
+        #print(loss, batch.ntokens)
         total_tokens += batch.ntokens.float()
         tokens += batch.ntokens.float()
         if i % 50 == 1:
@@ -376,9 +387,6 @@ class NoamOpt:
             (self.model_size ** (-0.5) *
             min(step ** (-0.5), step * self.warmup ** (-1.5)))
         
-def get_std_opt(model):
-    return NoamOpt(model.src_embed[0].d_model, 2, 4000,
-            torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
 
 
 
@@ -394,6 +402,7 @@ class LabelSmoothing(nn.Module):
         self.true_dist = None
         
     def forward(self, x, target):
+        assert False
         assert x.size(1) == self.size
         true_dist = x.data.clone()
         true_dist.fill_(self.smoothing / (self.size - 2))
@@ -410,45 +419,36 @@ import random
 def data_gen(V, batch, nbatches):
     "Generate random data for a src-tgt copy task."
     for i in range(nbatches):
-        seqLength = 10 #random.choice([10,20,30,40])
-        data = torch.from_numpy(np.random.randint(1, V, size=(batch, seqLength)))
+        data = torch.from_numpy(np.random.randint(1, V, size=(batch, 10))).cuda()
         data[:, 0] = 1
         src = Variable(data, requires_grad=False)
-        tgt = (src.sum(dim=1) % 2 == 1).long().unsqueeze(1).repeat(1,2)
-#        print(tgt)
-        tgt[:,0] = 1
-#        tgt[:,1] = src[:,1]
- #       print(tgt)
-  #      quit()
- #       data = torch.from_numpy(np.random.randint(1, V, size=(batch, 3)))
-#        tgt = Variable(data, requires_grad=False)
-#        print(tgt)
-
+        tgt = Variable(data, requires_grad=False)
         yield Batch(src, tgt, 0)
+
 
 
 class SimpleLossCompute:
     "A simple loss compute and train function."
     def __init__(self, generator, criterion, opt=None):
         self.generator = generator
-        self.criterion = torch.nn.NLLLoss()
+        self.criterion = torch.nn.NLLLoss(reduce="sum") #criterion
         self.opt = opt
         
     def __call__(self, x, y, norm):
         x = self.generator(x)
-        V_here = x.size(-1)
-        assert V_here == 3
-#        print(x.contiguous().size())
-    #    print(x.contiguous())
-#        print(torch.exp(x.contiguous().view(-1, V_here)).sum(dim=1))
-   #     print(y.contiguous().view(-1))
-        loss = self.criterion(x.contiguous().view(-1, V_here), 
+        loss = self.criterion(x.contiguous().view(-1, x.size(-1)), 
                               y.contiguous().view(-1)) / norm
-    #    print(loss)
         loss.backward()
-        if random.random() > 0.5: # compute accuracy
-           _, predictions = torch.max(x.contiguous().view(-1, V_here), dim=1)
-           print("ACCURACY", (predictions == y.contiguous().view(-1)).float().mean())
+
+        _, predictions = torch.max(x.contiguous().view(-1, x.size(-1)), dim=1)
+
+        global accuracies
+        accuracy = (predictions == y.contiguous().view(-1)).float().mean()
+        accuracies.append(float(accuracy))
+#        if random.random() > 0.95: # compute accuracy      
+ #          print("ACCURACY", sum(accuracies)/len(accuracies))
+
+
         if self.opt is not None:
             self.opt.step()
             self.opt.optimizer.zero_grad()
@@ -456,22 +456,24 @@ class SimpleLossCompute:
         return loss.data.item() * norm.item()
 
 
-# Train the simple copy task.
-V = 3
-criterion = LabelSmoothing(size=V, padding_idx=0, smoothing=0.0)
-model = make_model(V, V, N=2)
-model_opt = NoamOpt(model.src_embed[0].d_model, 1, 400,
-        torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
 
-for epoch in range(10):
+# Train the simple copy task.
+criterion = LabelSmoothing(size=V, padding_idx=0, smoothing=0.0)
+model = make_model(V, V, N=n_layers)
+model_opt = NoamOpt(model.src_embed[0].d_model, factor, warmup,
+        torch.optim.Adam(model.parameters(), lr=0, betas=(beta1, beta2), eps=eps))
+
+for epoch in range(epochCount):
+    print(epoch)
+    accuracies = []
     model.train()
-    run_epoch(data_gen(V, 30, 20), model, 
+    run_epoch(data_gen(V, batchSize, 50), model, 
               SimpleLossCompute(model.generator, criterion, model_opt))
     model.eval()
-    print(run_epoch(data_gen(V, 30, 5), model, 
-                    SimpleLossCompute(model.generator, criterion, None)))
+#    print(run_epoch(data_gen(V, 30, 5), model, 
+ #                   SimpleLossCompute(model.generator, criterion, None)))
 
-
+    print("ACCURACY", sum(accuracies)/float(len(accuracies)))
 
 def greedy_decode(model, src, src_mask, max_len, start_symbol):
     memory = model.encode(src, src_mask)
@@ -489,8 +491,7 @@ def greedy_decode(model, src, src_mask, max_len, start_symbol):
     return ys
 
 model.eval()
-quit()
-src = Variable(torch.LongTensor([[1,0,1,0,1]]) )
+src = Variable(torch.LongTensor([[1,2,1,2,1,2,1,2,1,2]]).cuda() )
 src_mask = Variable(torch.ones(1, 1, 10) )
 print(greedy_decode(model, src, src_mask, max_len=10, start_symbol=1))
 

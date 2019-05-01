@@ -400,6 +400,7 @@ class LabelSmoothing(nn.Module):
         self.true_dist = true_dist
         return self.criterion(x, Variable(true_dist, requires_grad=False))
 
+import random
 
 def data_gen(V, batch, nbatches):
     "Generate random data for a src-tgt copy task."
@@ -423,6 +424,9 @@ class SimpleLossCompute:
         loss = self.criterion(x.contiguous().view(-1, x.size(-1)), 
                               y.contiguous().view(-1)) / norm
         loss.backward()
+        if random.random() > 0.8: # compute accuracy
+           _, predictions = torch.max(x.contiguous().view(-1, x.size(-1)), dim=1)
+           print("ACCURACY", (predictions == y.contiguous().view(-1)).float().mean())
         if self.opt is not None:
             self.opt.step()
             self.opt.optimizer.zero_grad()
@@ -437,7 +441,7 @@ model = make_model(V, V, N=2)
 model_opt = NoamOpt(model.src_embed[0].d_model, 1, 400,
         torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
 
-for epoch in range(10):
+for epoch in range(20):
     model.train()
     run_epoch(data_gen(V, 30, 20), model, 
               SimpleLossCompute(model.generator, criterion, model_opt))
@@ -463,7 +467,7 @@ def greedy_decode(model, src, src_mask, max_len, start_symbol):
     return ys
 
 model.eval()
-src = Variable(torch.LongTensor([[1,2,3,4,5,6,7,8,9,10]]) )
+src = Variable(torch.LongTensor([[1,2,1,2,1,2,1,2,1,2]]) )
 src_mask = Variable(torch.ones(1, 1, 10) )
 print(greedy_decode(model, src, src_mask, max_len=10, start_symbol=1))
 
