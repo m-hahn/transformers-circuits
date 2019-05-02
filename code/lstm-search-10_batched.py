@@ -201,7 +201,7 @@ positionsInXPs = []
 
 version = "10-lstm.py"
 
-myOutPath="logs/search-"+version+"_model_"+str(myID)+".txt"
+myOutPath="logs/search-"+version+"_model_"+str(myID)+"_batch.txt"
 IDsForXPs = []
 
 
@@ -228,6 +228,13 @@ def getResult(i):
 import time
 
 posteriorMeans = []
+
+
+if len(xp_raw) > 0:
+   print("FITTING MODEL")
+   model.fit(list(map(represent, xp_raw)), y_list)
+   print("DONE")
+yp_filtered = y_list + [100]
 
 #for n in range(n_iters):
 while True:
@@ -275,8 +282,10 @@ while True:
           nextPoint = sample()
        else:
           samples = [sample() for _ in range(1000)]
-          acquisition = [expected_improvement(np.array(represent(x)), model, 100, False, len(bounds)) for x in samples] 
-          best = np.argmax(np.array(acquisition))
+          print("Starting computing GP")
+          acquisition = expected_improvement(np.array([ represent(x) for x in samples]), model, yp_filtered, False, len(bounds)) 
+          print("Ending computing GP")
+          best = np.argmax(acquisition)
           nextPoint = samples[best]
 
     print("NEW POINT")
@@ -340,22 +349,27 @@ while True:
 
 
     print("USING")
-    print(xp_raw_filtered)
-    print(xp_filtered)
-    print(IDsForXPs)
-    print(yp_filtered)
+#    print(xp_raw_filtered)
+ #   print(xp_filtered)
+  #  print(IDsForXPs)
+   # print(yp_filtered)
     if len(xp_raw_filtered) > 0:
+       print("FITTING THE MODEL")
        model.fit(xp_filtered, yp_filtered)
+       print("DONE")
      
        # find setting with best posteriori mean
        posteriorMeans = {}
+       posteriorMu_batch, posteriorSigma_batch = model.predict(np.array([represent(xp_raw[i]) for i in range(len(xp_raw))] ).reshape(len(xp_raw), len(bounds)), return_std=True)
+
+       
        for i in range(len(xp_raw)):
            if i in positionsInXPs:
               continue
            if str(xp_raw[i]) not in posteriorMeans:
-             posteriorMu, posteriorSigma = model.predict(np.array(represent(xp_raw[i])).reshape(-1, len(bounds)), return_std=True)
+             posteriorMu, posteriorSigma = posteriorMu_batch[i], posteriorSigma_batch[i] #model.predict(np.array(represent(xp_raw[i])).reshape(-1, len(bounds)), return_std=True)
              # sort by upper 95 \% confidence bound
-             posteriorMeans[str(xp_raw[i])] = (posteriorMu[0], [y_list[i]], xp_raw[i], posteriorMu[0]-2*posteriorSigma[0], posteriorMu[0]+2*posteriorSigma[0])
+             posteriorMeans[str(xp_raw[i])] = (posteriorMu, [y_list[i]], xp_raw[i], posteriorMu-2*posteriorSigma, posteriorMu+2*posteriorSigma)
            else:
              posteriorMeans[str(xp_raw[i])][1].append(y_list[i])
        posteriorMeans = [posteriorMeans[x] for x in posteriorMeans]
@@ -375,8 +389,9 @@ while True:
     xp = np.array(list(map(represent, xp_raw))).reshape(len(xp_raw), len(bounds))
     yp = np.array(y_list)
 
-
+    print("FITTING THE MODEL")
     model.fit(xp, yp)
+    print("DONE")
 
 
 quit()

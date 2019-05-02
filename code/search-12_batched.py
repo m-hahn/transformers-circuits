@@ -1,6 +1,7 @@
 # 10: Important: This is done conditioned on sequence lenth (which is restricted when sampling new points)
 
-# Search command ./python36 search-10.py 1 10000 ... 0.0002
+# Good results: logs/search-10-transformer.py_model_584553391.txt
+# Search command ./python36 search-10.py 1 10000 logs/search-10-transformer.py_model_986314965.txt 0.0002
 import subprocess
 import random
 
@@ -111,16 +112,16 @@ bounds.append(["V", int, 3])
 bounds.append(["beta1", float, 0.9, 0.95])
 bounds.append(["beta2", float, 0.95, 0.98])
 bounds.append(["eps", float, 1e-9])
-bounds.append(["lr", float, 0.0001, 0.0005, 0.001, 0.002])
-#bounds.append(["warmup", int, 10, 50, 100, 200, 400, 500, 1000, 1000, 2000])
+bounds.append(["factor", float, 1.0])
+bounds.append(["warmup", int, 10, 50, 100, 200, 400, 500, 1000, 1000, 2000])
 bounds.append(["batchSize", int, 30,40,50,60, 200, 400, 500, 800])
-bounds.append(["epochCount", int, 5, 10, 15, 20,30, 50, 100, 200])
-#bounds.append(["n_layers", int, 1, 2, 3, 4])
-bounds.append(["lstm_dim", int, 64, 128, 256])
-#bounds.append(["d_ff_global", int, 128, 256, 512, 1024, 2048])
-#bounds.append(["h_global", int, 1, 2,4,8])
-#bounds.append(["dropout_global", float, 0.0, 0.05, 0.1])
-bounds.append(["sequence_length", float, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]) #, 15, 20, 30, 100, 1000])
+bounds.append(["epochCount", int, 5, 10, 15, 20,30, 50, 100, 200, 300, 400])
+bounds.append(["n_layers", int, 1, 2, 3])
+bounds.append(["d_model_global", int, 64, 128, 256, 512])
+bounds.append(["d_ff_global", int, 128, 256, 512, 1024])
+bounds.append(["h_global", int, 1, 2,4])
+bounds.append(["dropout_global", float, 0.0, 0.05, 0.1])
+bounds.append(["sequence_length", float, 15]) #, 15, 20, 30, 100, 1000])
 
 
 
@@ -144,10 +145,10 @@ def sample():
      result = [random.choice(values[i]) for i in range(len(bounds))]
 #     if result[names.index("lstm_dim")] == 1024 and result[names.index("layers")] == 3:
 #        continue
-     if result[names.index("sequence_length")] < 19:
-        continue
-  #   if result[names.index("epochCount")] > 50:
-   #     continue
+#     if result[names.index("sequence_length")] not in [13,14,15]:
+#        continue
+#     if result[names.index("epochCount")] > 50:
+#        continue
 #     if result[names.index("dropout_global")] == 0.0:
 #        continue
      return result
@@ -199,9 +200,9 @@ theirIDs = []
 theirXPs = []
 positionsInXPs = []
 
-version = "10-lstm.py"
+version = "12-transformer.py"
 
-myOutPath="logs/search-"+version+"_model_"+str(myID)+".txt"
+myOutPath="logs/search-"+version+"_model_"+str(myID)+"_batch.txt"
 IDsForXPs = []
 
 
@@ -228,6 +229,13 @@ def getResult(i):
 import time
 
 posteriorMeans = []
+
+
+if len(xp_raw) > 0:
+   print("FITTING MODEL")
+   model.fit(list(map(represent, xp_raw)), y_list)
+   print("DONE")
+yp_filtered = y_list + [100]
 
 #for n in range(n_iters):
 while True:
@@ -275,8 +283,10 @@ while True:
           nextPoint = sample()
        else:
           samples = [sample() for _ in range(1000)]
-          acquisition = [expected_improvement(np.array(represent(x)), model, 100, False, len(bounds)) for x in samples] 
-          best = np.argmax(np.array(acquisition))
+          print("Starting computing GP")
+          acquisition = expected_improvement(np.array([ represent(x) for x in samples]), model, yp_filtered, False, len(bounds)) 
+          print("Ending computing GP")
+          best = np.argmax(acquisition)
           nextPoint = samples[best]
 
     print("NEW POINT")
@@ -340,22 +350,27 @@ while True:
 
 
     print("USING")
-    print(xp_raw_filtered)
-    print(xp_filtered)
-    print(IDsForXPs)
-    print(yp_filtered)
+#    print(xp_raw_filtered)
+ #   print(xp_filtered)
+  #  print(IDsForXPs)
+   # print(yp_filtered)
     if len(xp_raw_filtered) > 0:
+       print("FITTING THE MODEL")
        model.fit(xp_filtered, yp_filtered)
+       print("DONE")
      
        # find setting with best posteriori mean
        posteriorMeans = {}
+       posteriorMu_batch, posteriorSigma_batch = model.predict(np.array([represent(xp_raw[i]) for i in range(len(xp_raw))] ).reshape(len(xp_raw), len(bounds)), return_std=True)
+
+       
        for i in range(len(xp_raw)):
            if i in positionsInXPs:
               continue
            if str(xp_raw[i]) not in posteriorMeans:
-             posteriorMu, posteriorSigma = model.predict(np.array(represent(xp_raw[i])).reshape(-1, len(bounds)), return_std=True)
+             posteriorMu, posteriorSigma = posteriorMu_batch[i], posteriorSigma_batch[i] #model.predict(np.array(represent(xp_raw[i])).reshape(-1, len(bounds)), return_std=True)
              # sort by upper 95 \% confidence bound
-             posteriorMeans[str(xp_raw[i])] = (posteriorMu[0], [y_list[i]], xp_raw[i], posteriorMu[0]-2*posteriorSigma[0], posteriorMu[0]+2*posteriorSigma[0])
+             posteriorMeans[str(xp_raw[i])] = (posteriorMu, [y_list[i]], xp_raw[i], posteriorMu-2*posteriorSigma, posteriorMu+2*posteriorSigma)
            else:
              posteriorMeans[str(xp_raw[i])][1].append(y_list[i])
        posteriorMeans = [posteriorMeans[x] for x in posteriorMeans]
@@ -375,8 +390,9 @@ while True:
     xp = np.array(list(map(represent, xp_raw))).reshape(len(xp_raw), len(bounds))
     yp = np.array(y_list)
 
-
+    print("FITTING THE MODEL")
     model.fit(xp, yp)
+    print("DONE")
 
 
 quit()
