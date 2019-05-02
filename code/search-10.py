@@ -1,5 +1,7 @@
+# 10: Important: This is done conditioned on sequence lenth (which is restricted when sampling new points)
 
-
+# Good results: logs/search-10-transformer.py_model_584553391.txt
+# Search command ./python36 search-10.py 1 10000 logs/search-10-transformer.py_model_986314965.txt 0.0002
 import subprocess
 import random
 
@@ -105,19 +107,21 @@ import math
 
 
 
-bounds.append(["V", int, 11])
+
+bounds.append(["V", int, 3])
 bounds.append(["beta1", float, 0.9, 0.95])
 bounds.append(["beta2", float, 0.95, 0.98])
 bounds.append(["eps", float, 1e-9])
 bounds.append(["factor", float, 1.0])
 bounds.append(["warmup", int, 10, 50, 100, 200, 400, 500, 1000, 1000, 2000])
-bounds.append(["batchSize", int, 30,40,50,60, 200, 400, 800])
+bounds.append(["batchSize", int, 30,40,50,60, 200, 400, 500, 800])
 bounds.append(["epochCount", int, 5, 10, 15, 20,30, 50, 100, 200])
-bounds.append(["n_layers", int, 1, 2])
+bounds.append(["n_layers", int, 1, 2, 3, 4])
 bounds.append(["d_model_global", int, 64, 128, 256, 512, 1024])
 bounds.append(["d_ff_global", int, 128, 256, 512, 1024, 2048])
 bounds.append(["h_global", int, 1, 2,4,8])
 bounds.append(["dropout_global", float, 0.0, 0.05, 0.1])
+bounds.append(["sequence_length", float, 8, 9, 10]) #, 15, 20, 30, 100, 1000])
 
 
 
@@ -141,8 +145,10 @@ def sample():
      result = [random.choice(values[i]) for i in range(len(bounds))]
 #     if result[names.index("lstm_dim")] == 1024 and result[names.index("layers")] == 3:
 #        continue
-#     if result[names.index("batch_size")] < 32:
+#     if result[names.index("sequence_length")] < 1000:
  #       continue
+#     if result[names.index("dropout_global")] == 0.0:
+#        continue
      return result
 
 def represent(x):
@@ -192,7 +198,7 @@ theirIDs = []
 theirXPs = []
 positionsInXPs = []
 
-version = "8-transformer.py"
+version = "10-transformer.py"
 
 myOutPath="logs/search-"+version+"_model_"+str(myID)+".txt"
 IDsForXPs = []
@@ -255,7 +261,7 @@ while True:
        del theirGPUs[canReplace]
        print("OBTAINED RESULT")
 
-    if len(posteriorMeans) > 50 and random.random() > 0.8:
+    if len(posteriorMeans) > 50 and random.random() > 0.99:
        print("Sampling old point, to see whether it really looks good")
 #       print posteriorMeans
        nextPoint = random.choice(posteriorMeans[:100])[2]
@@ -295,7 +301,7 @@ while True:
 
     command = list(map(str,["./python36", version] + extractArguments(nextPoint) + ["--myID", idForProcess]))
     print(" ".join(command))
-
+    #quit()
     #my_env["CUDA_VISIBLE_DEVICES"] = str(gpus[gpu])
     p = subprocess.Popen(command, stdout=FNULL, env=my_env) # stderr=FNULL, 
     runningProcesses.append(p)

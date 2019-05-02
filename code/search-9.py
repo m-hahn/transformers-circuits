@@ -105,7 +105,7 @@ import math
 
 
 
-bounds.append(["V", int, 11])
+bounds.append(["V", int, 3,11])
 bounds.append(["beta1", float, 0.9, 0.95])
 bounds.append(["beta2", float, 0.95, 0.98])
 bounds.append(["eps", float, 1e-9])
@@ -141,8 +141,8 @@ def sample():
      result = [random.choice(values[i]) for i in range(len(bounds))]
 #     if result[names.index("lstm_dim")] == 1024 and result[names.index("layers")] == 3:
 #        continue
-#     if result[names.index("batch_size")] < 32:
- #       continue
+     if result[names.index("V")] > 3:
+        continue
      return result
 
 def represent(x):
@@ -192,7 +192,7 @@ theirIDs = []
 theirXPs = []
 positionsInXPs = []
 
-version = "8-transformer.py"
+version = "9-transformer.py"
 
 myOutPath="logs/search-"+version+"_model_"+str(myID)+".txt"
 IDsForXPs = []
@@ -255,7 +255,7 @@ while True:
        del theirGPUs[canReplace]
        print("OBTAINED RESULT")
 
-    if len(posteriorMeans) > 50 and random.random() > 0.8:
+    if len(posteriorMeans) > 50 and random.random() > 0.99:
        print("Sampling old point, to see whether it really looks good")
 #       print posteriorMeans
        nextPoint = random.choice(posteriorMeans[:100])[2]

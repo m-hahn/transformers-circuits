@@ -105,19 +105,19 @@ import math
 
 
 
-bounds.append(["V", int, 11])
+bounds.append(["V", int, 3])
 bounds.append(["beta1", float, 0.9, 0.95])
 bounds.append(["beta2", float, 0.95, 0.98])
 bounds.append(["eps", float, 1e-9])
-bounds.append(["factor", float, 1.0])
-bounds.append(["warmup", int, 10, 50, 100, 200, 400, 500, 1000, 1000, 2000])
+bounds.append(["learning_rate", float, 0.00005, 0.0001, 0.0005, 0.001])
 bounds.append(["batchSize", int, 30,40,50,60, 200, 400, 800])
 bounds.append(["epochCount", int, 5, 10, 15, 20,30, 50, 100, 200])
-bounds.append(["n_layers", int, 1, 2])
+bounds.append(["n_layers", int, 1, 2, 3, 4])
 bounds.append(["d_model_global", int, 64, 128, 256, 512, 1024])
 bounds.append(["d_ff_global", int, 128, 256, 512, 1024, 2048])
 bounds.append(["h_global", int, 1, 2,4,8])
 bounds.append(["dropout_global", float, 0.0, 0.05, 0.1])
+bounds.append(["sequence_length", float, 10])
 
 
 
@@ -141,8 +141,8 @@ def sample():
      result = [random.choice(values[i]) for i in range(len(bounds))]
 #     if result[names.index("lstm_dim")] == 1024 and result[names.index("layers")] == 3:
 #        continue
-#     if result[names.index("batch_size")] < 32:
- #       continue
+     if result[names.index("V")] > 3:
+        continue
      return result
 
 def represent(x):
@@ -192,7 +192,7 @@ theirIDs = []
 theirXPs = []
 positionsInXPs = []
 
-version = "8-transformer.py"
+version = "11-transformer.py"
 
 myOutPath="logs/search-"+version+"_model_"+str(myID)+".txt"
 IDsForXPs = []
@@ -255,7 +255,7 @@ while True:
        del theirGPUs[canReplace]
        print("OBTAINED RESULT")
 
-    if len(posteriorMeans) > 50 and random.random() > 0.8:
+    if len(posteriorMeans) > 50 and random.random() > 0.99:
        print("Sampling old point, to see whether it really looks good")
 #       print posteriorMeans
        nextPoint = random.choice(posteriorMeans[:100])[2]
