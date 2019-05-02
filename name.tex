@@ -1,0 +1,212 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[hyperref]{emnlp-ijcnlp-2019}
+\usepackage{times}
+\usepackage{latexsym}
+
+\usepackage{url}
+
+%\aclfinalcopy % Uncomment this line for the final submission
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+\newcommand\BibTeX{B{\sc ib}\TeX}
+\newcommand\confname{EMNLP-IJCNLP 2019}
+\newcommand\conforg{SIGDAT}
+
+% Use the lineno option to display guide line numbers if required.
+
+\usepackage{amsmath}
+\usepackage{tikz-dependency}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\E}{\mathop{\mathbb{E}}}
+
+\usepackage{amssymb}% http://ctan.org/pkg/amssymb
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+%\usepackage{pslatex}
+%\usepackage{latexsym}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{url}
+%\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{rotating}
+\usepackage{multirow}
+
+
+
+
+
+\usepackage[T1]{fontenc}
+
+\usepackage{pslatex}
+%\usepackage{latexsym}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{url}
+%\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{rotating}
+\usepackage{natbib}
+\usepackage{amssymb}
+
+
+\usepackage{amsthm}
+ 
+
+
+\newcounter{theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{defin}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{thm}[theorem]{Theorem}
+
+
+\newcommand{\R}[0]{\mathbb{R}}
+\newcommand{\Ff}[0]{\mathcal{F}}
+\newcommand{\key}[1]{\textbf{#1}}
+
+
+\newcommand{\soft}[1]{}
+\newcommand{\nopreview}[1]{}
+\newcommand\comment[1]{{\color{red}#1}}
+\newcommand\mhahn[1]{{\color{red}(#1)}}
+\newcommand{\rljf}[1]{{\color{blue}[rljf: #1]}}
+
+\newcommand{\thetad}[0]{{\theta_d}}
+\newcommand{\thetal}[0]{{\theta_{LM}}}
+\newcommand{\thetap}[0]{{\theta_{P}}}
+
+
+\title{On the Computational Capabilities of Self-Attention}
+\author{Michael Hahn}
+\date{\today}
+\begin{document}
+\maketitle
+\begin{abstract}
+    Self-attention has been really successful in NLP.
+    We investigate the computational power of self-attention.
+    We show equivalences between transformers and classes of Boolean circuits, which entail strong limitations on the computational power of transformers.
+    
+    First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
+    Adding layer normalization, or using softmax self-attention, yields $TC^0$.
+    
+    Limitations of transformers are believed to exist; this appears to be the first formal proof.
+    
+    Complements recent work on the power of transformers.
+    We discuss implications of this for natural language and NLP.
+\end{abstract}
+
+
+It has been suggested that self-attention is computationally restricted, and (REF) proposed the universal transformer to address limitations.
+
+No formal proof of the limitations, even though it seems intuitively plausible.
+
+We show:
+- Stacked self-Attention is strongly limited, coinciding with $FO[unary]$.
+
+- Layer normalization and softmax self-attention both yield class coinciding with $TC^0[unary]$.
+Widely believed to not be able to compute recursive things (such as evaluating logical formulas), BUT proving limitations on such architectures would be a breakthrough, so unlikelu.
+
+
+\section{Bounded-Depth Circuits}
+
+AC0 limitations:
+
+- cannot decide whether the number of zeroes in a bitstring is even or odd
+
+- more generally, the only regular languages solved are the `star-free' ones
+
+- cannot handle recursion (cite tuebingen paper)
+
+TC0 limitations:
+
+- widely believed that it can't handle recursion
+
+also relation to communication complexity
+
+\section{Self-Attention with Argmax}
+Prop:
+Assume bounded-precision arithmetic. Argmax attention, and NO layer normalization.
+Input: Embeddings for discrete symbols (finite alphabet); positional embeddings are arbitrary (though only finitely many distinct ones due to precision arithmetic -- corresponds to the use of unary predicates).
+
+Output: vector for each input word (say)
+
+Then any such transformer can be simulated in $AC^0$. The transformer depth linearly relates to the circuit depth.
+
+Consequence: cannot model modulo, nontrivial recursion things.
+
+
+%If yo do have layer normalization, can do $TC^0$ things?!. There is only one majority gate per neuron and layer, really. So it's still linear-wire $TC^0$ -- the number of wires that feed into majority gates is still linear, while the number of wires feeding into and gates is quadratic.
+
+Proof:
+
+Such a computation can be done in $FO[<,unary]$.
+
+\begin{proof}
+we first note
+
+- can do bounded-precision bounded-arity arithmetic.
+
+- all local layer-wise computations can be done (feedforward, layer-norm, skip-connection)
+
+- attention:
+
+-- compute attention scores: ok
+
+-- compute the max of the scores: can also be done, make explicit how it's done.
+
+By induction, show we can compute the first $k$ significant bits of the max.
+
+-- then do the argmax by matching. If there are multiple matches, we take the first one.
+
+\end{proof}
+
+Converse: Convert $FO[unary]$ to transformer
+
+
+
+Converse
+
+\section{Argmax? Softmax?}
+
+Softmax gives all of $TC^0$ with suitable uniformity. But in NLP tends to be end up being argmax. if it's really top-k max will still be in $AC^0$.
+
+
+\section{Experiments?!}
+
+- show how transformers experimentally really can't do these things (e.g., scaling of required depth with length of input where it still works), and compare to LSTM.
+
+-- parity
+
+-- $a^nb^n$ with neutral letter
+
+-- Dyck language
+
+-- logical formulas
+
+\section{What does this mean for NLP?}
+
+- language can be modeled really well -- in a quantitative/statistical sense -- with a model that cannot do recursion, or large classes of regular languages. does this mean recursion doesn't matter much in language? (at least, depth doesn't matter so much in naturally occurring language -- we knew that already, but it's an interesting counterpoint to arguments that we need hierarchical structure in NLP architectures...)
+
+- does this mean transformers don't capture essential aspects of language?
+
+\end{document}
