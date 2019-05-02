@@ -6,6 +6,10 @@
 # ./python36 10-transformer.py --sequence_length 8 --n_layers 3 --batchSize 1000
 # FAILS
 # ./python36 10-transformer.py --sequence_length 9 --n_layers 3 --batchSize 1000
+# WORKS (found by bayesian search)
+# ./python36 10-transformer.py --V 3 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 500 --epochCount 100 --n_layers 2 --d_model_global 64 --d_ff_global 1024 --h_global 2 --dropout_global 0.0 --sequence_length 9
+# ./python36 10-transformer.py --V 3 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 500 --epochCount 100 --n_layers 2 --d_model_global 64 --d_ff_global 1024 --h_global 2 --dropout_global 0.0 --sequence_length 10
+# These settings also result in good above-chance results with length 11, 12
 #####################################
 
 # !pip install http://download.pytorch.org/whl/cu80/torch-0.3.0.post4-cp36-cp36m-linux_x86_64.whl numpy matplotlib spacy torchtext seaborn 

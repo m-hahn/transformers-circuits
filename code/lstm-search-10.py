@@ -1,7 +1,6 @@
 # 10: Important: This is done conditioned on sequence lenth (which is restricted when sampling new points)
 
-# Good results: logs/search-10-transformer.py_model_584553391.txt
-# Search command ./python36 search-10.py 1 10000 logs/search-10-transformer.py_model_986314965.txt 0.0002
+# Search command ./python36 search-10.py 1 10000 ... 0.0002
 import subprocess
 import random
 
@@ -112,16 +111,16 @@ bounds.append(["V", int, 3])
 bounds.append(["beta1", float, 0.9, 0.95])
 bounds.append(["beta2", float, 0.95, 0.98])
 bounds.append(["eps", float, 1e-9])
-bounds.append(["factor", float, 1.0])
-bounds.append(["warmup", int, 10, 50, 100, 200, 400, 500, 1000, 1000, 2000])
+bounds.append(["lr", float, 0.0001, 0.0005, 0.001, 0.002])
+#bounds.append(["warmup", int, 10, 50, 100, 200, 400, 500, 1000, 1000, 2000])
 bounds.append(["batchSize", int, 30,40,50,60, 200, 400, 500, 800])
 bounds.append(["epochCount", int, 5, 10, 15, 20,30, 50, 100, 200])
-bounds.append(["n_layers", int, 1, 2, 3, 4])
-bounds.append(["d_model_global", int, 64, 128, 256, 512, 1024])
-bounds.append(["d_ff_global", int, 128, 256, 512, 1024, 2048])
-bounds.append(["h_global", int, 1, 2,4,8])
-bounds.append(["dropout_global", float, 0.0, 0.05, 0.1])
-bounds.append(["sequence_length", float, 8, 9, 10, 11, 12, 13, 14, 15]) #, 15, 20, 30, 100, 1000])
+#bounds.append(["n_layers", int, 1, 2, 3, 4])
+bounds.append(["lstm_dim", int, 64, 128, 256])
+#bounds.append(["d_ff_global", int, 128, 256, 512, 1024, 2048])
+#bounds.append(["h_global", int, 1, 2,4,8])
+#bounds.append(["dropout_global", float, 0.0, 0.05, 0.1])
+bounds.append(["sequence_length", float, 10, 11, 12]) #, 15, 20, 30, 100, 1000])
 
 
 
@@ -145,10 +144,10 @@ def sample():
      result = [random.choice(values[i]) for i in range(len(bounds))]
 #     if result[names.index("lstm_dim")] == 1024 and result[names.index("layers")] == 3:
 #        continue
-     if result[names.index("sequence_length")] not in [13,14,15]:
-        continue
-     if result[names.index("epochCount")] > 50:
-        continue
+#     if result[names.index("sequence_length")] not in [13,14,15]:
+ #       continue
+  #   if result[names.index("epochCount")] > 50:
+   #     continue
 #     if result[names.index("dropout_global")] == 0.0:
 #        continue
      return result
@@ -200,7 +199,7 @@ theirIDs = []
 theirXPs = []
 positionsInXPs = []
 
-version = "10-transformer.py"
+version = "10-lstm.py"
 
 myOutPath="logs/search-"+version+"_model_"+str(myID)+".txt"
 IDsForXPs = []
