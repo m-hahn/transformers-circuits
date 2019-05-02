@@ -109,14 +109,14 @@ bounds.append(["V", int, 11])
 bounds.append(["beta1", float, 0.9, 0.95])
 bounds.append(["beta2", float, 0.95, 0.98])
 bounds.append(["eps", float, 1e-9])
-bounds.append(["factor", int, 1])
-bounds.append(["warmup", int, 50, 100, 200, 400, 500])
-bounds.append(["batchSize", int, 30,40,50,60])
-bounds.append(["epochCount", int, 20,30])
-bounds.append(["n_layers", int, 1])
-bounds.append(["d_model_global", int, 64, 128, 256, 512])
+bounds.append(["factor", float, 1.0])
+bounds.append(["warmup", int, 10, 50, 100, 200, 400, 500, 1000, 1000, 2000])
+bounds.append(["batchSize", int, 30,40,50,60, 200, 400, 800])
+bounds.append(["epochCount", int, 5, 10, 15, 20,30, 50, 100, 200])
+bounds.append(["n_layers", int, 1, 2])
+bounds.append(["d_model_global", int, 64, 128, 256, 512, 1024])
 bounds.append(["d_ff_global", int, 128, 256, 512, 1024, 2048])
-bounds.append(["h_global", int, 2,4,8])
+bounds.append(["h_global", int, 1, 2,4,8])
 bounds.append(["dropout_global", float, 0.0, 0.05, 0.1])
 
 
@@ -243,7 +243,7 @@ while True:
        if canReplace is None:
          print("Sleeping")
          print(myOutPath)
-         time.sleep(20)
+         time.sleep(5)
          print("Checking again")
          continue
        del runningProcesses[canReplace]
@@ -258,7 +258,7 @@ while True:
     if len(posteriorMeans) > 50 and random.random() > 0.8:
        print("Sampling old point, to see whether it really looks good")
 #       print posteriorMeans
-       nextPoint = random.choice(posteriorMeans[:10])[2]
+       nextPoint = random.choice(posteriorMeans[:100])[2]
  #      print nextPoint
   #     quit()
     else:        

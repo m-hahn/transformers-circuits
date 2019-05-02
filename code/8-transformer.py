@@ -17,20 +17,29 @@ from torch.autograd import Variable
 import random
 import argparse
 
+
+# Gets almost perfect accuracy with:
+# ./python36 8-transformer.py --batchSize 1000 --epochCount 3
+# (and the defaults here for the other parameters. This config was found manually)
+# Similarly successful configs were found automatically in
+# logs/search-8-transformer.py_model_297907909.txt
+# Settings:
+#   ./python36 search-8.py 1 10000 logs/search-8-transformer.py_model_367278086.txt 0.0002 (this small variance is important, otherwise the search will not work)
+
 parser=argparse.ArgumentParser()
 parser.add_argument("--V", dest="V", type=int, default=11)
 parser.add_argument("--beta1", dest="beta1", type=float, default=0.9)
 parser.add_argument("--beta2", dest="beta2", type=float, default=0.98)
 parser.add_argument("--eps", dest="eps", type=float, default=1e-9)
-parser.add_argument("--factor", dest="factor", type=int, default=1)
-parser.add_argument("--warmup", dest="warmup", type=int, default=400)
-parser.add_argument("--batchSize", dest="batchSize", type=int, default=30)
-parser.add_argument("--epochCount", dest="epochCount", type=int, default=20)
+parser.add_argument("--factor", dest="factor", type=float, default=1)
+parser.add_argument("--warmup", dest="warmup", type=int, default=500)
+parser.add_argument("--batchSize", dest="batchSize", type=int, default=200)
+parser.add_argument("--epochCount", dest="epochCount", type=int, default=4)
 parser.add_argument("--n_layers", dest="n_layers", type=int, default=1)
 parser.add_argument("--d_model_global", dest="d_model_global", type=int, default=512)
 parser.add_argument("--d_ff_global", dest="d_ff_global", type=int, default=2048)
 parser.add_argument("--h_global", dest="h_global", type=int, default=8)
-parser.add_argument("--dropout_global", dest="dropout_global", type=float, default=0.1)
+parser.add_argument("--dropout_global", dest="dropout_global", type=float, default=0.0)
 parser.add_argument("--myID", type=int, default=random.randint(0,1000000000))
 
 args=parser.parse_args()
