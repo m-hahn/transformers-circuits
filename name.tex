@@ -115,6 +115,63 @@
     We discuss implications of this for natural language and NLP.
 \end{abstract}
 
+- transformers have been tremendously successful in NLP
+
+-- bert, gpt
+
+- question what they (can) learn 
+
+-- what are their limits?
+
+-- how much of linguistic structure as linguists have identified can they encode?
+
+-- how can we improve NLP?
+
+- for more `traditional' recurrent models, some understanding
+
+- some work on understanding transformers
+
+- big problem for experimental work: hyperparameters
+
+- we address this question:
+
+- drawing on computational complexity
+
+- will show limitations of transformers
+
+-- with hard (argmax) attention, they are extremely limited: cannot do modulo counting, cannot do recursion
+
+-- with softmax, they are more powerful, but -- if widely believed conjectures in computational complexity are true -- still cannot do more complex recursive tasks such as evaluate logical formulas
+
+- show equivalence between transformers and certain classes of boolean circuits
+
+- as a consequence, we transfer a host of results from computational complexity to transformers
+
+- intuitively, transformers should not be able to do counting etc. We confirm this mathematically.
+
+- experimentally
+
+-- parity
+
+-- recursion $a^nb^n$ with neutral letter
+
+- We argue that our results have implications both for NLP and for linguistics.
+
+- For NLP, our result confirms the idea that transformers cannot do recursion
+
+- For linguistics, our results highlight an interesting question:
+transformer-based models are the best quantitative models we have of language, but they are formally incapable of representing unbounded recursion -- reputedly a core property of language
+
+Note that this is even stronger than with LSTMs:
+LSTMs can do $a^nb^n$, transformers cannot (if there is a neutral letter).
+
+- what to make of this?
+
+-- language has recursion, but high depth is relatively infrequent, maybe due to human memory limitations
+
+
+
+---------
 
 It has been suggested that self-attention is computationally restricted, and (REF) proposed the universal transformer to address limitations.
 
@@ -127,7 +184,69 @@ We show:
 Widely believed to not be able to compute recursive things (such as evaluating logical formulas), BUT proving limitations on such architectures would be a breakthrough, so unlikelu.
 
 
+\section{Introduce Transformers in more detail}
+
 \section{Bounded-Depth Circuits}
+
+FIGURE
+
+In full generality, a Boolean circuit is a directed acyclic graph in which each vertex is labeled with some Boolean operation, and where the input and output vertices each are numbered.
+
+Here we will mainly be concerned with circuits having $\wedge, \vee, \neg$, but one can construct circuits using other Boolean operations.
+
+Clearly, circuits have a lot in common with feedforward networks, and the relation to quantized neural networks is particularly clear.
+Also, a finite-precision feedforward net is a circuit.
+
+Note a circuit -- like a feedforward net -- has fixed-dimensional input.
+
+A circuit family assigns a circuit with $n$ inputs to each $n \in \mathbb{N}$.
+
+A language is a set $L \subset \{0,1\}^\omega$.
+A language is recognized by a circuit family iff ...
+
+$AC^0$ is the class of languages recognized by circuit families that have (1) bounded depth, (2) polynomial size.
+
+
+
+
+
+Parallel computation has been studied a lot
+
+Circuit complexity
+
+Some strong lower bounds.
+In particular, FSS theorem. also some more things.
+Before we show that these results
+
+Our main technical result will be a reduction between (bounded precision) transformers and such $AC^0$ circuits.
+
+
+Before we prove this, we discuss what this will give us.
+
+Research has already identified lots of properties about the power of $AC^0$.
+
+$AC^0$ circuits can deal with some simple properties
+
+-- is there a 1 before a 0?
+
+-- ...
+
+
+
+The celebrated Furst-Saxe-Sipser theorem states that $AC^0$ circuits cannot recognize the \textsc{Parity} language, the language of bitstrings of even parity:
+$$Parity = \{w \in \{0,1\}^n : n \in \mathbb{N}, parity(w) = 0\}$$
+That is, in order to recognize this language, circuits using only and/or gates have to either grow in depth or become exponentially wide as $n$ increases.
+
+As an example for the relevance of \textsc{Parity} for natural language:
+Being able to solve \textsc{Parity} is a first prerequisite to evaluating logical formulas (due to iterated negation), and it is thus unsurprising that $AC^0$ cannot evaluate logical formulas.
+
+In fact, $AC^0$ circuits cannot do recursion at all, beyond a trivial level:
+They can do $a^nb^n$, but they cannot do the version of $a^nb^n$ that has a `neutral' letter sprinkled in.
+
+
+make a picture of an $AC^0$ circuit
+
+
 
 AC0 limitations:
 
@@ -144,6 +263,10 @@ TC0 limitations:
 also relation to communication complexity
 
 \section{Self-Attention with Argmax}
+
+technicality:
+For showing limitations, use Non-Uniform but bounded-precision transformers. this way, corresponds exactly to $AC^0$.
+
 Prop:
 Assume bounded-precision arithmetic. Argmax attention, and NO layer normalization.
 Input: Embeddings for discrete symbols (finite alphabet); positional embeddings are arbitrary (though only finitely many distinct ones due to precision arithmetic -- corresponds to the use of unary predicates).
@@ -190,23 +313,67 @@ Converse
 
 Softmax gives all of $TC^0$ with suitable uniformity. But in NLP tends to be end up being argmax. if it's really top-k max will still be in $AC^0$.
 
+show that SOTA MT system has attention distributions with low entropy
+
+\section{Related work}
+
+Limitations of transformers have been informally suggested, and experimentally supported.
+
+- Tran et al
+
+- Universal transformers
+
+in a similar vein, power of GRUs: https://arxiv.org/pdf/1805.04908.pdf
 
 \section{Experiments?!}
 
 - show how transformers experimentally really can't do these things (e.g., scaling of required depth with length of input where it still works), and compare to LSTM.
 
--- parity
+- throughout compare with LSTM
 
+\subsection{Parity}
+Extremely simple problem, a very simple regular language, recognized with a two-state automaton.
+Here also theoretical predictions.
+
+-- parity: show how model size vs length scale
+
+-- attention: show how transformer does it, clearly cannot scale
+
+(that this cannot work in $AC^0$: celebrated FSS theorem)
+
+\subsection{Simple Recursion}
 -- $a^nb^n$ with neutral letter
+
+(that this cannot work in $AC^0$ can be seen from an elementary communication complexity argument)
 
 -- Dyck language
 
 -- logical formulas
+
+-- first order quantifier alternation
+
+\section{finite precision}
+
+- dropout also similar effect
+
+- important problem for future research to understand this
 
 \section{What does this mean for NLP?}
 
 - language can be modeled really well -- in a quantitative/statistical sense -- with a model that cannot do recursion, or large classes of regular languages. does this mean recursion doesn't matter much in language? (at least, depth doesn't matter so much in naturally occurring language -- we knew that already, but it's an interesting counterpoint to arguments that we need hierarchical structure in NLP architectures...)
 
 - does this mean transformers don't capture essential aspects of language?
+
+% Ke Tran paper
+% https://staff.science.uva.nl/c.monz/html/publications/D18-1503.pdf
+
+% http://u.cs.biu.ac.il/~yogo/bert-syntax.pdf
+
+% https://www.aclweb.org/anthology/D18-1458
+%Rather than concluding that RNNs are superior toTransformers for the modeling of long-range de-pendency phenomena, we find that the number ofheads in multi-head attention affects the ability ofTransformers  to  model  long-range  dependenciesin subject-verb agreemen
+
+
+% BIG QUESTION:
+% What can you compute with infinite precision but noise (e.g. Gaussian dropout)? Not really finite-state? Compare Braverman et al paper.
 
 \end{document}
