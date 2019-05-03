@@ -147,7 +147,7 @@ def sample():
 #        continue
      if result[names.index("sequence_length")] not in [200]:
         continue
-     if result[names.index("batchSize")] > 500:
+     if result[names.index("batchSize")] >= 500:
         continue
 #     if result[names.index("dropout_global")] == 0.0:
 #        continue
@@ -200,7 +200,7 @@ theirIDs = []
 theirXPs = []
 positionsInXPs = []
 
-version = "14-transformer.py"
+version = "15-transformer.py"
 
 myOutPath="logs/search-"+version+"_model_"+str(myID)+"_batch.txt"
 IDsForXPs = []

@@ -1,8 +1,8 @@
 # from Alexander Rush's annotated transformer
 
 
-# Works OK (reaches 97% in 70 epochs, reaches 99% in 200 epochs)
-# ./python36 14-transformer.py --V 4 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 100 --epochCount 1000 --n_layers 1 --d_model_global 16 --d_ff_global 16 --h_global 1 --dropout_global 0.0 --sequence_length 200
+# Works
+# ./python36 14-transformer.py --V 4 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 100 --epochCount 1000 --n_layers 1 --d_model_global 16 --d_ff_global 16 --h_global 1 --dropout_global 0.0 --sequence_length 30
 
 
 
@@ -476,7 +476,7 @@ def data_gen(V, batch, nbatches):
               target.append([1,1])
            else:
               l = k
-              while l == k:
+              while l == k or abs(l-k) > 10:
                  l = random.randint(1,sequence_length)
               target.append([1,2])
            x = ([1]*k) + ([2]*l)
