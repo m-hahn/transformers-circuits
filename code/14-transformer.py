@@ -1,17 +1,8 @@
 # from Alexander Rush's annotated transformer
 
 
-# Works pretty well:
-# ./python36 13-transformer.py --V 3 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 500 --epochCount 100 --n_layers 2 --d_model_global 64 --d_ff_global 1024 --h_global 2 --dropout_global 0.0 --sequence_length 10
-
-# Also works:
-# ./python36 13-transformer.py --V 3 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 500 --epochCount 100 --n_layers 2 --d_model_global 64 --d_ff_global 64 --h_global 1 --dropout_global 0.0 --sequence_length 10
-
-# With one layer and one head:
-# ./python36 13-transformer.py --V 3 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 500 --epochCount 100 --n_layers 1 --d_model_global 64 --d_ff_global 64 --h_global 1 --dropout_global 0.0 --sequence_length 10 --curriculum_speed 16 
-
-# Even slimmer (doesn't always work?)
-# ./python36 13-transformer.py --V 3 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 500 --epochCount 1000 --n_layers 1 --d_model_global 16 --d_ff_global 16 --h_global 1 --dropout_global 0.0 --sequence_length 10 --curriculum_speed 20
+# Works
+# ./python36 14-transformer.py --V 4 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 500 --epochCount 1000 --n_layers 1 --d_model_global 16 --d_ff_global 16 --h_global 1 --dropout_global 0.0 --sequence_length 10 --curriculum_speed 20
 
 
 
@@ -39,7 +30,7 @@ import argparse
 
 
 parser=argparse.ArgumentParser()
-parser.add_argument("--V", dest="V", type=int, default=3)
+parser.add_argument("--V", dest="V", type=int, default=4)
 parser.add_argument("--beta1", dest="beta1", type=float, default=0.9)
 parser.add_argument("--beta2", dest="beta2", type=float, default=0.98)
 parser.add_argument("--eps", dest="eps", type=float, default=1e-9)
@@ -60,6 +51,7 @@ args=parser.parse_args()
 print(args)
 
 V = args.V
+assert V == 4
 beta1 = args.beta1
 beta2 =  args.beta2 #0.98
 eps= args.eps #1e-9
@@ -476,7 +468,19 @@ def data_gen(V, batch, nbatches):
        sequence_length = 10+int((epoch-30)/args.curriculum_speed)
 
     for i in range(nbatches):
-        data = torch.from_numpy(np.random.randint(1, V, size=(batch, sequence_length))).cuda()
+        data = []
+        for j in range(batch):
+           k = random.randint(1,sequence_length)
+           if random.random() > 0.5:
+              l = k
+           else:
+              l = random.randint(1,sequence_length)
+           x = ([1]*k) + ([2]*l)
+           while len(x) < 2*sequence_length:
+              p = random.randint(0, len(x)-1)
+              x = x[:p] + [3] + x[p:]
+           data.append(x)
+        data = torch.LongTensor(data).cuda()
         data[:, 0] = 1
         src = Variable(data, requires_grad=False)
         tgt = (src.sum(dim=1) % 2 == 1).long().unsqueeze(1).repeat(1,2)
