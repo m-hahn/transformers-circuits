@@ -115,6 +115,20 @@
     We discuss implications of this for natural language and NLP.
 \end{abstract}
 
+result
+
+- transformers can do a fair amount of recursion
+
+- actually, in some sense, even more than LSTMs
+
+- neither can do logical formulas (assuming widely believed circuit lower bounds)
+
+- on the other hand, there are regular languages that transformers cannot do (assuming those lower bounds)
+
+- we also show that transformer's ability to do recursion crucialy relies on the use of soft -- as opposed to hard -- attention
+
+------------
+
 - transformers have been tremendously successful in NLP
 
 -- bert, gpt
@@ -357,6 +371,18 @@ Here also theoretical predictions.
 - dropout also similar effect
 
 - important problem for future research to understand this
+
+
+\section{LSTMs cannot really do Dyck with more than one symbol}
+
+We work in the finite precision setting assumed by Weiss Goldberg ... 2018.
+
+Note that at finite precision $h_t$ assumes finitely many values.
+
+$c_t$ is a number (integer + remainder from a finite set). At each step, multiplied by $f_t$, and a finite value in $[-1,+1]$ is added.
+If this multiplier $f_t$ is not saturated unboundedly often, then this would destroy information.
+Consequence: LSTM can only really do finite state + counting.
+
 
 \section{What does this mean for NLP?}
 
