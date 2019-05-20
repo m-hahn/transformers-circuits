@@ -119,7 +119,7 @@
 
 result
 
-- transformers can do some basic recursion: $a^nb^n$ with neutral letter, single-Dyck
+- transformers can do some basic recursion: $a^nb^n$ with neutral letter, single-Dyck (can use attention map to illustrate how it's done)
 
 they can in the sense of argmax-accuracy
 
@@ -129,6 +129,8 @@ a thresholding thing cannot really do this. so less powerful than an LSTM!?
 - formally, transformers sorta coincide wtih $LTC^0$
 
 -- presumably cannot do multi-Dyck!? (or even multi $a^nb^n$ with neutral letter) (can argue that LSTMs cannot do this either)
+
+(BUT if the goal is just to say, assuming wellformedness, predict the one next thing, then it works. this is different from recognizing though, which would rquire quadratically many hedas.)
 
 - neither can do logical formulas (assuming widely believed circuit lower bounds)
 
@@ -144,6 +146,36 @@ indeed, without soft attention, can do neither $a^nb^n$ not parity
 -- without counting or infinite precision, LSTM memory scales with number of units. for transformers, bottleneck is instead the ease of retrieving and combining info.
 
 -- example? high crypticity process where everything MIGHT become relevant, but one doesn't know whether it will. e.g., $X_t$ informs which aspect of the past is relevant for $X_{t+1}$. as long as one can then also retrieve this part from the past, this is useful. maybe can do some actual language modeling thing where this matters. e.g. carrying around a lot of names.
+
+
+
+transformer cannot do anbn version with two letters
+\begin{proof}
+we formalize transformer with order + unary
+\end{proof}
+
+LSTMs cannot do the anbn version with two letters
+\begin{proof}
+We work in the finite precision setting assumed by Weiss Goldberg ... 2018.
+
+Note that at finite precision $h_t$ assumes finitely many values.
+
+$c_t$ is a number (integer + remainder from a finite set). At each step, multiplied by $f_t$, and a finite value in $[-1,+1]$ is added.
+If this multiplier $f_t$ is not saturated unboundedly often for some dimension of $c$, then this would destroy information.
+Consequence: LSTM can only really do finite state + counting + multiplication with one of these numbers.
+
+also control is saturated if c is really large, so always have to have some small c that reflects what to do next. but 
+\end{proof}
+
+
+issue: fixed transformer cannot simulate hard max over unboundedly long sequences, need to get larger and larger parameters to still enforce.
+
+transformer cannot do anbn+neutral with perfect perplexity
+\begin{proof}
+at least heuristically, a single thing can't contribute much
+\end{proof}
+
+
 
 -----------------------------------
 
