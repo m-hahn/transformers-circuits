@@ -115,17 +115,45 @@
     We discuss implications of this for natural language and NLP.
 \end{abstract}
 
+The success of transformers poses the question of what kinds of things they're capable of representing.
+There is quite a range of studies on LSTMs/GRUs/SRNNs from this perspective, but nothing on transformers.
+We examine the power of self-attention from a formal languages point of view, and compare to LSTMs.
+
+(1) transformers can do basic recursion, and this ability crucially relies on the presence of soft (as opposed to hard) attention. in fact, with hard attention, they couldn't even count modulo 2.
+
+(2) as it gets more complicated, neither transformers nor LSTMs work -- at least in the finite precision setting (Weiss et al. setting).
+In particular, neither can do logical formulas (generally, neither of them can do a stack).
+We show this by a combination of experiment, proof for LSTM, reduction to widely believed conjecture for transformer.
+
+(3) there are regular languages that transformers cannot do (assuming this conjecture).
+
+(4) we exhibit languages/processes that transformers do better on than LSTMs.
+
+----------------------
+
 result
 
-- transformers can do a fair amount of recursion
+- transformers can do some basic recursion: $a^nb^n$ with neutral letter, single-Dyck
 
-- actually, in some sense, even more than LSTMs
+- formally, transformers sorta coincide wtih $LTC^0$
+
+-- presumably cannot do multi-Dyck!? (or even multi $a^nb^n$ with neutral letter) (can argue that LSTMs cannot do this either)
 
 - neither can do logical formulas (assuming widely believed circuit lower bounds)
 
 - on the other hand, there are regular languages that transformers cannot do (assuming those lower bounds)
 
-- we also show that transformer's ability to do recursion crucialy relies on the use of soft -- as opposed to hard -- attention
+- we also show that transformer's ability to do any kind of recursion crucialy relies on the use of soft -- as opposed to hard -- attention.
+indeed, without soft attention, can do neither $a^nb^n$ not parity
+
+- is there something where transformers are better than LSTMs?
+
+(-- boring: things that can be solved by looking at positions, such as $a^nb^n$)
+
+-- without counting or infinite precision, LSTM memory scales with number of units. for transformers, bottleneck is instead the ease of retrieving and combining info.
+
+-- example? high crypticity process where everything MIGHT become relevant, but one doesn't know whether it will. e.g., $X_t$ informs which aspect of the past is relevant for $X_{t+1}$. as long as one can then also retrieve this part from the past, this is useful.
+
 
 ------------
 
