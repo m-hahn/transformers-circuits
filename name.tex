@@ -115,6 +115,18 @@
     We discuss implications of this for natural language and NLP.
 \end{abstract}
 
+
+- finite precision and argmax: AC0
+
+- finite precision and softmax: Majority with two variables and unary predicates
+
+- infinite precision and argmax: ?
+
+- infinite precision and softmax (can use a rational approximation to softmax!?) (certainly cannot do good in the sense of cross-entropy, though perhaps hard to prove for arbitrary positional encodings. accuracy more challenging)
+
+-- what can we say about the predicate class?
+
+
 ----------------------
 
 result
@@ -153,6 +165,13 @@ transformer cannot do anbn version with two letters
 \begin{proof}
 we formalize transformer with order + unary
 \end{proof}
+
+
+on the other hand, actually LSTMs can use fractal encoding of stack
+
+transformer cannot do such a thing. specifically, cannot do two-bracket neutral letter anbn. for simplicity can do incremental prediction. can you flesh out this argument?
+
+
 
 LSTMs cannot do the anbn version with two letters
 \begin{proof}
