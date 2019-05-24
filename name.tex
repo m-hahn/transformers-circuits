@@ -96,24 +96,71 @@
 \newcommand{\thetap}[0]{{\theta_{P}}}
 
 
-\title{On the Computational Capabilities of Self-Attention}
+\title{On the Hierarchical Capabilities of Self-Attention}
 \author{Michael Hahn}
 \date{\today}
 \begin{document}
 \maketitle
 \begin{abstract}
     Self-attention has been really successful in NLP.
-    We investigate the computational power of self-attention.
-    We show equivalences between transformers and classes of Boolean circuits, which entail strong limitations on the computational power of transformers.
+    This poses the question of what kinds of structures they are capable of capturing.
+    In particular hierarchy.
+    We investigate the computational power of self-attention by showing equivalences between transformers and classes of Boolean circuits.
     
-    First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
-    Adding layer normalization, or using softmax self-attention, yields $TC^0$.
-    
-    Limitations of transformers are believed to exist; this appears to be the first formal proof.
-    
-    Complements recent work on the power of transformers.
+    We show theoretically and empirically that transformers can represent simple recursive patterns, and then  provide theoretical and experimental evidence that they are limited in their capability to model more complex hierarchical structures, such as evaluating the truth value of logical formulas.
+
+We further show that capturing recursion crucially relies on the use of soft attention.
+
+   Complements recent work on the power of transformers.
     We discuss implications of this for natural language and NLP.
+
+%    First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
+%    Adding layer normalization, or using softmax self-attention, yields $TC^0$.
+    
+%    Limitations of transformers are believed to exist; this appears to be the first formal proof.
+    
+ 
 \end{abstract}
+
+
+language hierarchical ...
+
+transformers ...
+
+we address this question by combining theory and experiments
+
+our experiments use formal languages. we do this due to the close relation to the theory.
+
+(1) simple recursion
+
+(2) also simple recursion
+
+(3) complex recursion: cannot work
+
+(4) how does recursion play out in understanding language? would be cool to have something, like targeting bert on some examples??? (bert on center embedding or the tal linzen stuff would be cool)
+
+DISCUSSION
+
+(4) How do transformers and LSTM compare?
+LSTM is more powerful in some ways (regular languages), less powerful in others (information flow)
+
+(5) What aspects of self-attention are important?
+
+- softness is very important
+
+---------------------------------
+
+comparison to LSTMs
+
+- transformers (by conjecture) cannot do some regular languages. question for future work whether those languages ever turn up in NLP (whereas even SRNNs can in theory do all regular languages)
+
+- can LSTMs really do Dyck well?
+
+Q
+
+- somehow do something with soft vs hard attention? at least mention
+
+- 
 
 - transformers have been tremendously successful in NLP
 
@@ -265,7 +312,9 @@ also relation to communication complexity
 \section{Self-Attention with Argmax}
 
 technicality:
-For showing limitations, use Non-Uniform but bounded-precision transformers. this way, corresponds exactly to $AC^0$.
+For showing limitations, use Non-Uniform but bounded-precision transformers.
+And we allow the dimensions to get bigger (polynomially) with $n$??? Only the number of layers has to be bounded. No I think this wouldn't fit into $AC^0$.
+this way, corresponds exactly to $AC^0$.
 
 Prop:
 Assume bounded-precision arithmetic. Argmax attention, and NO layer normalization.
@@ -331,6 +380,8 @@ in a similar vein, power of GRUs: https://arxiv.org/pdf/1805.04908.pdf
 
 - throughout compare with LSTM
 
+- also compare on copy task: LSTM needs more units, transformer doesn't (?)
+
 \subsection{Parity}
 Extremely simple problem, a very simple regular language, recognized with a two-state automaton.
 Here also theoretical predictions.
@@ -344,9 +395,9 @@ Here also theoretical predictions.
 \subsection{Simple Recursion}
 -- $a^nb^n$ with neutral letter
 
-(that this cannot work in $AC^0$ can be seen from an elementary communication complexity argument)
-
 -- Dyck language
+
+\subsection{Complex Recursion}
 
 -- logical formulas
 
