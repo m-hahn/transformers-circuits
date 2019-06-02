@@ -116,15 +116,210 @@
 \end{abstract}
 
 
-- finite precision and argmax: AC0
+We consider the problem of language recognition: Transformer reads, and decides is the word in the language. Viewed as a seq2seq problem, with the target sequence being just TRUE or FALSE.
+
+
+
+\section{Setup}
+
+language recognition, essentially as in Weiss et al: Seq2Seq, transduce language to 0/1. We only demand that the result by separated from 0.5 by some constant $\delta$.
+
+
+\section{Step 1 (Reduce first layer)}
+
+First start with small $c$, and go up until $c$ is large enough for LLL.
+
+Case 1: Can apply LLL.
+
+Case 2: $d$ has gotten too large, say $d > 3c$.
+
+Iterate:
+Take the smallest $n$ which hasn't been solved.
+
+Case A: there is a head for which $d$ really is so large, then process an entire chain through all $n$'s (just by setting $c$ variables, we can satisfy $1.5 c$ many heads. Satisfying all the remaining heads can only take fixating at most $n-1.5c$ variables).
+
+Case B: there is no so head, can just apply LLL
+
+Assume that the number of free things is bounded, then we did only go through A finitely often, but then we must have applied LLL, contradiction.
+
+
+\section{previous ideas}
+
+STEP 1: Reduce the first layer. Apply random restrictions + LLL.
+
+$p$ is the probability that a variable is left unassigned.
+
+Bad events:
+
+(1) $A_i$: did not hit any of the top $c$ inputs with the relevant input
+
+(2) $A_0$ have more than $(1+\delta)(1-p)n$ assigned variables
+
+$P(A_i) = (p+(1-p)/2)^c = \left(\frac{1+p}{2}\right)^c$
+
+$P(A_0) \leq \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})$
+
+$A$ assigned the $A_i$ events, $B$ assigned to $A_0$.
+
+
+$P(A_i) \leq A B (1-A)^n$
+
+$P(A_0) \leq B (1-A)^n$
+
+so we have
+
+$\left(\frac{1+p}{2}\right)^c \leq A B (1-A)^n$
+
+$ \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})  \leq B (1-A)^n$
+
+Set $A_n := \frac{1}{2^n}$:
+
+
+$\left(\frac{1+p}{2}\right)^c \leq \frac{1}{2^n} B (1-\frac{1}{2^n})^n$ (doesn't work!!!)
+
+$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-\frac{1}{2^n})$ (this one's okay)
+
+
+-------------------------------------------------
+
+
+STEP 1: Reduce the first layer. Apply random restrictions + LLL.
+
+$p$ is the probability that a variable is left unassigned.
+
+Bad events:
+
+(1) $A_i$: did not hit any of the top $c$ inputs with the relevant input
+
+(2) $A_0$ have more than $(1+\delta)(1-p)n$ assigned variables
+
+$P(A_i) = (p+(1-p)/2)^c = \left(\frac{1+p}{2}\right)^c$
+
+$P(A_0) \leq \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})$
+
+$A$ assigned the $A_i$ events, $B$ assigned to $A_0$.
+
+TODO wrong!?!? each can be dependent on more than $c$ different ones
+
+$P(A_i) \leq A B (1-A)^c$
+
+$P(A_0) \leq B (1-A)^n$
+
+so we have
+
+$\left(\frac{1+p}{2}\right)^c \leq A B (1-A)^c$
+
+$ \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})  \leq B (1-A)^n$
+
+So 
+
+$\left(\frac{1+p}{2}\right) \leq A^{1/c} B^{1/c} (1-A)$ (so choose $A$ close to $0$, and $c$ big)
+
+$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$ (so choose $A$ close to $0$)
+
+Conclusion: The mass of good restrictions is at least
+
+$\geq (1-B)(1-A)^n$
+
+-------------------------------------------------
+
+STEP 2: Reduce the second layer
+
+For each element in the second layer, the probability that we hit at least one of the top-$d$ inputs is at least $((1-q)/2)^c$.
+So the probability that we did not hit any of the inputs is at most $\leq 1-((1-q)/2)^c$.
+
+$1-((1-q)/2)^c \leq AB(1-A)^d$ -- so we need $q$ to be really small
+
+$ \exp(-\frac{\delta^2(1-q)}{(2+\delta)})  \leq B^{1/n} (1-A)$ -- again, need $q$ to be small
+
+TODO feels wrong, too easy.
+
+--------------------------------------------------
+
+Probability that none is colored the right way, for one head: $(p+(1-p)/2)^d$.
+
+We have $4d P(bad) \leq 1$ for small $d$ (unless $p$ gets bigger), so by Lovasz Local Lemma, there is a good assignment. TODO but how do we ensure that this doesn't just end up restricting everything?
+
+(2) Now we just have to repeat this on the next level.
+
+Probability that none is colored the right way: heuristically $(c(p+(1-p)/2))^d$. but actually things aren't independent. TODO problem
+
+
+\section{Infinite Precision Transformers and Regular Languages}
+
+Self-attention itself is compatible with recognition of any language in the sense of separating them!? just positional embeddings are $2^{-n}$, sum them up, and have very complicated nonlinear transformation of a few numbers in the output.
+More interesting question is what can be implemented with e.g. a ReLU MLP.
+
+\begin{proposition}
+We can do parity with perfect accuracy, but not with perfect cross-entropy (neither with SoftMax not with ArgMax). At least if the nonlinearities are Lipschitz (does LayerNorm respect Lipschitzness?).
+\end{proposition}
+%take PARITY. want to get a final prediction. 
+
+%take two inputs where the bags of input vectors are extremely close. or flip one input in an extremely long word.
+
+(Problem: not clear how the proof would work with HardMax attention. But SoftMax has its own problem with long words. One way to deal with this is to modify Softmax by introducing a threshold below which a logit becomes minus infinity. But then cannot enforce that there will be nonzero values)
+
+\begin{proof}
+%Take an extremely long word, of length $n$, with $\approx n/2$ ones and zeroes.
+
+Take some very long $n_\epsilon$.
+
+Take three positions $i, j, k \leq n$ such that their embeddings differ only by $\leq \epsilon$.
+
+Now consider the word where there are zeros everywhere, except for $i$, or except for $i$ and $j$.
+
+The first level will also only differ by $\leq C \epsilon$.
+
+Now take attention weight of $i,j,k$ with some other $l$. They can differ only by $\leq C' \epsilon$.
+
+Take softmax over attention weights, again attention weights differ only by $\leq C'' \epsilon$.
+
+Also the summed up things will be almost the same. And so on.
+
+TODO LayerNorm. (the SDs will also be almost the same)
+\end{proof}
+
+Contrast this with RNNs: they can do any regular language easily
+
+In fact, transformers can't even do AND/OR well, since many small attention weights will ultimately drown out one big one. Cam change this to HardMax attention.
+
+QUESTION: Regular languages computable by HardMaxAtttention: $FO_2[<]$ ? HardMaxAttention can do all languages in this. Can it do additional ones?
+
+Equations of $DA$: $(xyz)^\omega y (xyz)^\omega = (xyz)^\omega$
+
+Also DA: $Me^\omega M \subseteq MsM$ imply $e^\omega s e^\omega = e^\omega$
+
+
+
+How about $(ab)^*$? cannot do this either (this is not in $FO_2[<]$)
+
+\section{Experiment: Transformers and Parity, requires large weights}
+
+\section{Finite Precision, Argmax}
+
+Finite precision transformers are related to Boolean circuits with bounded depth, linear number of gates, and very strong uniformity.
+
+\begin{proposition}
+Can at most do languages of this and that type (not restricted to regular, but extremely restricted).
+\end{proposition}
+
+- finite precision and argmax: AC0 with unary predicates and linear gates
+
+\section{Finite Pecision, Softmax}
 
 - finite precision and softmax: Majority with two variables and unary predicates
 
-- infinite precision and argmax: ?
+actually extremely restricted
+
+\section{infinite precision and argmax}: ? TODO?
 
 - infinite precision and softmax (can use a rational approximation to softmax!?) (certainly cannot do good in the sense of cross-entropy, though perhaps hard to prove for arbitrary positional encodings. accuracy more challenging)
 
 -- what can we say about the predicate class?
+
+-- something about cross-entropy:
+
+conjecture Furst-Saxe-Sipser like result
 
 
 ----------------------
