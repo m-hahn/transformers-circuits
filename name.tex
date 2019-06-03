@@ -127,11 +127,70 @@ language recognition, essentially as in Weiss et al: Seq2Seq, transduce language
 
 \section{Step 1 (Reduce first layer)}
 
+For each $c$ and each head, we take the $c$ distinct inputs that can achieve the maximal values for a certain input.
+
 First start with small $c$, and go up until $c$ is large enough for LLL.
 
 Case 1: Can apply LLL.
 
-Case 2: $d$ has gotten too large, say $d > 3c$.
+$\left(\frac{1+p}{2}\right)^c \leq A B (1-A)^d$
+
+$ \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})  \leq B (1-A)^n$
+
+
+\url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}
+
+------------------
+
+$\left(\frac{1+p}{2}\right)^c \leq A B (1-A)^{2c}$
+
+$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$
+
+
+----------------------
+
+$\left(\frac{1+p}{2}\right) \leq A^{1/c} B^{1/c} (1-A)^{2}$: e.g., for $c=20$, $A=0.01$, $B=0.9$, $p=0.5$
+
+$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$, e.g. for $\delta=0.9$, any $n \geq 1$
+
+-------------------------
+
+Case 2: $d$ has gotten too large, say $d > 2c$.
+
+WLOG this holds for infinitely many $n$'s (otherwise we can just remove them, and return to Case 1). in any case, we remove all non-initial $n$'s for which this doesn't hold.
+Then we take one relevant chain, and reduce throughout.
+
+(If the first unsatisfied $n$ doesn't have a participating head, then we can apply LLL there and be done with it)
+
+In the next step, $d$ can at most have decreased.
+
+--------------------------
+
+Case 3: $d$ has gotten infinite: Deal with it as in Case 2.
+
+------------------------------
+
+Assume in the end there is only bounded number of free inputs (we never got into Case 3, and we never got into Case 1).
+So we must get into Case 2 infinitely often, so for $n \rightarrow \infty$, the number of times we have applied Case 2 must have been infinite.
+
+
+
+\section{Step 2 (Reduce second layer)}
+
+Let $e$ be the number of first-layer elements we want to consider for a given head.
+That means, $ec$ input elements.
+
+Let $f(e)$ be the number of neighboring second-layer heads. 
+
+If $f(e)$ is infinite, or greater than $2ec$, then we're done again.
+
+probability of bad event:
+$1-((1-q)/2)^{c}$
+obstacle here is that the first-layer elements are not independent, since they might use the same input bits.
+
+
+
+\section{draft}
 
 Iterate:
 Take the smallest $n$ which hasn't been solved.
