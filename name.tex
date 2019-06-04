@@ -199,6 +199,8 @@ As in Step 1, we increase $e$ until we succeed with one of the cases:
 
 Case A: There are boundedly many neighbors ($f < c k$ many). (We only consider the neighbors of the independent set) (Even if they are not all independent, can take a maximal set of $k$ things where no two have exactly the same input, and failure prob is still something like $\leq (1-q/2)^{k} (1-(q/2)^{c-1})$, which should still be enough for LLL as $k \rightarrow \infty$. We can ignore cases of full overlap, as those won't count towards the number of relevant inputs)
 
+PROBLEM the number of individual inputs (and thus independent observations) may just be $\propto \log k$! But then the number of neighbors also won't be a problem? So we have to somehow harmonize Case A and Case B to make sure this works.
+
 \begin{equation}
     (1-q^2/4)^k \leq A(1-B)(1-A)^f
 \end{equation}
@@ -226,8 +228,9 @@ TODO.
 
 (2) there is only a bounded number of elements that have $< ck$ neighbors (for arbitrarily large values of $k$). 
 
-WLOG there is an unbounded number of different inputs that all have $\geq 100ck$ (we can just take $100ck$ throughout, instead of $ck$) second-layer neighbors (else could just set them and forget about them). even, asymptotically $>0.9n$ (say) of inputs are like this. But this can't be the case, as this would entail $90ckn$ many connections when there are just $ckn$ many?!
+WLOG there is an unbounded number of different inputs that all have $\geq 100c \log k$ (we can just take $100c \log k$ throughout, instead of $c \log k$) second-layer neighbors (else could just set them and forget about them). even, asymptotically $>0.9n$ (say) of inputs are like this. But this can't be the case, as this would entail $90c \log k n$ many connections when there are just $ckn$ many?! PROBLEM. maybe useful: $\log k$ entails that there are exponentially more first-layer elements than input elements, which cannot be true for more than $\log n$ many input vars.  
 
+PROBLEM but if we replace $k$ by $\log k$ to make LLL work, this part here will break!?
 
 Case C: There are unboundedly many neighbors: Case B should be sufficient here.
 
