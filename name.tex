@@ -189,7 +189,7 @@ Let $c$ the number of inputs we got from Step 1.
 
 Let $e$ be the number of layer-1-inputs for each layer-2 element.
 
-Claim: For each layer-2 element, we can find an independent set of some size $k$ unbounded growing with $e$ (in relation to $c$ which is bounded). [TODO prove -- not generally true: maybe all layer-1 elements refer to exactly the same inputs, or maybe they all share one input. \textbf{TODO have to get an estimate of failure probability that decreases with power $k$ nonetheless, even if this happens.}]
+Claim: For each layer-2 element, we can find an independent set of some size $k$ unbounded growing with $e$ (in relation to $c$ which is bounded). [TODO prove -- not generally true: maybe all layer-1 elements refer to exactly the same inputs, or maybe they all share one input. \textbf{TODO have to get an estimate of failure probability that decreases exponentially in $k$ nonetheless, even if this happens.}]
 
 Probability of failure: $(1-q^2/4)^k$.
 
@@ -197,9 +197,9 @@ Probability of failure: $(1-q^2/4)^k$.
 As in Step 1, we increase $e$ until we succeed with one of the cases:
 
 
-Case A: There are boundedly many neighbors ($f < c k$ many). (We only consider the neighbors of the independent set) (Even if they are not all independent, can take a maximal set of $k$ things where no two have exactly the same input, and failure prob is still something like $\leq (1-q/2)^{k} (1-(q/2)^{c-1})$, which should still be enough for LLL as $k \rightarrow \infty$. We can ignore cases of full overlap, as those won't count towards the number of relevant inputs)
+Case A: There are boundedly many neighbors ($f < c k$ many). (We only consider the neighbors of the independent set) (Even if they are not all independent, can take a maximal set of $k$ things where no two have exactly the same input, and failure prob is still something like $\leq (1-q/2)^{k} (1-(q/2)^{c-1})$, which should still be enough for LLL as $k \rightarrow \infty$. We can ignore cases of full overlap, as those won't count towards the number of relevant inputs) or do we better avoid the $\log k$ thing by constructing a maximal set of first-layer elements such that each one of them contributes some unique input element, as we want to just put everything into a bounded-width feedforward net, so all we need to bound is the number of input bits. (We can of course be in the special situation, where we cannot get $k$ to infinity, but then we can just fix the relevant inputs to remove these concerning elements (!?)).
 
-PROBLEM the number of individual inputs (and thus independent observations) may just be $\propto \log k$! But then the number of neighbors also won't be a problem? So we have to somehow harmonize Case A and Case B to make sure this works.
+PROBLEM the number of individual inputs (and thus independent observations) may just be $\propto \log k$! So we have $\leq (1-q/2)^{\log k} (1-(q/2)^{c-1})$. But then the number of neighbors also won't be a problem? So we have to somehow harmonize Case A and Case B to make sure this works.
 
 \begin{equation}
     (1-q^2/4)^k \leq A(1-B)(1-A)^f
@@ -228,7 +228,7 @@ TODO.
 
 (2) there is only a bounded number of elements that have $< ck$ neighbors (for arbitrarily large values of $k$). 
 
-WLOG there is an unbounded number of different inputs that all have $\geq 100c \log k$ (we can just take $100c \log k$ throughout, instead of $c \log k$) second-layer neighbors (else could just set them and forget about them). even, asymptotically $>0.9n$ (say) of inputs are like this. But this can't be the case, as this would entail $90c \log k n$ many connections when there are just $ckn$ many?! PROBLEM. maybe useful: $\log k$ entails that there are exponentially more first-layer elements than input elements, which cannot be true for more than $\log n$ many input vars.  
+WLOG there is an unbounded number of different inputs that all have $\geq 100c \log k$ (we can just take $100c  k$ throughout, instead of $c  k$) second-layer neighbors (else could just set them and forget about them). even, asymptotically $>0.9n$ (say) of inputs are like this. But this can't be the case, as this would entail $90c  k n$ many connections when there are just $ckn$ many?! PROBLEM. maybe useful: $ k$ entails that there are exponentially more second-layer elements than input elements, which cannot be true for more than $\log n$ many input vars. so can we just fix $O(\log n)$ many such inputs and continue? Similarly for other sublinear functions in $k$. Can we show that for all but $o(n)$ many second-level elements, the number of relevant input elements grows somehow linearly in $k$, unless level 1 is somehow really degenerate???
 
 PROBLEM but if we replace $k$ by $\log k$ to make LLL work, this part here will break!?
 
