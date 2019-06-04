@@ -125,15 +125,23 @@ We consider the problem of language recognition: Transformer reads, and decides 
 language recognition, essentially as in Weiss et al: Seq2Seq, transduce language to 0/1. We only demand that the result by separated from 0.5 by some constant $\delta$.
 
 
+\section{Finite Precision}
+
+show Parity is not in $Maj_2[un]$.
+
+\section{Infinite Precision, Softmax}
+
+show the perplexity thing
+
 \section{Step 1 (Reduce first layer)}
 
 For each $c$ and each head, we take the $c$ distinct inputs that can achieve the maximal values for a certain input.
 
 First start with small $c$, and go up until $c$ is large enough for LLL.
 
-Case 1: Can apply LLL.
+Case 1: Can apply LLL, $d \leq 2c$.
 
-$\left(\frac{1+p}{2}\right)^c \leq A B (1-A)^d$
+$\left(\frac{1+p}{2}\right)^c \leq A (1-B) (1-A)^d$
 
 $ \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})  \leq B (1-A)^n$
 
@@ -142,16 +150,16 @@ $ \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})  \leq B (1-A)^n$
 
 ------------------
 
-$\left(\frac{1+p}{2}\right)^c \leq A B (1-A)^{2c}$
+$\left(\frac{1+p}{2}\right)^c \leq A (1-B) (1-A)^{2c}$
 
 $ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$
 
 
 ----------------------
 
-$\left(\frac{1+p}{2}\right) \leq A^{1/c} B^{1/c} (1-A)^{2}$: e.g., for $c=20$, $A=0.01$, $B=0.9$, $p=0.5$
+$\left(\frac{1+p}{2}\right) \leq A^{1/c} (1-B)^{1/c} (1-A)^{2}$: e.g., for $c=20$, $A=0.01$, $B=0.5$, $p=0.5$
 
-$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$, e.g. for $\delta=0.9$, any $n \geq 1$
+$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$, e.g. for $\delta=0.9$, $n = 50$
 
 -------------------------
 
@@ -177,17 +185,70 @@ So we must get into Case 2 infinitely often, so for $n \rightarrow \infty$, the 
 
 \section{Step 2 (Reduce second layer)}
 
+Let $c$ the number of inputs we got from Step 1.
+
+Let $e$ be the number of layer-1-inputs for each layer-2 element.
+
+Claim: For each layer-2 element, we can find an independent set of some size $k$ unbounded growing with $e$ (in relation to $c$ which is bounded). [TODO prove -- not generally true: maybe all layer-1 elements refer to the same inputs, or maybe they all share one input. \textbf{TODO have to get an estimate of failure probability that decreases with power $k$ nonetheless, even if this happens}]
+
+Probability of failure: $(q-q^2/4)^k$.
+
+
+As in Step 1, we increase $e$ until we succeed with one of the cases:
+
+
+Case A: There are boundedly many neighbors ($f < c k$ many). (We only consider the neighbors of the independent set)
+
+\begin{equation}
+    (1-q^2/4)^k \leq A(1-B)(1-A)^f
+\end{equation}
+So
+\begin{equation}
+    (1-q^2/4) \leq A^{1/k}(1-B)^{1/k}(1-A)^{c}
+\end{equation}
+We can make the LHS $(1-q^2/4) \approx 0.75$ with a very high $q$.
+
+If $k$ is large enough in relation to $c$, then we can make the RHS large: First choose $A$ so that $(1-A)^c > 0.9$, then accept $k$ if $A^{1/k} > 0.9$ (else choose a larger $e$ to get a larger $k$).
+And we can choose $B$ as small as we want (just make $n$ bigger in the second condition).
+
+For the other element:
+
+$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$
+
+By making $A$ even bigger, we can make sure this is also true.
+
+Case B: There are $f > ck$ many neighbors for the inputs of the independent set.
+TODO
+
+Case C: There are unboundedly many neighbors: TODO
+
+\section{previous}
+
+
+
 Let $e$ be the number of first-layer elements we want to consider for a given head.
 That means, $ec$ input elements.
 
 Let $f(e)$ be the number of neighboring second-layer heads. 
 
-If $f(e)$ is infinite, or greater than $2ec$, then we're done again.
+If $f(e)$ is infinite, or greater than $2ec$, it's not clear whether that's even useful?!
 
 probability of bad event:
 $1-((1-q)/2)^{c}$
 obstacle here is that the first-layer elements are not independent, since they might use the same input bits.
 
+can we do better on this?
+
+%$q = 1-p$
+%- no need to get all $c$ right, fixing the highest-ranking elements of these $c$ ones is enough: 1 (q/2), 01 (q/4), 001 (q/8), ....
+%probability of getting the $c$'s right for a fixed one: $q \sum_{i=1}^c 2^{-i} = 1-\frac{1}{c}$
+%probability of the bad event happening: $\leq 2^{-c}$
+
+-------------------------
+
+- if there is a large set of independent first-layer elements, then might still be good $(1-((1-q)/2)^{c})^{e}$ (this seems like a rare case, since $e$ would need to be large for this prob to be usefully small)
+
+- can do induction? -- unclear
 
 
 \section{draft}
