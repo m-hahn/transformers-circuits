@@ -5,6 +5,10 @@
 
 \usepackage{url}
 
+
+  \usepackage{natbib}
+  \bibliographystyle{plainnat}
+
 %\aclfinalcopy % Uncomment this line for the final submission
 
 %\setlength\titlebox{5cm}
@@ -104,14 +108,21 @@
 \begin{abstract}
     Self-attention has been really successful in NLP.
     We investigate the computational power of self-attention.
-    We show equivalences between transformers and classes of Boolean circuits, which entail strong limitations on the computational power of transformers.
     
-    First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
-    Adding layer normalization, or using softmax self-attention, yields $TC^0$.
+    Across different settings (finite or infinite precision, softmax or hardmax), we show strong theoretical limitations of the computational abilities of self-attention.
     
-    Limitations of transformers are believed to exist; this appears to be the first formal proof.
+    Transformers cannot do PARITY, nor basic recursion (unless the number of parameters increases with input size).
+    Strong contrast with LSTMs, which can do these things.
     
-    Complements recent work on the power of transformers.
+    
+    %We show equivalences between transformers and classes of Boolean circuits, which entail strong limitations on the computational power of transformers.
+    
+    %First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
+    %Adding layer normalization, or using softmax self-attention, yields $TC^0$.
+    
+    Limitations of transformers are believed to exist; this work presents what appear to be the first formal proofs.
+    
+    %Complements recent work on the power of transformers.
     We discuss implications of this for natural language and NLP.
 \end{abstract}
 
@@ -127,11 +138,152 @@ language recognition, essentially as in Weiss et al: Seq2Seq, transduce language
 
 \section{Finite Precision}
 
-show Parity is not in $Maj_2[un]$.
+show Parity is not in $Maj_2[un]$: this is actually relatively easy to show, we just have a finite number of bins, and have a numerically imprecise representation of how many are in each bin.
 
 \section{Infinite Precision, Softmax}
 
-show the perplexity thing
+show the perplexity thing:
+
+If the attention activations are bounded in norm by $L$ (which comes from the norms of the parameter matrices), then attention will ultimately be swamped, and asymptotically no individual element can have nonnegligible impact.
+
+Here should have some experimental things
+
+\section{Infinite Precision, Hardmax}
+
+We show that this model cannot represent Parity -- the proof will also generalize to things like Dyck.
+
+Approach:
+We take a transformer, and for each $n$, we consider what happens if we apply this transformer to inputs of that length.
+We show that, for large enough values of $n$, we can find a way to fix part of the inputs to 0 or 1 in such a way that the number of inputs that are not fixed is still $\rightarrow \infty$, but such that the prediction of the transformer depends only on a finitely bounded (independently of $n$) number of input positions.
+That is, after fixing these inputs, the transformer ignores a large number of inputs.
+This shows that the transformer could not have solved a problem such as PARITY, where every single input bit matters.
+
+This proof strategy is inspired by a seminal proof in the theory of Boolean circuits~\cite{furst1984parity}, but the method we use to prove existence of suitable restrictions is novel (The proofs have in common the use of the probabilistic method, but the proof method in \cite{furst1984parity} appears to be not powerful enough to work for self-attention with infinite precision).
+
+
+Notably, our proof will not make any assumption about the nonlinearities, parameter matrices, positional embeddings, etc. -- all that is assumed is the basic self-attention architecture described above.
+We will not even assume that the same parameters are used for different input lengths $n$, only that the number of layers and heads is the same for all $n$.
+
+
+\subsection{Preparation}
+
+We assume that there is only a single head per layer. If there are no restrictions on the number of layers, this is no loss of generality.
+We further assume that, if two inputs have the same attention weight, the one with the smaller index is chosen.
+
+For the $i$-th level-1 head, we assemble for all inputs $j$ maximum attention value between head $i$ and input $j$ for the two possible inputs $0$, $1$.
+Then we sort the inputs $j$ in descending order by maximum attention value: $j_1, j_2, ..., j_n$ (if there are ties, we order by position).
+The following observation will be important: If we fix the input $j_k$ to the value that makes the attention value achieve the higher value, then the activation at element $i$ in level 1 only depends on the inputs $i, j_1, ..., j_{k-1}$.
+
+We take $n \geq 50$.
+
+\subsection{Step 1: Reducing first layer}
+The first step will be to fix input values in such a value that each element in level 1 only depends on a bounded number of inputs, for some uniform bound $c$.
+
+Take $c=20$.
+
+Let $d$ be the maximum number of neighbors in level 1 (possibly $+\infty$).
+
+If there are many neighbors, there is a straightforward way to construct a suitable input restrictions.
+If the number of neighbors is small, we instead use probabilistic arguments to show existence of such a restriction.
+
+\paragraph{Case 1} $d \leq 2c$.
+
+We apply the ``probabilistic method'': we define a probability distribution over random restrictions of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
+
+Define the distribution that assigns to an input $*$ with probability $p$, and $1$ or $0$ with equal probability else.
+Define $X_i$ ($i=1, ..., n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the higher attention weight.
+Define $X_0$ to be the event that more than $(1+\delta)pn$ many inputs are set to $0/1$.
+
+We have $P(X_i) \leq (p + (1-p)/2)^c$\footnote{We get an inequality since it may happen that two input values produce the same attention weight}, and
+$P(X_0) \leq \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})$ by a Chernoff bound.\footnote{See 
+\url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
+
+
+Take $A=0.01$, $B=0.5$, $p=0.5$, $\delta=0.9$.
+Given also $c=20$, $n = 50$, the following bounds are true:
+
+\begin{align}
+\left(\frac{1+p}{2}\right) & \leq A^{1/c} (1-B)^{1/c} (1-A)^{2} \\
+\exp(-\frac{\delta^2(1-p)}{(2+\delta)})  &\leq B^{1/n} (1-A)
+\end{align}
+Therefore,
+\begin{equation}
+\left(\frac{1+p}{2}\right)^c \leq A (1-B) (1-A)^d
+\end{equation}
+\begin{equation}
+\exp(-\frac{\delta^2(1-p)n}{(2+\delta)})  \leq B (1-A)^n
+\end{equation}
+
+
+By the Lovasz Local Lemma, there is some input that avoids all events $X_0, X_1, ..., X_n$.
+
+\paragraph{Case 2} $d > 2c$ 
+WLOG this holds for infinitely many $n$'s (otherwise we can just remove them, and return to Case 1). in any case, we remove all non-initial $n$'s for which this doesn't hold.
+Then we take one relevant chain, and reduce throughout.
+
+(If the first unsatisfied $n$ doesn't have a participating head, then we can apply LLL there and be done with it)
+
+In the next step, $d$ can at most have decreased.
+
+\subsection{Step 2: Induction}
+
+TODO this is copied from below
+
+
+Let $c$ the number of inputs we got from Step 1.
+
+Let $e$ be the number of layer-1-inputs for each layer-2 element.
+
+Claim: For each layer-2 element, we can find an independent set of some size $k$ unbounded growing with $e$ (in relation to $c$ which is bounded). [TODO prove -- not generally true: maybe all layer-1 elements refer to exactly the same inputs, or maybe they all share one input. \textbf{TODO have to get an estimate of failure probability that decreases exponentially in $k$ nonetheless, even if this happens.}]
+
+(Exception: There may be units where we cannot get $k$ inputs, for the $k$ that we have chosen. Such units already satisfy the goal, their failure probability is just $0$)
+
+Probability of failure: $(1-q^2/4)^k$.
+
+
+As in Step 1, we increase $e$ until we succeed with one of the cases:
+
+
+Case A: There are boundedly many neighbors ($f < c k$ many). (We only consider the neighbors of the independent set) (Even if they are not all independent, can take a maximal set of $k$ things where no two have exactly the same input, and failure prob is still something like $\leq (1-q/2)^{k} (1-(q/2)^{c-1})$, which should still be enough for LLL as $k \rightarrow \infty$. We can ignore cases of full overlap, as those won't count towards the number of relevant inputs) or do we better avoid the $\log k$ thing by constructing a maximal set of first-layer elements such that each one of them contributes some unique input element, as we want to just put everything into a bounded-width feedforward net, so all we need to bound is the number of input bits. (We can of course be in the special situation, where we cannot get $k$ to infinity, but then we can just fix the relevant inputs to remove these concerning elements (!?)).
+
+PROBLEM the number of individual inputs (and thus independent observations) may just be $\propto \log k$! So we have $\leq (1-q/2)^{\log k} (1-(q/2)^{c-1})$. But then the number of neighbors also won't be a problem? So we have to somehow harmonize Case A and Case B to make sure this works.
+
+\begin{equation}
+    (1-q^2/4)^k \leq A(1-B)(1-A)^f
+\end{equation}
+So
+\begin{equation}
+    (1-q^2/4) \leq A^{1/k}(1-B)^{1/k}(1-A)^{c}
+\end{equation}
+We can make the LHS $(1-q^2/4) \approx 0.75$ with a very high $q$.
+
+If $k$ is large enough in relation to $c$, then we can make the RHS large: First choose $A$ so that $(1-A)^c > 0.9$, then accept $k$ if $A^{1/k} > 0.9$ (else choose a larger $e$ to get a larger $k$).
+And we can choose $B$ as small as we want (just make $n$ bigger in the second condition).
+
+For the other element:
+
+$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$
+
+By making $A$ even bigger, we can make sure this is also true.
+
+Case B: There are $f > ck$ many neighbors for the inputs of the independent set.
+TODO.
+
+????
+
+(1) there is an unbounded number of elements that have less than $< ck$ neighbors -- we can apply LLL for this particular part of the input, and fill the other inputs arbitrarily.
+
+(2) there is only a bounded number of elements that have $< ck$ neighbors (for arbitrarily large values of $k$). 
+
+WLOG there is an unbounded number of different inputs that all have $\geq 100c \log k$ (we can just take $100c  k$ throughout, instead of $c  k$) second-layer neighbors (else could just set them and forget about them). even, asymptotically $>0.9n$ (say) of inputs are like this. But this can't be the case, as this would entail $90c  k n$ many connections when there are just $ckn$ many?!
+%PROBLEM.
+%maybe useful: $ k$ entails that there are exponentially more second-layer elements than input elements, which cannot be true for more than $\log n$ many input vars. so can we just fix $O(\log n)$ many such inputs and continue? Similarly for other sublinear functions in $k$. Can we show that for all but $o(n)$ many second-level elements, the number of relevant input elements grows somehow linearly in $k$, unless level 1 is somehow really degenerate???
+%PROBLEM but if we replace $k$ by $\log k$ to make LLL work, this part here will break!?
+
+Case C: There are unboundedly many neighbors: Case B should be sufficient here.
+
+
+
 
 \section{Step 1 (Reduce first layer)}
 
@@ -146,7 +298,6 @@ $\left(\frac{1+p}{2}\right)^c \leq A (1-B) (1-A)^d$
 $ \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})  \leq B (1-A)^n$
 
 
-\url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}
 
 ------------------
 
@@ -191,6 +342,8 @@ Let $e$ be the number of layer-1-inputs for each layer-2 element.
 
 Claim: For each layer-2 element, we can find an independent set of some size $k$ unbounded growing with $e$ (in relation to $c$ which is bounded). [TODO prove -- not generally true: maybe all layer-1 elements refer to exactly the same inputs, or maybe they all share one input. \textbf{TODO have to get an estimate of failure probability that decreases exponentially in $k$ nonetheless, even if this happens.}]
 
+(Exception: There may be units where we cannot get $k$ inputs, for the $k$ that we have chosen. Such units already satisfy the goal, their failure probability is just $0$)
+
 Probability of failure: $(1-q^2/4)^k$.
 
 
@@ -228,12 +381,27 @@ TODO.
 
 (2) there is only a bounded number of elements that have $< ck$ neighbors (for arbitrarily large values of $k$). 
 
-WLOG there is an unbounded number of different inputs that all have $\geq 100c \log k$ (we can just take $100c  k$ throughout, instead of $c  k$) second-layer neighbors (else could just set them and forget about them). even, asymptotically $>0.9n$ (say) of inputs are like this. But this can't be the case, as this would entail $90c  k n$ many connections when there are just $ckn$ many?! PROBLEM. maybe useful: $ k$ entails that there are exponentially more second-layer elements than input elements, which cannot be true for more than $\log n$ many input vars. so can we just fix $O(\log n)$ many such inputs and continue? Similarly for other sublinear functions in $k$. Can we show that for all but $o(n)$ many second-level elements, the number of relevant input elements grows somehow linearly in $k$, unless level 1 is somehow really degenerate???
-
-PROBLEM but if we replace $k$ by $\log k$ to make LLL work, this part here will break!?
+WLOG there is an unbounded number of different inputs that all have $\geq 100c \log k$ (we can just take $100c  k$ throughout, instead of $c  k$) second-layer neighbors (else could just set them and forget about them). even, asymptotically $>0.9n$ (say) of inputs are like this. But this can't be the case, as this would entail $90c  k n$ many connections when there are just $ckn$ many?!
+%PROBLEM.
+%maybe useful: $ k$ entails that there are exponentially more second-layer elements than input elements, which cannot be true for more than $\log n$ many input vars. so can we just fix $O(\log n)$ many such inputs and continue? Similarly for other sublinear functions in $k$. Can we show that for all but $o(n)$ many second-level elements, the number of relevant input elements grows somehow linearly in $k$, unless level 1 is somehow really degenerate???
+%PROBLEM but if we replace $k$ by $\log k$ to make LLL work, this part here will break!?
 
 Case C: There are unboundedly many neighbors: Case B should be sufficient here.
 
+
+
+\section{Discussion}
+
+\paragraph{Comparison with RNNs, LSTMS, CNNs}
+
+RNNs can do all regular languages.
+
+Bounded-depth 1D CNNs cannot do all regular languages, they are even less powerful than transformers.
+
+What are transformers better at than LSTMs?
+Conjecture: where memory bottlenecks are relevant
+
+\paragraph{What does this say about NLP and Language?}
 
 
 \section{previous}
@@ -817,5 +985,8 @@ Consequence: LSTM can only really do finite state + counting.
 
 % BIG QUESTION:
 % What can you compute with infinite precision but noise (e.g. Gaussian dropout)? Not really finite-state? Compare Braverman et al paper.
+
+
+\bibliography{literature}
 
 \end{document}
