@@ -239,55 +239,152 @@ TODO this is copied from below
 
 Let $c$ the number of inputs we got from Step 1.
 
-Let $e$ be the number of layer-1-inputs for each layer-2 element.
+Take $k$.
+For each layer-2 element, we select a set of $\approx [k, ck]$ layer-1 inputs that in total use $k$ different input bits (If we can't, then this element is already $ck$-satisfied).
 
-Claim: For each layer-2 element, we can find an independent set of some size $k$ unbounded growing with $e$ (in relation to $c$ which is bounded). [TODO prove -- not generally true: maybe all layer-1 elements refer to exactly the same inputs, or maybe they all share one input. \textbf{TODO have to get an estimate of failure probability that decreases exponentially in $k$ nonetheless, even if this happens.}]
+\paragraph{Case A:} There are boundedly many level-2 neighbors of these selected layer-2 elements ($f < 100 c k$ many).
 
-(Exception: There may be units where we cannot get $k$ inputs, for the $k$ that we have chosen. Such units already satisfy the goal, their failure probability is just $0$)
-
-Probability of failure: $(1-q^2/4)^k$.
-
-
-As in Step 1, we increase $e$ until we succeed with one of the cases:
-
-
-Case A: There are boundedly many neighbors ($f < c k$ many). (We only consider the neighbors of the independent set) (Even if they are not all independent, can take a maximal set of $k$ things where no two have exactly the same input, and failure prob is still something like $\leq (1-q/2)^{k} (1-(q/2)^{c-1})$, which should still be enough for LLL as $k \rightarrow \infty$. We can ignore cases of full overlap, as those won't count towards the number of relevant inputs) or do we better avoid the $\log k$ thing by constructing a maximal set of first-layer elements such that each one of them contributes some unique input element, as we want to just put everything into a bounded-width feedforward net, so all we need to bound is the number of input bits. (We can of course be in the special situation, where we cannot get $k$ to infinity, but then we can just fix the relevant inputs to remove these concerning elements (!?)).
-
-PROBLEM the number of individual inputs (and thus independent observations) may just be $\propto \log k$! So we have $\leq (1-q/2)^{\log k} (1-(q/2)^{c-1})$. But then the number of neighbors also won't be a problem? So we have to somehow harmonize Case A and Case B to make sure this works.
-
+Failure prob for a given layer-2 element is
 \begin{equation}
-    (1-q^2/4)^k \leq A(1-B)(1-A)^f
+\leq (1-q/2)^{k} (1-(q/2)^{c-1})
 \end{equation}
-So
+\begin{proof}
+TODO
+\end{proof}
+We want to obtain
 \begin{equation}
-    (1-q^2/4) \leq A^{1/k}(1-B)^{1/k}(1-A)^{c}
+    (1-q/2)^{k} (1-(q/2)^{c-1}) \leq A(1-B)(1-A)^f
 \end{equation}
-We can make the LHS $(1-q^2/4) \approx 0.75$ with a very high $q$.
+So we need
+\begin{equation}
+    (1-q/2) (1-(q/2)^{c-1})^{1/k} \leq A^{1/k}(1-B)^{1/k}(1-A)^{100c}
+\end{equation}
+We can make the LHS $(1-q/2) (1-(q/2)^{c-1})^{1/k} \approx 0.48$ with $q=0.99$ and $k=10$ (if $c=10$, greater $c$'s won't break it?! TODO).
+
+Can we generally even get (works for $c=10, k=100$ at $c=10$, though it gets worse for $k = 10^{9}$)? Note that, for induction, we will need that $c$ can be unboundedly large. Can we just choose $A$ smaller and smaller for larger $k$?
+\begin{equation}
+    (1-q/2) (1-(q/2)^{c-1})^{1/k} \leq A^{1/k}(1-B)^{1/k}(1-A)^{2kc^2}
+\end{equation}
+
+Consider $A=2^{-a}$.
+So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
 
 If $k$ is large enough in relation to $c$, then we can make the RHS large: First choose $A$ so that $(1-A)^c > 0.9$, then accept $k$ if $A^{1/k} > 0.9$ (else choose a larger $e$ to get a larger $k$).
 And we can choose $B$ as small as we want (just make $n$ bigger in the second condition).
 
 For the other element:
-
-$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$
+\begin{equation}
+\exp\left(-\frac{\delta^2(1-p)}{(2+\delta)}\right)  \leq B^{1/n} (1-A)
+\end{equation}
 
 By making $A$ even bigger, we can make sure this is also true.
 
-Case B: There are $f > ck$ many neighbors for the inputs of the independent set.
-TODO.
+\paragraph{Case B:} There are $f > 100ck$ many neighbors for the inputs of the layer-1 set we selected, for infinitely many layer-2 sets.
 
-????
+(1) there is an unbounded number of elements (per $n$) that have less than $< 100ck$ neighbors -- we can apply LLL for this particular part of the input, and fill the other inputs arbitrarily. TODO but this might result in a too large number of filled inputs.
 
-(1) there is an unbounded number of elements that have less than $< ck$ neighbors -- we can apply LLL for this particular part of the input, and fill the other inputs arbitrarily.
+(2) there is only a bounded number of elements that have $< 100ck$ neighbors (for arbitrarily large values of $k$). 
+Thus, asymptotically $>0.9n$ (say) of inputs are like this. But this can't be the case, as this would entail $90c  k n$ many under-consideration connections from input to second-layer when there are just $ckn$ many.
 
-(2) there is only a bounded number of elements that have $< ck$ neighbors (for arbitrarily large values of $k$). 
+\subsection{Depth Reduction Lemma}
 
-WLOG there is an unbounded number of different inputs that all have $\geq 100c \log k$ (we can just take $100c  k$ throughout, instead of $c  k$) second-layer neighbors (else could just set them and forget about them). even, asymptotically $>0.9n$ (say) of inputs are like this. But this can't be the case, as this would entail $90c  k n$ many connections when there are just $ckn$ many?!
+\begin{lemma}
+Given: Transformer with first-layer fanin $c$. We show that there is a family of input restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$, and each second-layer heads only depend on $c'$ inputs, for some constant $c'$ independent of $n$.
+\end{lemma}
+
+In particular, the resulting transformer can be rewritten into one with the second layer removed, and the new second layer having fanin $c'$.
+
+\begin{proof}
+
+Take $k$. $k$ will have to be chosen in dependence of $c$ to make LLL work.
+
+For each layer-2 element, we select a set of $\approx [k, ck]$ layer-1 inputs that in total use $k$ different input bits (If we can't, then this element is already $ck$-satisfied).
+
+Now consider those layer-2 elements that have $f > 2c^2k^2$ many neighbors for the inputs of the layer-1 set we selected.
+
+If there are $\leq n/(1.1c)$ many such elements, then we can fix them manually, fixing only $\leq n/1.1$ many inputs.
+
+
+So there are $> n/(1.1c)$ many such elements with $f > 2ck^2$ many neighbors.
+How do we get a contradiction?
+
+- the number of inputs without $> 2kc$ attached layer-2-heads could be asymptotically infinite, in which case we can just fix these bad inputs to a fixed value, and then can apply LLL afterwards, as $f \leq 2k^2c^2$ then.
+
+- the number of inputs without $> 2kc$ attached layer-2-heads could be asymptotically bounded, so almost all inputs have $> 2kc$ attached layer-2-heads. This is a contradiction, as this would entail $>ckn$ many such connections.
+
+-------------------
+
+After we previous part, we are in the setting where $f < 2c^2k^2$, and we apply LLL.
+
+
+
+Failure prob for a given layer-2 element is
+\begin{equation}
+\leq (1-q/2)^{k} (1-(q/2)^{c-1})
+\end{equation}
+\begin{proof}
+TODO
+\end{proof}
+
+We want to find that we can do find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds, assuming $f < 2c^2k^2$:
+\begin{align}
+    (1-q/2)^{k} (1-(q/2)^{c-1}) \leq A(1-B)(1-A)^f \\
+\exp\left(-\frac{\delta^2(1-p)n}{(2+\delta)}\right)  \leq B (1-A)^n
+\end{align}
+
+
+\begin{proof}
+We need to make
+
+\begin{align}
+    (1-q/2) (1-(q/2)^{c-1})^{1/k} &\leq A^{1/k}(1-B)^{1/k}(1-A)^{2kc^2} \\
+\exp\left(-\frac{\delta^2(1-p)}{(2+\delta)}\right)  &\leq B^{1/n} (1-A)
+\end{align}
+
+Consider $A=2^{-a}$.
+So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
+\end{proof}
+
+-------
+
+--------------
+- there could be linearly many input elements with a large number of attached layer-2-heads, but we know the total number of such connections cannot exceed $ckn$ many.
+
+- or there are only $o(n)$ input elements with so many attached layer-2-heads, in which 
+
+%So there are $> n/(1.1c)$ many input elements with $> f/ck = 2k$ many attached layer-2 heads. So there are $2kn/(1.1c)$ many connections from input to layer 2, when there can be only $ckn$ many.
+
+
+
+
+------------------------------------
+
+The number of under-consideration pairs of connected input + second-layer head is $\leq ckn$.
+
+So if there are $N$ many layer-2 heads with $Q$ neighbors, then there are $NQc$ many such pairs??? TODO this doesn't work
+
+Asymptotically only $<\frac{0.5}{c} n$ of inputs can be like this: Assume otherwise, would entail $0.5/c \cdot c^2 k n = 0.5 c k n$ many  TODO fix this
+
+Assume more than $0.1n$ of layer-2 head of $10000c^2k$ many neighbors.
+For each such head, there is some input that is connected to $\frac{10000c^2k}{ck} = 10000c$ many layer-2 heads.
+Also, there will be a linear number of such inputs, say $cn$ many such inputs each of which is connected to $100/c$ many layer-2 heads. (Note these constants all depend on how we chose $f$ to scale with $k$).
+
+Can we just fix $k$ to be $10$ from the start, and take the factor $\frac{f}{k}$ to be some for which LLL still works? E.g., we know $\frac{f}{k} = 100c$ works, so that's actually $k^2 c$ if $k=10$.
+
+So there are only $< 0.5/c  \cdot n$ many such bad layer-2 heads.
+We can satisfy every one of these inputs, filling $\leq c \frac{0.5}{c} n \leq 0.5 n$ many inputs.
+
+Once this is done, we only have layer-2 heads with less than $100ck = 1000c$ many neighbors, and we apply LLL.
+
+Well actually, great values of $c$ don't seem to work for LLL. $k$ has to be chosen in dependence of $c$ (or $100c$, for that matter, so this won't work).
+
+\end{proof}
+
+
 %PROBLEM.
 %maybe useful: $ k$ entails that there are exponentially more second-layer elements than input elements, which cannot be true for more than $\log n$ many input vars. so can we just fix $O(\log n)$ many such inputs and continue? Similarly for other sublinear functions in $k$. Can we show that for all but $o(n)$ many second-level elements, the number of relevant input elements grows somehow linearly in $k$, unless level 1 is somehow really degenerate???
 %PROBLEM but if we replace $k$ by $\log k$ to make LLL work, this part here will break!?
 
-Case C: There are unboundedly many neighbors: Case B should be sufficient here.
 
 
 
