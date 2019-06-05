@@ -170,6 +170,8 @@ The following observation will be important: If we fix the input $j_k$ to the va
 
 We take $n \geq 50$.
 
+An $n$-restriction $\rho$ is a map $\{1, ..., n\} \rightarrow \{*, 0, 1\}$.
+After applying an $n$-restriction, the output value only depends on those inputs $x_i$ such that $\rho(i) = *$.
 
 
 \subsection{Depth Reduction Lemma}
@@ -193,28 +195,42 @@ Given: Transformer with first-layer fanin $c$. We show that there is a family of
 In particular, the resulting transformer can be rewritten into one with the second layer removed, and the new second layer having fanin $c'$.
 
 \begin{proof}
+We will do the first part of the argument for any integer $k \in \mathbb{N}$.
+In the second part, we will select a sufficiently large $k$.
+The aim is that $c' := ck$.
 
-Take $k$. $k$ will have to be chosen large enough for LLL to work. So we do the reduction to LLL for all $k$, and then choose $k$ large enough to make LLL work.
+For each layer-2 head, we select:
 
-For each layer-2 element, we select a set of $\approx [k, ck]$ layer-1 inputs that in total use $k$ different input bits (If we can't, then this element is already $ck$-satisfied).
+Let $j_1, ..., j_n$ be the layer-1 elements downwards by the highest possible attention value that can be achieved for the given head.
 
-Now consider those layer-2 elements that have $f > 2c^2k^2$ many neighbors for the inputs of the layer-1 set we selected.
+We then select a subsequence $1 \leq i_1 < i_2 < ... < i_k \leq n$ such that (1) for each $i_s$, there is at least one input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $k$ is minimal, i.e. there is no subsequence with smaller $k$ that also satisfies (1).
 
-If there are $\leq n/(1.1c)$ many such elements, then we can fix them manually, fixing only $\leq n/1.1$ many inputs.
+There is only one case in which we cannot find such a subsequence, which is if all $j_1, ..., j_n$ together depend only on $< ck$ (TODO how many excatly) inputs, in which case the goal is satisfied for this head.
 
+A layer-2 head $k$-\emph{depends} on some input $x_i$ if (spell out).
+Two layer-2 head are $k$-\emph{neighbors} if some $j_{i_s}$ for one and $j_{i_s'}$ for the other both $k$-depend on some input $x_l$.
 
-So there are $> n/(1.1c)$ many such elements with $f > 2ck^2$ many neighbors.
+Now consider those layer-2 heads that have $f > 2c^2k^2$ many $k$-neighbors.
+
+If there are $\leq n/(1.1c)$ many such heads (for some infinite subsequence of $n$'s -- we can throw away the other $n$'s -- for bad $n$'s, we just fix every input, and they'll drop out of the $\limsup$), then we can fix them manually, fixing only $\leq n/1.1$ many inputs.
+
+So there are $> n/(1.1c)$ many such elements with $f > 2ck^2$ many neighbors (for all but finitely many $n$ -- we can throw away the other $n$'s).
+
 
 \begin{enumerate}
-\item Case A: The number of inputs without $> 2kc$ attached layer-2-heads is $\omega(1)$ as $n\rightarrow \infty$, in which case we can just fix these bad inputs (whose complement is asymptotically unboundedly large) to a fixed value. After this manipulation, $f \leq 2k^2c^2$.
+\item Case A: The number of inputs without $> 2kc$ many $k$-depending layer-2-heads is $\omega(1)$ as $n\rightarrow \infty$, in which case we can just fix these bad inputs (whose complement is asymptotically unboundedly large) to a fixed value. After this manipulation, $f \leq 2k^2c^2$.
 
-\item Case B: the number of inputs without $> 2kc$ attached layer-2-heads is $O(1)$ as $n\rightarrow\infty$, so almost all inputs have $> 2kc$ attached layer-2-heads. This is a contradiction, as this would entail $>ckn$ many such $k$-of-interest  connections between inputs and level-2 heads.
+\item Case B: the number of inputs without $> 2kc$ many $k$-depending layer-2-heads is $O(1)$ as $n\rightarrow\infty$, so almost all inputs have $> 2kc$ attached layer-2-heads. This is a contradiction, as this would entail $>ckn$ many such $k$-of-interest  connections between inputs and level-2 heads.
 \end{enumerate}
 
-After we previous part, we are in the setting where $f < 2c^2k^2$, and we apply LLL.
 
+For simplicity (at least if we do PARITY), we can absorb the restrictions into the augmented transformers, and get (after renumbering the input size $n$, possibly throwing away duplicates for the same input size, and additionally restricting inputs to pad out gaps in the sequence) a sequence of $c$-augmented transformers.
+The number of heads that have to be satisfied is now potentially $ckn$????!!!! PROBLEM?
 
-We apply the ``probabilistic method'': we define a probability distribution over random restrictions of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
+After we previous part, we are in the setting where $f < 2c^2k^2$ for every layer-2 head after applying restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$.
+Note that the previous part works for any $k$; we will choose a suitable $k$ in this section.
+
+We apply the ``probabilistic method'': we define a probability distribution over random restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 
 Define the distribution that assigns to an input $*$ with probability $p$, and $1$ or $0$ with equal probability else.
 Define $X_i$ ($i=1, ..., n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the higher attention weight (each of these is assigned either the other value, or $*$).
