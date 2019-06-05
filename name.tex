@@ -81,7 +81,7 @@
 \newtheorem{defin}[theorem]{Definition}
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{theorem}[theorem]{Theorem}
+\newtheorem{thm}[theorem]{Theorem}
 
 
 \newcommand{\R}[0]{\mathbb{R}}
@@ -177,9 +177,9 @@ After applying an $n$-restriction, the output value only depends on those inputs
 \subsection{Depth Reduction Lemma}
 
 
-\begin{theorem}
+\begin{thm}
 Let any transformer be given. Then there is a family of input restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$, and such that the function computed by transformer on the restricted input depends only on a bounded number $c$ of inputs, independent of input length $n$.
-\end{theorem}
+\end{thm}
 
 \begin{defin}[$c$-Augmented Transformer]
 Let $c$ a positive integer. A $c$-augmented transformer of depth $d$ is one in which there is additionally a lower layer such that the laver-1 activations at each position are a function of only $c$ input positions.
@@ -278,6 +278,9 @@ show the perplexity thing:
 If the attention activations are bounded in norm by $L$ (which comes from the norms of the parameter matrices), then attention will ultimately be swamped, and asymptotically no individual element can have nonnegligible impact.
 
 Here should have some experimental things
+
+
+%\bibliography{literature}
 
 
 \end{document}
@@ -1221,6 +1224,5 @@ Consequence: LSTM can only really do finite state + counting.
 % What can you compute with infinite precision but noise (e.g. Gaussian dropout)? Not really finite-state? Compare Braverman et al paper.
 
 
-\bibliography{literature}
 
 \end{document}
