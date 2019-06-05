@@ -176,6 +176,72 @@ The following observation will be important: If we fix the input $j_k$ to the va
 
 We take $n \geq 50$.
 
+
+
+\subsection{Depth Reduction Lemma}
+
+\begin{lemma}
+Given: Transformer with first-layer fanin $c$. We show that there is a family of input restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$, and each second-layer heads only depend on $c'$ inputs, for some constant $c'$ independent of $n$.
+\end{lemma}
+
+In particular, the resulting transformer can be rewritten into one with the second layer removed, and the new second layer having fanin $c'$.
+
+\begin{proof}
+
+Take $k$. $k$ will have to be chosen large enough for LLL to work. So we do the reduction to LLL for all $k$, and then choose $k$ large enough to make LLL work.
+
+For each layer-2 element, we select a set of $\approx [k, ck]$ layer-1 inputs that in total use $k$ different input bits (If we can't, then this element is already $ck$-satisfied).
+
+Now consider those layer-2 elements that have $f > 2c^2k^2$ many neighbors for the inputs of the layer-1 set we selected.
+
+If there are $\leq n/(1.1c)$ many such elements, then we can fix them manually, fixing only $\leq n/1.1$ many inputs.
+
+
+So there are $> n/(1.1c)$ many such elements with $f > 2ck^2$ many neighbors.
+How do we get a contradiction?
+
+- the number of inputs without $> 2kc$ attached layer-2-heads could be asymptotically infinite, in which case we can just fix these bad inputs (whose complement is asymptotically unboundedly large) to a fixed value, and then can apply LLL afterwards, as $f \leq 2k^2c^2$ then.
+
+- the number of inputs without $> 2kc$ attached layer-2-heads could be asymptotically bounded, so almost all inputs have $> 2kc$ attached layer-2-heads. This is a contradiction, as this would entail $>ckn$ many such connections.
+
+-------------------
+
+After we previous part, we are in the setting where $f < 2c^2k^2$, and we apply LLL.
+
+
+
+Failure prob for a given layer-2 element is
+\begin{equation}
+\leq (1-q/2)^{k} (1-(q/2)^{c-1})
+\end{equation}
+\begin{proof}
+TODO
+\end{proof}
+
+We want to find that we can do find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds, assuming $f < 2c^2k^2$:
+\begin{align}
+    (1-q/2)^{k} (1-(q/2)^{c-1}) \leq A(1-B)(1-A)^f \\
+\exp\left(-\frac{\delta^2(1-p)n}{(2+\delta)}\right)  \leq B (1-A)^n
+\end{align}
+
+
+\begin{proof}
+We need to make
+
+\begin{align}
+    (1-q/2) (1-(q/2)^{c-1})^{1/k} &\leq A^{1/k}(1-B)^{1/k}(1-A)^{2kc^2} \\
+\exp\left(-\frac{\delta^2(1-p)}{(2+\delta)}\right)  &\leq B^{1/n} (1-A)
+\end{align}
+
+Consider $A=2^{-a}$.
+So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
+\end{proof}
+TODO write
+
+\end{proof}
+
+
+
 \subsection{Step 1: Reducing first layer}
 The first step will be to fix input values in such a value that each element in level 1 only depends on a bounded number of inputs, for some uniform bound $c$.
 
@@ -296,7 +362,7 @@ In particular, the resulting transformer can be rewritten into one with the seco
 
 \begin{proof}
 
-Take $k$. $k$ will have to be chosen in dependence of $c$ to make LLL work.
+Take $k$. $k$ will have to be chosen large enough for LLL to work. So we do the reduction to LLL for all $k$, and then choose $k$ large enough to make LLL work.
 
 For each layer-2 element, we select a set of $\approx [k, ck]$ layer-1 inputs that in total use $k$ different input bits (If we can't, then this element is already $ck$-satisfied).
 
@@ -308,7 +374,7 @@ If there are $\leq n/(1.1c)$ many such elements, then we can fix them manually, 
 So there are $> n/(1.1c)$ many such elements with $f > 2ck^2$ many neighbors.
 How do we get a contradiction?
 
-- the number of inputs without $> 2kc$ attached layer-2-heads could be asymptotically infinite, in which case we can just fix these bad inputs to a fixed value, and then can apply LLL afterwards, as $f \leq 2k^2c^2$ then.
+- the number of inputs without $> 2kc$ attached layer-2-heads could be asymptotically infinite, in which case we can just fix these bad inputs (whose complement is asymptotically unboundedly large) to a fixed value, and then can apply LLL afterwards, as $f \leq 2k^2c^2$ then.
 
 - the number of inputs without $> 2kc$ attached layer-2-heads could be asymptotically bounded, so almost all inputs have $> 2kc$ attached layer-2-heads. This is a contradiction, as this would entail $>ckn$ many such connections.
 
