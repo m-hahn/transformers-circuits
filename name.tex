@@ -140,13 +140,7 @@ language recognition, essentially as in Weiss et al: Seq2Seq, transduce language
 
 show Parity is not in $Maj_2[un]$: this is actually relatively easy to show, we just have a finite number of bins, and have a numerically imprecise representation of how many are in each bin.
 
-\section{Infinite Precision, Softmax}
 
-show the perplexity thing:
-
-If the attention activations are bounded in norm by $L$ (which comes from the norms of the parameter matrices), then attention will ultimately be swamped, and asymptotically no individual element can have nonnegligible impact.
-
-Here should have some experimental things
 
 \section{Infinite Precision, Hardmax}
 
@@ -226,7 +220,7 @@ Define the distribution that assigns to an input $*$ with probability $p$, and $
 Define $X_i$ ($i=1, ..., n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the higher attention weight (each of these is assigned either the other value, or $*$).
 Define $X_0$ to be the event that more than $(1+\delta)pn$ many inputs are set to $0/1$.
 
-We have
+We have that failure probability for $X_i$ decays exponentially in $k$:
 \begin{equation}
 P(X_i) \leq (1-q/2)^{k} (1-(q/2)^{c-1})
 \end{equation}
@@ -261,7 +255,37 @@ TODO write
 
 \end{proof}
 
+\section{Infinite Precision, Softmax}
+
+show the perplexity thing:
+
+If the attention activations are bounded in norm by $L$ (which comes from the norms of the parameter matrices), then attention will ultimately be swamped, and asymptotically no individual element can have nonnegligible impact.
+
+Here should have some experimental things
+
+
 \end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
