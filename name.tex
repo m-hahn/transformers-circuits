@@ -158,7 +158,7 @@ We show that, for large enough values of $n$, we can find a way to fix part of t
 That is, after fixing these inputs, the transformer ignores a large number of inputs.
 This shows that the transformer could not have solved a problem such as PARITY, where every single input bit matters.
 
-This proof strategy is inspired by a seminal proof in the theory of Boolean circuits~\cite{furst1984parity}, but the method we use to prove existence of suitable restrictions is novel (The proofs have in common the use of the probabilistic method, but the proof method in \cite{furst1984parity} appears to be not powerful enough to work for self-attention with infinite precision).
+This proof strategy is inspired by a celebrated proof in the theory of Boolean circuits~\cite{furst1984parity}, but the method we use to prove existence of suitable restrictions is novel (The proofs have in common the use of the probabilistic method, but the proof method in \cite{furst1984parity} appears to be not powerful enough to work for self-attention with infinite precision).
 
 
 Notably, our proof will not make any assumption about the nonlinearities, parameter matrices, positional embeddings, etc. -- all that is assumed is the basic self-attention architecture described above.
@@ -191,22 +191,29 @@ If the number of neighbors is small, we instead use probabilistic arguments to s
 We apply the ``probabilistic method'': we define a probability distribution over random restrictions of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 
 Define the distribution that assigns to an input $*$ with probability $p$, and $1$ or $0$ with equal probability else.
-Define $X_i$ ($i=1, ..., n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the higher attention weight.
+Define $X_i$ ($i=1, ..., n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the higher attention weight (each of these is assigned either the other value, or $*$).
 Define $X_0$ to be the event that more than $(1+\delta)pn$ many inputs are set to $0/1$.
 
-We have $P(X_i) \leq (p + (1-p)/2)^c$\footnote{We get an inequality since it may happen that two input values produce the same attention weight}, and
-$P(X_0) \leq \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})$ by a Chernoff bound.\footnote{See 
+We have\footnote{We get an inequality since it may happen that two input values produce the same attention weight}
+\begin{equation}
+    P(X_i) \leq (p + (1-p)/2)^c = (1/2 + p/2)^c
+\end{equation}
+and
+\begin{equation}
+P(X_0) \leq \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})
+\end{equation}
+by a Chernoff bound.\footnote{See 
 \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 
 
 Take $A=0.01$, $B=0.5$, $p=0.5$, $\delta=0.9$.
-Given also $c=20$, $n = 50$, the following bounds are true:
+Given also $c=20$, $n \geq 50$, the following bounds are true:
 
 \begin{align}
 \left(\frac{1+p}{2}\right) & \leq A^{1/c} (1-B)^{1/c} (1-A)^{2} \\
 \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  &\leq B^{1/n} (1-A)
 \end{align}
-Therefore,
+Therefore ($d \leq 2c$),
 \begin{equation}
 \left(\frac{1+p}{2}\right)^c \leq A (1-B) (1-A)^d
 \end{equation}
@@ -215,7 +222,7 @@ Therefore,
 \end{equation}
 
 
-By the Lovasz Local Lemma, there is some input that avoids all events $X_0, X_1, ..., X_n$.
+By the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, ..., X_n$.
 
 \paragraph{Case 2} $d > 2c$ 
 WLOG this holds for infinitely many $n$'s (otherwise we can just remove them, and return to Case 1). in any case, we remove all non-initial $n$'s for which this doesn't hold.
