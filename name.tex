@@ -9,7 +9,7 @@
   \usepackage{natbib}
   \bibliographystyle{plainnat}
 
-%\aclfinalcopy % Uncomment this line for the final submission
+\aclfinalcopy % Uncomment this line for the final submission
 
 %\setlength\titlebox{5cm}
 % You can expand the titlebox if you need extra space
@@ -101,7 +101,7 @@
 
 
 \title{On the Computational Capabilities of Self-Attention}
-\author{Michael Hahn}
+\author{Michael Hahn \\ Stanford University \\ mhahn2@stanford.edu}
 \date{\today}
 \begin{document}
 \maketitle
@@ -109,9 +109,11 @@
     Self-attention has been really successful in NLP.
     We investigate the computational power of self-attention.
     
+    Limitations of transformers are believed to exist; this work presents what appear to be the first formal proofs.
+    
     Across different settings (finite or infinite precision, softmax or hardmax), we show strong theoretical limitations of the computational abilities of self-attention.
     
-    Transformers cannot do PARITY, nor basic recursion (unless the number of parameters increases with input size).
+    Transformers cannot do PARITY, nor basic recursion, unless the number of layers or heads increases with input size.
     Strong contrast with LSTMs, which can do these things.
     
     
@@ -120,7 +122,6 @@
     %First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
     %Adding layer normalization, or using softmax self-attention, yields $TC^0$.
     
-    Limitations of transformers are believed to exist; this work presents what appear to be the first formal proofs.
     
     %Complements recent work on the power of transformers.
     We discuss implications of this for natural language and NLP.
@@ -130,11 +131,29 @@
 We consider the problem of language recognition: Transformer reads, and decides is the word in the language. Viewed as a seq2seq problem, with the target sequence being just TRUE or FALSE.
 
 
+\section{Self-Attention}
 
 \section{Setup}
 
 language recognition, essentially as in Weiss et al: Seq2Seq, transduce language to 0/1. We only demand that the result by separated from 0.5 by some constant $\delta$.
 
+
+Finite/infinite precision, hardmax/softmax
+
+
+We consider this illustrative example:
+
+- \textsc{Parity} is the set of bit strings such that the number of $1$s is even.
+
+Why is Parity relevant?
+
+\begin{enumerate}
+\item For logical formulas, have to at least do this
+
+\item Also, all regular languages whose syntactic monoid contains group are at least as hard as Parity.
+
+\item Majority, and then also $a^nb^n$ with neutral letter.
+\end{enumerate}
 
 \section{Finite Precision}
 
@@ -152,12 +171,14 @@ We show that, for large enough values of $n$, we can find a way to fix part of t
 That is, after fixing these inputs, the transformer ignores a large number of inputs.
 This shows that the transformer could not have solved a problem such as PARITY, where every single input bit matters.
 
-This proof strategy is inspired by a celebrated proof in the theory of Boolean circuits~\cite{furst1984parity}, but the method we use to prove existence of suitable restrictions is novel (The proofs have in common the use of the probabilistic method, but the proof method in \cite{furst1984parity} appears to be not powerful enough to work for self-attention with infinite precision).
+This approach is inspired by a celebrated proof in the theory of Boolean circuits~\cite{furst1984parity}, but the method we use to prove existence of suitable restrictions is novel (The proofs have in common the use of the probabilistic method, but the proof method in \cite{furst1984parity} appears to be not powerful enough to generalize to self-attention with infinite precision).
 
 
 Notably, our proof will not make any assumption about the nonlinearities, parameter matrices, positional embeddings, etc. -- all that is assumed is the basic self-attention architecture described above.
 We will not even assume that the same parameters are used for different input lengths $n$, only that the number of layers and heads is the same for all $n$.
 
+
+(On the other hand, for a problem such as AND or OR, fixing a single input is enough to fix the entire function, and transformers can do these easily indeed)
 
 \subsection{Preparation}
 
@@ -218,14 +239,16 @@ So there are $> n/(1.1c)$ many such elements with $f > 2ck^2$ many neighbors (fo
 
 
 \begin{enumerate}
-\item Case A: The number of inputs without $> 2kc$ many $k$-depending layer-2-heads is $\omega(1)$ as $n\rightarrow \infty$, in which case we can just fix these bad inputs (whose complement is asymptotically unboundedly large) to a fixed value. After this manipulation, $f \leq 2k^2c^2$.
+\item Case A: The number of inputs without $> 2kc$ many $k$-depending layer-2-heads is $\Omega(n)$ as $n\rightarrow \infty$, in which case we can just fix these bad inputs (whose complement is asymptotically at least linearly large) to a fixed value. After this manipulation, $f \leq 2k^2c^2$, and the number of heads might now be a constant multiple of $n$.
 
-\item Case B: the number of inputs without $> 2kc$ many $k$-depending layer-2-heads is $O(1)$ as $n\rightarrow\infty$, so almost all inputs have $> 2kc$ attached layer-2-heads. This is a contradiction, as this would entail $>ckn$ many such $k$-of-interest  connections between inputs and level-2 heads.
+\item Case B: the number of inputs without $> 2kc$ many $k$-depending layer-2-heads is $o(n)$ as $n\rightarrow\infty$, so the number of inputs with $> 2kc$ attached layer-2-heads dominates any linear fraction. This is a contradiction, as this would entail $>ckn$ many such $k$-of-interest  connections between inputs and level-2 heads.
 \end{enumerate}
 
 
 For simplicity (at least if we do PARITY), we can absorb the restrictions into the augmented transformers, and get (after renumbering the input size $n$, possibly throwing away duplicates for the same input size, and additionally restricting inputs to pad out gaps in the sequence) a sequence of $c$-augmented transformers.
-The number of heads that have to be satisfied is now potentially $ckn$????!!!! PROBLEM?
+The number of heads that have to be satisfied is now $\leq Cn$, for some $C$ that was determined by the manipulations we made above. (this means that the restriction to one head per $n$ was unnecessary)
+
+
 
 After we previous part, we are in the setting where $f < 2c^2k^2$ for every layer-2 head after applying restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$.
 Note that the previous part works for any $k$; we will choose a suitable $k$ in this section.
@@ -267,7 +290,7 @@ We need to make
 Consider $A=2^{-a}$.
 So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
 \end{proof}
-TODO write
+This concludes the proof of the Depth Reduction Lemma.
 
 \end{proof}
 
@@ -280,7 +303,7 @@ If the attention activations are bounded in norm by $L$ (which comes from the no
 Here should have some experimental things
 
 
-%\bibliography{literature}
+\bibliography{literature}
 
 
 \end{document}
