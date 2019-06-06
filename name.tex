@@ -128,10 +128,16 @@
 \end{abstract}
 
 
+
+
+
+
+
 We consider the problem of language recognition: Transformer reads, and decides is the word in the language. Viewed as a seq2seq problem, with the target sequence being just TRUE or FALSE.
 
 
-\section{Self-Attention}
+
+
 
 \section{Setup}
 
@@ -143,17 +149,49 @@ Finite/infinite precision, hardmax/softmax
 
 We consider this illustrative example:
 
-- \textsc{Parity} is the set of bit strings such that the number of $1$s is even.
-
-Why is Parity relevant?
+\textsc{Parity} is the set of bit strings such that the number of $1$s is even.
+Why is \textsc{Parity} interesting?
+%Besides the general relevance of parity to computer science, there are specific reasons that make this relevant to NLP:
+The reason is that Parity is a very simple instantiation of certain properties that make a large range of problems hard for self-attention.
+If transformers cannot compute parity, it immediately follows that they also cannot compute various more complex functions:
 
 \begin{enumerate}
-\item For logical formulas, have to at least do this
+\item \emph{Evaluating Logical Formulas:} A system that evaluates logical formulas (CITE) has to (among other things) be able to handle iterated negations.
+Evaluating iterated negations is tantamount to counting whether the number of nested negations is even or odd.
+If we know that transformers cannot compute parity, this entails that they also cannot evaluate logical formulas accurately.
 
-\item Also, all regular languages whose syntactic monoid contains group are at least as hard as Parity.
+\item \emph{Evaluating Recursion:} Recognizing whether an expression is bracketed correctly is a basic example of a context-free language and of recursion. If transformers cannot compute parity, they also cannot decide whether long expressions are bracketed correctly. See REF for proof.
 
-\item Majority, and then also $a^nb^n$ with neutral letter.
+\item \emph{Finite-State Languages with Groups:} The regular languages form the lowest layer of the Chomsky hierarchy, and even simple RNNs can compute all regular languages.
+Parity is a regular language; moreover, all regular languages whose syntactic monoid contains a group are at least computationally as hard as Parity.
+This means, if transformers cannot compute parity, their ability to emulate finite automata is strongly restricted, compared even to simple RNNs.
 \end{enumerate}
+
+It is important to remark that all our impossibility results require taking large inputs:
+Certainly, for any bound on the input length, we can construct a transformer that does anything we want.
+However, we are interested in the extent to which a transformer is able to handle arbitrarily long inputs -- similar to analogous work on RNNs/LSTMs/GRUs.
+
+
+
+
+\section{Self-Attention}
+
+Here we define self-attention following Vaswani et al.
+
+We have an input $x_1,...,x_n$.
+
+Sequence $p_1, p_2, ...$ of positional embeddings.
+
+Layers:
+
+(1) Multi-head self-attention
+
+(2) position-wise fuly connected (brings together the heads)
+
+Residual skip-connections
+
+
+
 
 \section{Finite Precision}
 
@@ -162,6 +200,10 @@ show Parity is not in $Maj_2[un]$: this is actually relatively easy to show, we 
 
 
 \section{Infinite Precision, Hardmax}
+
+\paragraph{General Formalization of Transformers}
+Each head depends on a finite number of activations in the previous layer (skip-connections) and the one argmax thing that was attended to.
+
 
 We show that this model cannot represent Parity -- the proof will also generalize to things like Dyck.
 
@@ -208,12 +250,29 @@ Let $c$ a positive integer. A $c$-augmented transformer of depth $d$ is one in w
 
 Note that an ordinary transformer  of depth $d$ is also a $1$-augmented transformer of depth $d$.
 
+\begin{remark}
+If we hit a transformer with $H$ heads with a family of restrictions that leave a linear fraction of inputs free, i.e.,
+\begin{equation}
+|\{i \leq n: \rho_n(i) = *\}| \geq Cn
+\end{equation}
+with $C \in (0,1)$, then we can also view the result as a transformer with $\operatorname{ceil}(1/C H)$ heads.
+
+We can absorb the restrictions into the augmented transformers, and get (after renumbering the input size $n$, possibly throwing away duplicates for the same input size, and additionally restricting inputs to pad out gaps in the sequence) a sequence of $c$-augmented transformers, potentially with a larger number of heads.
+\end{remark}
 
 \begin{lemma}[Depth Reduction Lemma]
-Given: Transformer with first-layer fanin $c$. We show that there is a family of input restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$, and each second-layer heads only depend on $c'$ inputs, for some constant $c'$ independent of $n$.
+Given a $c$-augmented transformer. %with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
+We show that there is a family of input restrictions $\rho_n$ % extending $\rho^0_n$
+such that
+%$\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$
+%(actually, it grows at most linearly)
+\begin{equation}
+|\{i \leq n: \rho_n(i) = *\}| \geq \frac{n}{10}
+\end{equation}
+and each second-layer head only depends on $c'$ inputs, for some constant $c'$ independent of $n$.
 \end{lemma}
 
-In particular, the resulting transformer can be rewritten into one with the second layer removed, and the new second layer having fanin $c'$.
+%In particular, the resulting $c$-transformer can be rewritten into a $c'$-transformer with one layer removed.
 
 \begin{proof}
 We will do the first part of the argument for any integer $k \in \mathbb{N}$.
@@ -231,32 +290,45 @@ There is only one case in which we cannot find such a subsequence, which is if a
 A layer-2 head $k$-\emph{depends} on some input $x_i$ if (spell out).
 Two layer-2 head are $k$-\emph{neighbors} if some $j_{i_s}$ for one and $j_{i_s'}$ for the other both $k$-depend on some input $x_l$.
 
-Now consider those layer-2 heads that have $f > 2c^2k^2$ many $k$-neighbors.
+Let $H$ be the number of heads in layer 2.
 
-If there are $\leq n/(1.1c)$ many such heads (for some infinite subsequence of $n$'s -- we can throw away the other $n$'s -- for bad $n$'s, we just fix every input, and they'll drop out of the $\limsup$), then we can fix them manually, fixing only $\leq n/1.1$ many inputs.
+We first show that, WLOG, we can assume that every layer-2 head has $\leq f = 2c^2k^2H$ many $k$-neighbors.
+We do this by creating a restriction that hits at most a linear fraction of inputs that enforces this.
 
-So there are $> n/(1.1c)$ many such elements with $f > 2ck^2$ many neighbors (for all but finitely many $n$ -- we can throw away the other $n$'s).
+So let's assume there are heads with $f > 2c^2k^2H$ many neighbors (we do this argument for all values of $n$).
+This head depends on $\leq ck$ many inputs; by the Pigeonhole principle, this means, there is some input that has $> 2kcH$ many $k$-depending layer-2 heads.
+We now show that the number of such inputs is small:
 
+
+%Now consider those layer-2 heads that have $f > 2c^2k^2$ many $k$-neighbors.
+
+%If there are $\leq n/(1.1c)$ many such heads (for some infinite subsequence of $n$'s -- we can throw away the other $n$'s -- for bad $n$'s, we just fix every input, and they'll drop out of the $\limsup$), then we can fix them manually, fixing only $\leq n/1.1$ many inputs. [I don't think we need this case -- the Case A below subsumes this, and doesn't presuppose the existence of many bad elements]
+
+%So there are $> n/(1.1c)$ many such elements with $f > 2c^2k^2$ many neighbors (for all but finitely many $n$ -- we can throw away the other $n$'s).
+%By the Pigeonhole principle, this means, there is some input that has $> 2kc$ many $k$-depending layer-2 heads.
 
 \begin{enumerate}
-\item Case A: The number of inputs without $> 2kc$ many $k$-depending layer-2-heads is $\Omega(n)$ as $n\rightarrow \infty$, in which case we can just fix these bad inputs (whose complement is asymptotically at least linearly large) to a fixed value. After this manipulation, $f \leq 2k^2c^2$, and the number of heads might now be a constant multiple of $n$.
+\item Case A: the number of inputs with $\leq 2Hkc$ many $k$-depending layer-2-heads is $o(n)$ as $n\rightarrow\infty$, so the number of inputs with $> 2Hkc$ attached layer-2-heads dominates any linear fraction. Then, the number of pairs of inputs and depending level-2 heads would be at least $0.99 \cdot n 2 H k c > Hckn$ for $n$ sufficiently large. On the other hand, there are only $Hckn$ many pairs of inputs and depending level-2 heads.
 
-\item Case B: the number of inputs without $> 2kc$ many $k$-depending layer-2-heads is $o(n)$ as $n\rightarrow\infty$, so the number of inputs with $> 2kc$ attached layer-2-heads dominates any linear fraction. This is a contradiction, as this would entail $>ckn$ many such $k$-of-interest  connections between inputs and level-2 heads.
+\item Case B: The number of inputs without $> 2kcH$ many $k$-depending layer-2-heads is $\Omega(n)$ as $n\rightarrow \infty$, in which case we can just fix these bad inputs (whose complement is asymptotically at least linearly large) to a fixed value. After this manipulation, $f \leq 2k^2c^2H$. We have hit only a linear fraction of inputs; by Remark above, we can rewrite this into a $c$-transformer with a potentially larger number of heads.
 \end{enumerate}
 
 
-For simplicity (at least if we do PARITY), we can absorb the restrictions into the augmented transformers, and get (after renumbering the input size $n$, possibly throwing away duplicates for the same input size, and additionally restricting inputs to pad out gaps in the sequence) a sequence of $c$-augmented transformers.
-The number of heads that have to be satisfied is now $\leq Cn$, for some $C$ that was determined by the manipulations we made above. (this means that the restriction to one head per $n$ was unnecessary)
+
+%The number of heads that have to be satisfied is now $\leq Cn$, for some $C$ that was determined by the manipulations we made above. (this means that the restriction to one head per $n$ was unnecessary)
 
 
 
-After we previous part, we are in the setting where $f < 2c^2k^2$ for every layer-2 head after applying restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$.
-Note that the previous part works for any $k$; we will choose a suitable $k$ in this section.
+After we previous part, we are in the setting where every 2-layer head has at most $f \leq 2c^2k^2H$ $k$-neighbors (for any $k$).
+(Note that the transformations carried out above could at most have increased the value of $H$).
+
+% after applying restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$.
+%Note that the previous part works for any $k$; we will choose a suitable $k$ in this section.
 
 We apply the ``probabilistic method'': we define a probability distribution over random restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 
 Define the distribution that assigns to an input $*$ with probability $p$, and $1$ or $0$ with equal probability else.
-Define $X_i$ ($i=1, ..., n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the higher attention weight (each of these is assigned either the other value, or $*$).
+Define $X_i$ ($i=1, ..., H n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the higher attention weight (each of these is assigned either the other value, or $*$).
 Define $X_0$ to be the event that more than $(1+\delta)pn$ many inputs are set to $0/1$.
 
 We have that failure probability for $X_i$ decays exponentially in $k$:
@@ -272,19 +344,19 @@ Further, we have
 P(X_0) \leq    \exp\left(-\frac{\delta^2(1-p)n}{(2+\delta)}\right)
 \end{equation}
 
-We want to find that we can do find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds, assuming $f < 2c^2k^2$:
+We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds, assuming $f \leq 2c^2k^2H$:
 \begin{align}
  P(X_i) \leq   (1-q/2)^{k} (1-(q/2)^{c-1}) \leq A(1-B)(1-A)^f \\
-P(X_0) \leq \exp\left(-\frac{\delta^2(1-p)n}{(2+\delta)}\right)  \leq B (1-A)^n
+P(X_0) \leq \exp\left(-\frac{\delta^2(1-p)n}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
 \end{align}
-Once we have this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, ..., X_n$.
+Once we have this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, ..., X_{Hn}$.
 
 \begin{proof}
 We need to make
 
 \begin{align}
     (1-q/2) (1-(q/2)^{c-1})^{1/k} &\leq A^{1/k}(1-B)^{1/k}(1-A)^{2kc^2} \\
-\exp\left(-\frac{\delta^2(1-p)}{(2+\delta)}\right)  &\leq B^{1/n} (1-A)
+\exp\left(-\frac{\delta^2(1-p)}{(2+\delta)}\right)  &\leq B^{1/n} (1-A)^H
 \end{align}
 
 Consider $A=2^{-a}$.
