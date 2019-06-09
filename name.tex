@@ -110,10 +110,10 @@ Transformers are emerging as the new workhorse of NLP, showing great success acr
 Unlike LSTMs, transformers process input sequences entirely through self-attention.
 Previous work has suggested that the computational capabilities of self-attention to process hierarchical structures are restricted.
 %Limitations of transformers are believed to exist; this work presents what appear to be the first formal proofs.
-In this work, we mathematically investigate the computational power of self-attention to recognize formal languages.
-Across different settings (finite or infinite precision, soft or hard attention), we show strong theoretical limitations of the computational abilities of self-attention.
-Transformers cannot compute \textsc{Parity}, nor basic recursion, unless the number of layers or heads increases with input size.
-These results contrast with LSTMs, which can handle such languages.
+In this work, we mathematically investigate the computational power of self-attention to model formal languages.
+Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention.
+Assuming natural input distributions, transformers cannot model periodic finite-state languages, nor basic recursion, with asymptotically better-than-chance cross entropy. % unless the number of layers or heads increases with input size.
+These results contrast with LSTMs, which can model such languages perfecty.
 We discuss implications of our theoretical results for natural language and NLP.
     %We show equivalences between transformers and classes of Boolean circuits, which entail strong limitations on the computational power of transformers.
     %First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
@@ -267,16 +267,23 @@ This means, if transformers cannot compute \textsc{Parity}, they cannot recogniz
 %Evaluating iterated negations is tantamount to counting whether the number of nested negations is even or odd.
 %If we know that transformers cannot compute parity, this entails that they also cannot evaluate logical formulas accurately.
 
-\paragraph{\textsc{Dyck}} is the language of correctly bracketed words consisting of `(' and `)'.
+\paragraph{\textsc{2Dyck}} is the language of correctly bracketed words consisting of `(', `[' and `)', `]'.
 This language is a very simple model of hierarchical structure.
 The Chomsky-Sch{\"u}tzenberger theorem states that any context-free language arises from a variant of \textsc{Dyck} with multiple types of parentheses through intersection with a regular language and homomorphisms.
 Consequently, the ability of LSTMs to model \textsc{Dyck} has been an object of study \cite{sennhauser2018evaluating,bernardy2018can}.
-As \textsc{Dyck} is a deterministic counter language, finite-precision LSTMs are capable of perfectly modeling \textsc{Dyck}; though they perform less well for versions with multiple types of parentheses \cite{sennhauser2018evaluating}, which are not counter languages any more.
+As \textsc{1Dyck} is a deterministic counter language, finite-precision LSTMs are capable of perfectly modeling \textsc{1Dyck}; though they perform less well for versions with multiple types of parentheses \cite{sennhauser2018evaluating}, which are not counter languages any more.
 In contrast, our theoretical results will show that transformers cannot model \textsc{Dyck} even with a single type of parentheses.
 
 
 \paragraph{\textsc{Logical Formulas}} is the set of Boolean formulas evaluating to True. Formally, we consider formulas using $\wedge, \vee, \neg$ and atomic \textsc{true}.
 \cite{tran2018importance} experimentally studied the ability of transformers to learn this language, finding that they did not perform as well as LSTMs.
+
+\paragraph{Probability Distributions}
+Calculating cross-entropy requires defining distributions over input words.
+For \textsc{Parity}, we simply consider the distribution over i.i.d. bitstrings of length $n$, and consider the task of predicting the label (odd or even) from the string.
+For \textsc{LogicalFormulas}, we consider the uniform distribution over formulas of length $n$, again considering the task of redicting the label (TRUE or FALSE).
+For \textsc{2Dyck}, we take a slightly different approach, taking the uniform distribution of well-bracketed strings of length $n$, and predicting the set of valid next characters, which is a subset of $\{(,),[, ]\}$.
+We consider the problem of predicting the label from the input separately for each input length $n$, and consider cross-entropy as $n\rightarrow \infty$.
 
 
 %Recognizing whether an expression is bracketed correctly is a basic example of a context-free language and of recursion. If transformers cannot compute parity, they also cannot decide whether long expressions are bracketed correctly.
@@ -361,7 +368,7 @@ and such that the function computed by transformer on the restricted input depen
 \end{thm}
 We first show how this entails that transformers do not recognize the three formal languages:
 \begin{corollary}
-Transformers with hard attention cannot compute \textsc{Parity}, \textsc{Dyck}, or \textsc{BooleanFormula}.
+Transformers with hard attention cannot compute \textsc{Parity}, \textsc{Dyck}, or \textsc{BooleanFormula} (i.e., asymptotic cross-entropy is at chance level).
 \end{corollary}
 \begin{proof}
 Take $C=0.1$.
@@ -572,15 +579,32 @@ This concludes the proof of the Depth Reduction Lemma.
 %If the norm of positional and input embeddings is bounded as $\|p_i\|_2, \|x_i\|_2 \leq p$, 
 %The norm of activations in layer $k$ is bounded as $L^k p$.
 
+In the previous section, we showed that transformers using hard attention are not able to recognize a ange of core formal languages.
 
-We now study soft attention.
-
-
-
+In this section, we study soft attention. %, where we will similarly show limitations of transformers in recognizing formal languages. %computing \textsc{Parity}, \textsc{Dyck}, and \textsc{LogicalFormulas}.
+Here, we will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
+The idea behind the proof is that the impact of any single input on the output of the transformer is small if the input is long:
 \begin{proposition}
-If we exchange a single input bit $x_i$ with the bit $x_i'$, then the difference between the resulting activations at the decoder layers is bounded as $O(\frac{1}{n})$.
+If we exchange $l$ input bits, %a single input bit $x_i$ with the bit $x_i'$
+then the change in the resulting activations at the decoder layers is bounded as $\mathcal{O}(\frac{l\cdot C^k}{n})$, where $n$ is the input length, $k$ is the number of layers, and $C$ is the norm of the parameter matrix.
 \end{proposition}
+This contrasts with recurrent networks:
+Changing a single input can have nonnegligible impact on the final state even for very long input.
+E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes parity of the current prefix will flip its hidden state if a single input bit is flipped.
 
+
+This result entails that, as inputs become longer, soft attention transformers cannot achieve good cross-entropies, e.g., on \textsc{Parity} for i.i.d. coin flips:
+
+\begin{thm}
+Let a soft attention transformer be given for one of the languages \textsc{Parity}, \textsc{2Dyck}, \textsc{BooleanFormula}.
+As $n\rightarrow\infty$, cross-entropy converges to chance level.
+\end{thm}
+
+\begin{proof}
+TODO
+\end{proof}
+
+\begin{proof}[Proof of Proposition]
 Let $D = \|x_i-x_i'\|_2$.
 First, the difference in activations at this position is bounded as follows:
 $\|y_i^0 - {y_i^0}'\| \leq L_f D$
@@ -595,6 +619,8 @@ then any attention weight $\exp(a_i)/\sum_j \exp(a_j)$ is upper bounded by $\fra
 Then, $\|y_j^k - {y_j^k}\| \leq C' k \frac{1}{n}$.
 
 Thus the influence of any individual input on the final prediction is $\mathcal{O}(\frac{k}{n})$, with constants depending on the norms of parameter matrices.
+\end{proof}
+
 
 This shows that, as inputs get arbitrarily long, a soft attention transformer cannot robustly respond to small changes in the input.
 
@@ -628,6 +654,11 @@ It is important to remark that all our impossibility results require taking larg
 Certainly, for any bound on the input length, we can construct a transformer that does anything we want.
 However, we are interested in the extent to which a transformer is able to handle arbitrarily long inputs -- similar to analogous work on RNNs/LSTMs/GRUs.
 
+Our results are consistent with the fact that transformer-based models tend to have far more parameters than comparable LSTMs (CITE).
+
+While our hard attention results hold under extremely general assumptions, the analysis of soft attention builds on regularity properties of the operations that existing transformer models are composed of.
+It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations, or infinite attention logits -- are allowed.
+One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with \textsc{2Dyck} and \textsc{LogicalFormulas}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to compute \textsc{LogicalFormulas} even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$, a widely believed but long open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.} % On the other hand, a proof that they can compute \textsc{LogicalFormulas} under such relaxations might translate into a proof that $TC^0$ and $NC^1$ coincide, }
 
 ...
 We have shown that transformers cannot recognize regular languages that are not counter-free.
