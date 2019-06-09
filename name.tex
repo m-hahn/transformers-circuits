@@ -113,7 +113,7 @@ Previous work has suggested that the computational capabilities of self-attentio
 In this work, we mathematically investigate the computational power of self-attention to model formal languages.
 Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention.
 Assuming natural input distributions, transformers cannot model periodic finite-state languages, nor basic recursion, with asymptotically better-than-chance cross entropy. % unless the number of layers or heads increases with input size.
-These results contrast with LSTMs, which can model such languages perfecty.
+%These results contrast with LSTMs, which can model many such languages perfecty.
 We discuss implications of our theoretical results for natural language and NLP.
     %We show equivalences between transformers and classes of Boolean circuits, which entail strong limitations on the computational power of transformers.
     %First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
@@ -282,7 +282,7 @@ In contrast, our theoretical results will show that transformers cannot model \t
 Calculating cross-entropy requires defining distributions over input words.
 For \textsc{Parity}, we simply consider the distribution over i.i.d. bitstrings of length $n$, and consider the task of predicting the label (odd or even) from the string.
 For \textsc{LogicalFormulas}, we consider the uniform distribution over formulas of length $n$, again considering the task of redicting the label (TRUE or FALSE).
-For \textsc{2Dyck}, we take a slightly different approach, taking the uniform distribution of well-bracketed strings of length $n$, and predicting the set of valid next characters, which is a subset of $\{(,),[, ]\}$.
+For \textsc{2Dyck}, we take a slightly different approach, taking the uniform distribution of well-bracketed prefixes of length $n$, and predicting the set of valid next characters, which is a subset of $\{(,),[, ]\}$.
 We consider the problem of predicting the label from the input separately for each input length $n$, and consider cross-entropy as $n\rightarrow \infty$.
 
 
