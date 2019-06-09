@@ -187,8 +187,8 @@ In practice, computers are finite and algorithms relying on unbounded precision 
 On the other hand, the theoretical idealization of infinite resources is often argued to be useful in the construction of mathematical theories.
 For instance, asymptotic complexity theory relies on the limit of arbitrarily long inputs, and yet makes predictions that are largely highly relevant to practical computing.
 Similarly, the finiteness of precision does not preclude recurrent neural networks  from behaving as if they could encode unbounded numerical information for all practical purposes (CITE).
-We therefore theoretically investigate both finite and infinite precision transformers.
-Our theoretical results will confirm that the idealization of infinite precision can result in more realistic asymptotic characterizations of practically relevant behavior, and that the capabilities of self-attention are limited even in the setting of infinite precision.
+We focus on infinite precision transformers, showing that the capabilities of self-attention are limited even in the setting of infinite precision.
+%Our theoretical results will confirm that the idealization of infinite precision can result in more realistic asymptotic characterizations of practically relevant behavior, and that the capabilities of self-attention are limited even in the setting of infinite precision.
 
 Furthermore, there is a choice between modelling soft attention and hard attention.
 In practice, soft attention is much easier to train with gradient descent methods; however, attention typically concentrates on one or a few positions (CITE), and analysis of neural network attention focuses on the positions where attention concentrates, suggesting that attention behaves mostly like hard attention in practice.
@@ -328,7 +328,7 @@ In fact, we do not even assume that the internal representations $y_j^k$ are vec
 
 %Our results will show that hard-attention transformers are not only unable to recognize these languages perfectly, they are also unable to 
 
-The basic idea behind the proof is that, through setting a small fraction of the input symbols in a particular way, we can `capture the attention' of the transformer in such a way that it ends up ignoring almost all remaining input symbols.
+The basic idea behind the proof is that, through fixing a small fraction of the input symbols in a particular way, we can `capture the attention' of the transformer in such a way that it ends up ignoring almost all remaining input symbols.
 %More specifically, we will use the following approach.
 %We take a transformer, and for each $n$, we consider what happens if we apply this transformer to inputs of that length.
 %We show that, for large enough values of $n$, we can find a way to fix a small fraction of the inputs to 0 or 1, such that the prediction of the transformer depends only on a finitely bounded (independently of $n$) number of input positions.
@@ -336,7 +336,7 @@ The basic idea behind the proof is that, through setting a small fraction of the
 This shows that the transformer could not have solved a problem such as \textsc{Parity}, where every single input bit matters.
 The idea of using such input restrictions is borrowed from the theory of Boolean circuits~\cite{furst1984parity,yao1986separating,hastad1994optimal}.
 In particular, \cite{furst1984parity} used it to prove that polynomial-size bounded-depth Boolean circuits with $\wedge, \vee$, and $\neg$ gates cannot compute \textsc{Parity}.
-Compared to that literature, the method we use to prove existence of suitable restrictions is novel, as these proofs from the Boolean circuit literature do not seem to carry over to self-attention with infinite precision. %The proofs have in common the use of the probabilistic method, but the proof method in \cite{furst1984parity} does not appear to generalize to self-attention with infinite precision.
+We describe a new method to prove existence of suitable restrictions, as the proof approaches from the Boolean circuit literature do not seem to carry over to self-attention with infinite precision. %The proofs have in common the use of the probabilistic method, but the proof method in \cite{furst1984parity} does not appear to generalize to self-attention with infinite precision.
 
 
 %Notably, our proof will not make any assumption about the nonlinearities, parameter matrices, positional embeddings, etc. -- all that is assumed is the basic self-attention architecture described above.
@@ -401,7 +401,7 @@ with $C \in (0,1)$, then we can also view the result as a transformer with $\ope
 
 We can absorb the restrictions into the augmented transformers, and get (after renumbering the input size $n$, possibly throwing away duplicates for the same input size, and additionally restricting inputs to pad out gaps in the sequence) a sequence of $c$-augmented transformers, potentially with a larger number of heads.
 \end{remark}
-With this technical notion, we show that we can reduce layers, iteratively removing the lowest layer:
+With this technical notion, we show that we can reduce layers, iteratively removing the lowest layer until no self-attention layer is left:
 \begin{lemma}[Depth Reduction Lemma]
 Given a $c$-augmented transformer. %with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
 We show that there is a family of input restrictions $\rho_n$ % extending $\rho^0_n$
@@ -414,7 +414,7 @@ such that
 for some $C \in (0,1)$,
 and each second-layer head only depends on $ck$ inputs, for some constant $k$ independent of $n$.
 \end{lemma}
-
+Before proving this lemma, we note that it implies Theorem~\ref{thm:hardmax-main}.
 \begin{proof}[Proof of Theorem~\ref{thm:hardmax-main}]
 Apply the Depth Reduction Lemma iteratively, choosing the constants $C$ in the lemma small enough.
 \end{proof}
@@ -435,14 +435,12 @@ The following observation will be important: If we fix the input $j_k$ to the va
 
 For each layer-2 head, let $j_1, ..., j_n$ be the layer-1 elements downwards by the highest possible attention value that can be achieved for the given head.
 We then select a subsequence $1 \leq i_1 < i_2 < ... < i_k \leq n$ such that (1) for each $i_s$, there is at least one input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
-There is only one case in which we cannot find such a subsequence, which is if all $j_1, ..., j_n$ together depend only on $< ck$ inputs.
+There is only one case in which we cannot find such a subsequence, which is if all $j_1, ..., j_n$ together depend only on $< ck$ inputs, in which case this head already satisfies the condition we're aiming for.
 
 A layer-2 head $k$-\textbf{depends} on some input $x_i$ if this input appears as an input to some $j_r$ for $r \leq i_k$.
 A layer-2 head $k$-depends on an input if and only if that input appears as an input to some $j_{i_s}$ ($s \leq k$). (This is since $i_k$ is minimal).
 
 Two layer-2 head are $k$-\textbf{neighbors} if some $j_{i_s}$ for one and $j_{i_s'}$ for the other both $k$-depend on some input $x_l$.
-
-Let $H$ be the number of attention heads in layer 2.
 
 %We first show that, WLOG, we can assume that every layer-2 head has $\leq f = 2c^2k^2H$ many $k$-neighbors.
 %We do this by creating a restriction that hits at most a linear fraction of inputs that enforces this.
@@ -450,21 +448,23 @@ Let $H$ be the number of attention heads in layer 2.
 %So let's assume there are heads with $f > 2c^2k^2H$ many neighbors (we do this argument for all values of $n$).
 %Any head only depends on $\leq ck$ many inputs; by the Pigeonhole principle, this means,
 
-We will construct input restrictions using probabilistic arguments over i.i.d. random restrictions, and which will require a large amount of independence between the activations of different heads for this approach to succeed.
-We therefore first need to ensure that the number of neighbors of each head is bounded.
+We will construct input restrictions using probabilistic arguments over i.i.d. random restrictions.
+For this approach to succeed, we require a  sufficient amount of independence between the activations of different heads in layer 2.
+We thus need to ensure that the number of neighbors of each head is bounded.
 
+Let $H$ be the number of attention heads in layer 2.
 First, assume there is some input that has $>2kcH$ many $k$-depending layer-2 heads.
 %We now show that the number of such inputs is small, and that we can remove those WLOG.
-
-Assume the number of such inputs is larger than $0.9n$ for infinitely many values of $n$.
-Then, the number of pairs of inputs and depending level-2 heads would be at least $0.9 n \cdot 2 H k c > Hckn$ for $n$ sufficiently large. On the other hand, there are only $Hckn$ many pairs of inputs and depending level-2 heads.
-Thus, the number of such inputs is at most $<0.9n$ (for all but finitely many $n$).
+Assume the number of such inputs is larger than $0.9n$ for some $n$.
+Then, the number of pairs of inputs and depending level-2 heads would be at least $0.9 n \cdot 2 H k c > Hckn$ for this $n$.
+On the other hand, there are only $Hckn$ many pairs of inputs and depending level-2 heads -- contradiction.
+Thus, the number of such inputs is at most $<0.9n$ for all $n$.
 We can therefore construct restrictions $\rho_n$ that are set to some fixed value (doesn't matter which one) for these $<0.9n$ inputs, and to $*$ to others.
-After this manipulation, every input has at most $2kcH$ many $k$-depending layer-2 heads.\footnote{For finitely many values of $n$ -- but by making $k$ larger after this manipulation, this will hold for all $n$.}
+After this manipulation, every input has at most $2kcH$ many $k$-depending layer-2 heads, independent of $n$. %\footnote{For finitely many values of $n$ -- but by making $k$ larger after this manipulation, this will hold for all $n$.}
 
 
 Furthermore, assume the number of inputs with $> 2cH$ depending layer-1 heads is $\geq 0.9n$.
-Then the number of input to layer-1 connections is $>0.9n \cdot 2cH$ for $n$ large enough.
+Then the number of input to layer-1 connections is $>0.9n \cdot 2cH$.
 But there are at most $ncH$ such pairs, contradiction.
 So the number of inputs with $> 2cH$ depending layer-1 heads is $\leq Cn$ for $n$ large, for some costant $C \in (0,1)$.
 We can restrict these inputs, again rewriting into a $c$-transformer with a potentially larger number of heads.
@@ -491,49 +491,41 @@ We can restrict these inputs, again rewriting into a $c$-transformer with a pote
 %The number of heads that have to be satisfied is now $\leq Cn$, for some $C$ that was determined by the manipulations we made above. (this means that the restriction to one head per $n$ was unnecessary)
 
 \paragraph{Constructing Restrictions}
-After we previous part, we are in the setting where every input has $\leq 2kcH$ many depending layer-2 heads, and consequently every layer-2 head has at most $f \leq 2c^2k^2H$ $k$-neighbors (for any $k$).
+After the previous part, we are in the setting where every input has $\leq 2kcH$ many depending layer-2 heads, and consequently every layer-2 head has at most $f \leq 2c^2k^2H$ $k$-neighbors (for any $k$).
 (Note that the transformations carried out above could at most have increased the value of $H$).
-Also, has $\leq 2cH$ depending layer-1 heads.
+Also, every input has $\leq 2cH$ depending layer-1 heads.
 
 % after applying restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$.
 %Note that the previous part works for any $k$; we will choose a suitable $k$ in this section.
 
 In order to prove the existence if suitable input restrictions, we apply the ``probabilistic method'': we define a probability distribution over restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 
-Define the distribution that assigns to an input $*$ with probability $p$, and $1$ or $0$ with equal probability else.
+Define the distribution that independently assigns to each input the symbol $*$ with probability $p$, and $1$ or $0$ with equal probability else.
 Define $X_i$ ($i=1, ..., H n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the higher attention weight (each of these is assigned either the other value, or $*$).
 Define $X_0$ to be the event that more than $(1+\delta)qn$ many inputs are set to $0/1$.
 
-The probability of $X_i$ decays exponentially in $k$ (where $q = 1-p$):
-\begin{equation}
-P(X_i) \leq (1-(q/2)^c)^{\frac{k}{2cH}} %(1-q/2)^{k} (1-(q/2)^{c-1})
-\end{equation}
-%TODO unclear
-%\begin{proof}
+We first show that the probability of $X_i$ decays exponentially in $k$.
 Let $Y_i^t$ ($t=1,...,k$) be the event that the layer-1 head $j_{i_t}$ is not assigned the value that produces the highest attention weight.
 Note that $X_i = \bigcap_t Y_i^t$.
-We have $P(Y_i^s) = 1-(q/2)^c < 0$.
-There is a set of $\geq \frac{k}{2cH}$ independent events among these TODO SHOW THIS.
-Call these $Y_i^{t_1}, ..., Y_i^{\frac{k}{2cH}}$.
-Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{2cH}} Y_i^{t_s}$, and thus $P(X_i) \leq \prod_{s=1}^{\frac{k}{2cH}} Y_i^{t_s} = (1-(q/2)^c)^{\frac{k}{2cH}}$.
-
+We have $P(Y_i^s) = 1-(q/2)^c < 0$ (where $q = 1-p$).
+Any $Y_i^s$ can be statistically dependent on at most $c \cdot 2cH = 2c^2H$ other events $Y_i^{s'}$.
+Therefore, there is a set of $\geq \frac{k}{2c^2H}$ independent events among these.
+Call these $Y_i^{t_1}, ..., Y_i^{\frac{k}{2c^2H}}$.
+Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{2c^2H}} Y_i^{t_s}$, and thus
+\begin{equation}
+    P(X_i) \leq \prod_{s=1}^{\frac{k}{2c^2H}} Y_i^{t_s} = (1-(q/2)^c)^{\frac{k}{2c^2H}}
+\end{equation}
 %We use induction over $t \in \{1, ..., k\}$ to compute the probability that none of $j_{i_1}, ..., j_{i_t}$ are assigned to value achieving the maximal attention weight.
-
 %At $t=1$, the failure probability for $j_{i_1}$ is $\leq (1-(q/2)^c)$.
-
 %For $t+1$: Assume that $j_{i_{t+1}}$ introduces $w > 0$ new input variables not occurring in $j_{i_1}, ..., j_{i_1}$.
-
 %Failure probability is $\leq F_t \cdot (1-(q/2)^w)$.
-
 %TODO maybe this isn't actually strict enough
 %\end{proof}
-
 Furthermore, a Chernoff bound gives\footnote{See 
 \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 \begin{equation}
 P(X_0) \leq    \exp\left(-\frac{\delta^2qn}{(2+\delta)}\right)
 \end{equation}
-
 We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds, assuming $f \leq 2c^2k^2H$:
 \begin{align}
  P(X_i) &\leq  C^k \leq A(1-B)(1-A)^f \\
@@ -569,16 +561,21 @@ This concludes the proof of the Depth Reduction Lemma.
 
 \section{Results for Soft Attention}
 
-We first notice that, with arbitary activation functions, infinite precision softmax transformers:
-For simplicity, we consider languages over alphabets with only two elements, though the argument generalizes.
-Take positional embeddings $p_i = 2^{-i}$; and set $y_i^0$ to be $p_i$ if $x_i$ is $1$, and $0$ else.
-Then, by using an attention head that attends to each position with equal weight, we can compute $\frac{1}{n} \sum_{i : x_i = 1} 2^{-i}$.
-TODO
+%We first notice that, with arbitary activation functions, infinite precision softmax transformers:
+%For simplicity, we consider languages over alphabets with only two elements, though the argument generalizes.
+%Take positional embeddings $p_i = 2^{-i}$; and set $y_i^0$ to be $p_i$ if $x_i$ is $1$, and $0$ else.
+%Then, by using an attention head that attends to each position with equal weight, we can compute $\frac{1}{n} \sum_{i : x_i = 1} 2^{-i}$.
+%TODO
 
-In an actual transformer, all operations are Lipschitz.
+%In an actual transformer, all operations are Lipschitz.
 %If we use additive attention, 
 %If the norm of positional and input embeddings is bounded as $\|p_i\|_2, \|x_i\|_2 \leq p$, 
 %The norm of activations in layer $k$ is bounded as $L^k p$.
+
+
+We now study soft attention.
+
+
 
 \begin{proposition}
 If we exchange a single input bit $x_i$ with the bit $x_i'$, then the difference between the resulting activations at the decoder layers is bounded as $O(\frac{1}{n})$.
