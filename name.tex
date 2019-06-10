@@ -113,7 +113,7 @@ Previous work has suggested that the computational capabilities of self-attentio
 In this work, we mathematically investigate the computational power of self-attention to model formal languages.
 Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention.
 Assuming natural input distributions, transformers cannot model periodic finite-state languages, nor basic recursion, with asymptotically better-than-chance cross entropy. % unless the number of layers or heads increases with input size.
-%These results contrast with LSTMs, which can model many such languages perfecty.
+%These results contrast with LSTMs, which can model many such languages perfectly.
 We discuss implications of our theoretical results for natural language and NLP.
     %We show equivalences between transformers and classes of Boolean circuits, which entail strong limitations on the computational power of transformers.
     %First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
@@ -140,7 +140,8 @@ We mathematically examine the classes of languages that transformers can recogni
 
 We focus on the ability of transformers to compute (1) regular languages, and (2) context-free languages containing hierarchical structure.
 Our results entail show strong theoretical limitations of self-attention:
-Among regular languages, transformers can only robustly recognize counter-free languages.
+Transformers cannot model non-counter-free regular languages or languages containing unbounded recursion.
+
 
 \section{Self-Attention}
 Here we define self-attention following \cite{vaswani2017attention}.
@@ -170,8 +171,8 @@ where $f^{act}$ can be implemented as a fully-connected feedfoward network.
 
 Following the construction of Seq2Seq transformer networks, in the decoder part we compute a softmax probability vector from the last activation $y_{n+1}^L$.
 
-We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
-To accomodate imprecision in computation, we will relax this to only demand that the result by separated from 0.5 by some constant $\delta$.
+%We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
+%To accomodate imprecision in computation, we will relax this to only demand that the result by separated from 0.5 by some constant $\delta$.
 
 
 %Finite/infinite precision, hardmax/softmax
@@ -186,29 +187,33 @@ RNNs, LSTMs
 In practice, computers are finite and algorithms relying on unbounded precision might be infeasible to approximate with finite precision.
 On the other hand, the theoretical idealization of infinite resources is often argued to be useful in the construction of mathematical theories.
 For instance, asymptotic complexity theory relies on the limit of arbitrarily long inputs, and yet makes predictions that are largely highly relevant to practical computing.
-Similarly, the finiteness of precision does not preclude recurrent neural networks  from behaving as if they could encode unbounded numerical information for all practical purposes (CITE).
+Similarly, the finiteness of precision does not preclude recurrent neural networks  from behaving as if they could encode unbounded numerical information for all practical purposes~\cite{weiss2018practical}.
 We focus on infinite precision transformers, showing that the capabilities of self-attention are limited even in the setting of infinite precision.
+We discuss finite the precision setting in the Discussion, Section REF.
 %Our theoretical results will confirm that the idealization of infinite precision can result in more realistic asymptotic characterizations of practically relevant behavior, and that the capabilities of self-attention are limited even in the setting of infinite precision.
 
-Furthermore, there is a choice between modelling soft attention and hard attention.
+Furthermore, there is a choice between modelling soft attention and hard attention \cite{shen2018reinforced}.
 In practice, soft attention is much easier to train with gradient descent methods; however, attention typically concentrates on one or a few positions (CITE), and analysis of neural network attention focuses on the positions where attention concentrates, suggesting that attention behaves mostly like hard attention in practice.
-Again, we will examine both of these settings.
-We will see that, if arbitrary activation functions are allowed, soft attention is significantly more powerful than hard attention.
-On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, ...), hard and soft attention result in similar limitations.
+The only prior study of transformers~\cite{perez2019turing} assumes hard attention.
+We will therefore examine both of these settings.
+%We will see that, if arbitrary activation functions are allowed, soft attention is significantly more powerful than hard attention.
+%On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, ...), hard and soft attention result in similar limitations.
 
 \section{Related Work}
 
 \paragraph{Prior Work on Transformers}
-\cite{dehghani2018universal} argued that transformers are restricted computationally, motivating their proposal of a variant with adaptive and unbounded number of layers.
-They argued that transformers cannot compute functions that require sequential processing of input, without providing futher details or proofs.
+It has been a recurrent suggestion in the literature that transformers are restricted computationally, as they cannot process their input sequentially.
+\cite{dehghani2018universal} suggested that transformers are restricted computationally, motivating their proposal of a variant with adaptive and unbounded number of layers.
+They argued that transformers cannot compute functions that require sequential processing of input, without providing further details or proofs.
+Our results provide an explicit formalization of these limitations.
+Similarly, \cite{shen2018disan,chen2018best,hao2019modeling} have introduced extensions of transformers with recurrence.
+
 
 Other studies have experimentally tested the abilities of transformers to learn structures.
 Most related to our work, \cite{tran2018importance} compared the ability of transformers and LSTMs to learn hierarchical structure, specifically English subject-verb agreeement and evaluating logical formulas.
 Based on their experimental results, they suggested that LSTMs are better at learning hierarchical structure.
 
-- \cite{yang2019assessing}
-
-- ...
+\cite{yang2019assessing} experimentally investigated the power of self-attention to extract word order information, finding differences between recurrent and self-attention models; however, these were modulated by the training objective.
 
 \cite{perez2019turing} theoretically studied the ability of Seq2Seq transformers to emulate the computation of Turing machines.
 There is no contrast between their results and ours: While we consider transducing inputs to a single label (0, 1), they study the setting in which the transformer computes an unbounded number of autoregressive decoding steps, not bounded in the input length $n$.
@@ -244,9 +249,9 @@ Based on this insight, \cite{chen2017recurrent} have proven (un)decidability res
 
 
 
-\section{Three Formal Languages} % : \textsc{Parity}
+\section{Two Formal Languages} % : \textsc{Parity}
 
-We will analyze the ability of transformers to recognize three formal languages, representing basic regular and context-free languages.
+We will analyze the ability of transformers to recognize formal languages, using two basic regular and context-free languages.
 %\textsc{Parity}.
 
 
@@ -263,9 +268,16 @@ This means, if transformers cannot compute \textsc{Parity}, they cannot recogniz
 %The reason is that, as we will show, Parity is a very simple instantiation of certain properties that make a large range of problems hard for parallel computation with a fixed number of layers.
 %If transformers cannot compute \textsc{Parity}, it immediately follows that they also cannot compute various more complex functions:
 
-%A system that evaluates logical formulas (CITE) has to (among other things) be able to handle iterated negations.
-%Evaluating iterated negations is tantamount to counting whether the number of nested negations is even or odd.
-%If we know that transformers cannot compute parity, this entails that they also cannot evaluate logical formulas accurately.
+A system that evaluates logical formulas (CITE) has to (among other things) be able to handle iterated negations.
+Evaluating iterated negations is tantamount to counting whether the number of nested negations is even or odd.
+If we know that transformers cannot compute parity, this entails that they also cannot evaluate logical formulas accurately.
+\cite{tran2018importance} experimentally studied the ability of transformers to learn this language, finding that they did not perform as well as LSTMs.
+
+
+%\textsc{Logical Formulas} is the set of Boolean formulas evaluating to True. Formally, we consider formulas using $\wedge, \vee, \neg$ and atomic \textsc{true}.
+%\cite{tran2018importance} experimentally studied the ability of transformers to learn this language, finding that they did not perform as well as LSTMs.
+
+
 
 \paragraph{\textsc{2Dyck}} is the language of correctly bracketed words consisting of `(', `[' and `)', `]'.
 This language is a very simple model of hierarchical structure.
@@ -275,8 +287,6 @@ As \textsc{1Dyck} is a deterministic counter language, finite-precision LSTMs ar
 In contrast, our theoretical results will show that transformers cannot model \textsc{Dyck} even with a single type of parentheses.
 
 
-\paragraph{\textsc{Logical Formulas}} is the set of Boolean formulas evaluating to True. Formally, we consider formulas using $\wedge, \vee, \neg$ and atomic \textsc{true}.
-\cite{tran2018importance} experimentally studied the ability of transformers to learn this language, finding that they did not perform as well as LSTMs.
 
 \paragraph{Probability Distributions}
 Calculating cross-entropy requires defining distributions over input words.
@@ -335,7 +345,24 @@ In fact, we do not even assume that the internal representations $y_j^k$ are vec
 
 %Our results will show that hard-attention transformers are not only unable to recognize these languages perfectly, they are also unable to 
 
-The basic idea behind the proof is that, through fixing a small fraction of the input symbols in a particular way, we can `capture the attention' of the transformer in such a way that it ends up ignoring almost all remaining input symbols.
+
+
+
+\begin{figure*}[ht]
+    \centering
+    \begin{tabular}{llll}
+    (a) & (b) & (c) & (d) \\
+    \includegraphics[width=0.23\textwidth]{figures/sa1.png} &
+        \includegraphics[width=0.23\textwidth]{figures/sa2.png}&
+    \includegraphics[width=0.23\textwidth]{figures/sa3.png} &
+        \includegraphics[width=0.23\textwidth]{figures/sa4.png}
+        \end{tabular}
+	\caption{Iteratively reducing the layers of a transformer by fixing a few input symbols. (a) We fix a small number of input symbols, `attracting' attention from the first layer to a few inputs. (b) After this step, each activation in the first layer only depends on a small number of input symbols. (c) We again fix a few input symbols in such a way as to `attract' attention of layer-2 heads to some layer-1 activations. As a result, each layer-2 activation only depends on a small number of layer-1 activations. (d) After this step, each layer-2 activation only depends on a few inputs, and we can remove layer 1. In this example, input $X_5$ ends up being ignored by the transformer after applying the restriction.}
+	\label{fig:depth-reduction}
+\end{figure*}
+
+
+The basic idea (see Figure~\ref{fig:depth-reduction}) behind the proof is that, through fixing a small fraction of the input symbols in a particular way, we can `capture the attention' of the transformer in such a way that it ends up ignoring almost all remaining input symbols.
 %More specifically, we will use the following approach.
 %We take a transformer, and for each $n$, we consider what happens if we apply this transformer to inputs of that length.
 %We show that, for large enough values of $n$, we can find a way to fix a small fraction of the inputs to 0 or 1, such that the prediction of the transformer depends only on a finitely bounded (independently of $n$) number of input positions.
@@ -368,22 +395,27 @@ and such that the function computed by transformer on the restricted input depen
 \end{thm}
 We first show how this entails that transformers do not recognize the three formal languages:
 \begin{corollary}
-Transformers with hard attention cannot compute \textsc{Parity}, \textsc{Dyck}, or \textsc{BooleanFormula} (i.e., asymptotic cross-entropy is at chance level).
+Transformers with hard attention cannot model \textsc{Parity} or \textsc{Dyck}
+with cross-entropy asymptotically better than chance.
+%, or \textsc{BooleanFormula} (i.e., asymptotic cross-entropy is at chance level).
 \end{corollary}
 \begin{proof}
 Take $C=0.1$.
 For \textsc{Parity}, after applying a restriction, the output of the transformer depends on $c$ inputs.
 An input of sufficiently large size $n$ thus has unrestricted inputs that do not influence the output.
-But flipping a single input bit changes the value, so the transformer's output cannot match membership in \textsc{Parity}.
+But flipping a single input bit changes the value, so the transformer's output cannot match membership in \textsc{Parity} beyond chance as soon as $n$ is sufficiently large.
 
 This directly entails that transformers also cannot do \textsc{BooleanFormula}.
+TODO cross-entropy?
 
 For \textsc{Dyck}, we first restrict the first $0.2n$ input positions to `('.
 After applying the restriction provided by the theorem, the resulting restricted input will still be compatible with both well-bracketed and non-well-bracketed inputs.
 As the prediction depends on only a bounded number of positions, this shows the transformer could not recognize \textsc{Dyck}.
+TODO but cross-entropy?
 \end{proof}
 
 Our approach for proving Theorem~\ref{thm:hardmax-main} will be to iteratively remove the lowest layer of a given transformer by constructing input restrictions.
+This process is illustrated in Figure~\ref{fig:depth-reduction}.
 After the first step, each of the heads in the first layer will only depend on a bounded number $c$ of input positions.
 In the second step, we apply the same argument to the heads in the second layer, so that each head in the second layer only depends on a bounded number $c'$ of heads in the first layer.
 After this step, we can collapse the first layer into feedforward networks that transform a bounded number $\leq cc'$ of input positions into an activation $y_i^2$ of the second layer.
@@ -409,7 +441,7 @@ with $C \in (0,1)$, then we can also view the result as a transformer with $\ope
 We can absorb the restrictions into the augmented transformers, and get (after renumbering the input size $n$, possibly throwing away duplicates for the same input size, and additionally restricting inputs to pad out gaps in the sequence) a sequence of $c$-augmented transformers, potentially with a larger number of heads.
 \end{remark}
 With this technical notion, we show that we can reduce layers, iteratively removing the lowest layer until no self-attention layer is left:
-\begin{lemma}[Depth Reduction Lemma]
+\begin{lemma}[Transformer Depth Reduction Lemma]
 Given a $c$-augmented transformer. %with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
 We show that there is a family of input restrictions $\rho_n$ % extending $\rho^0_n$
 such that
@@ -579,7 +611,7 @@ This concludes the proof of the Depth Reduction Lemma.
 %If the norm of positional and input embeddings is bounded as $\|p_i\|_2, \|x_i\|_2 \leq p$, 
 %The norm of activations in layer $k$ is bounded as $L^k p$.
 
-In the previous section, we showed that transformers using hard attention are not able to recognize a ange of core formal languages.
+In the previous section, we showed that transformers using hard attention are not able to recognize a range of core formal languages.
 
 In this section, we study soft attention. %, where we will similarly show limitations of transformers in recognizing formal languages. %computing \textsc{Parity}, \textsc{Dyck}, and \textsc{LogicalFormulas}.
 Here, we will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
@@ -648,7 +680,15 @@ Here should have some experimental things
 
 \section{Discussion}
 
-...
+How do our results compare to what is known about LSTMs?
+Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model finite state languages with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
+In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with zero cross-entropy, independent of the input length.
+Infinite-precision LSTMs can model stacks \cite{kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and \textsc{LogicalFormulas} perfectly.
+On the other hand, the theoretical results of \cite{merrill2019sequential} show that finite-precision LSTMs cannot model these languages perfectly at long lengths.
+Experimental evidence on the ability of LSTMs to learn \textsc{2Dyck} and \textsc{LogicalFormulas} from data is mixed, but clearly falls short of perfect accuracy or cross-entropy.
+
+
+
 
 It is important to remark that all our impossibility results require taking large inputs:
 Certainly, for any bound on the input length, we can construct a transformer that does anything we want.
