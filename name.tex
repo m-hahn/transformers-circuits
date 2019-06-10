@@ -113,7 +113,8 @@ Previous work has suggested that the computational capabilities of self-attentio
 In this work, we mathematically investigate the computational power of self-attention to model formal languages.
 Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention, finding that it cannot model periodic finite-state languages, nor basic recursion or logical formula evaluation. %, with asymptotically better-than-chance cross entropy. % unless the number of layers or heads increases with input size.
 %These results contrast with LSTMs, which can model many such languages perfectly.
-We discuss implications of our theoretical results for natural language and NLP.
+%We discuss implications of our theoretical results for natural language and NLP.
+Our results open the door to formal understanding of the techniques underlying recent advances in NLP.
     %We show equivalences between transformers and classes of Boolean circuits, which entail strong limitations on the computational power of transformers.
     %First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
     %Adding layer normalization, or using softmax self-attention, yields $TC^0$.
@@ -682,19 +683,22 @@ Thus the influence of any individual input on the final prediction is $\mathcal{
 
 \section{Discussion}
 
+We have shown that, even with infinite precision, transformers cannot robustly model periodic regular languages, basic hierarchical structure, or Boolean formula evaluation.
+
 How do our results compare to what is known about LSTMs?
-Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model finite state languages with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
+Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata (CITE), and therefore can model finite state languages with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with zero cross-entropy, independent of the input length.
-Infinite-precision LSTMs can model stacks \cite{kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and \textsc{LogicalFormulas} perfectly.
-On the other hand, the theoretical results of \cite{merrill2019sequential} show that finite-precision LSTMs cannot model these languages perfectly at long lengths.
-Experimental evidence on the ability of LSTMs to learn \textsc{2Dyck} and \textsc{LogicalFormulas} from data is mixed, but clearly falls short of perfect accuracy or cross-entropy.
+Infinite-precision RNNs and LSTMs can model stacks \cite{kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and \textsc{LogicalFormulas} perfectly.
+This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers provides a theoretical explanation for the empirical findings of \cite{tran2018importance}.
+%On the other hand, the theoretical results of \cite{merrill2019sequential} show that finite-precision LSTMs cannot model these languages perfectly at long lengths.
+%Experimental evidence on the ability of LSTMs to learn \textsc{2Dyck} and \textsc{LogicalFormulas} from data is mixed, but clearly falls short of perfect accuracy or cross-entropy.
 
 
 
 
-It is important to remark that all our impossibility results require taking large inputs:
-Certainly, for any bound on the input length, we can construct a transformer that does anything we want.
-However, we are interested in the extent to which a transformer is able to handle arbitrarily long inputs -- similar to analogous work on RNNs/LSTMs/GRUs.
+%It is important to remark that all our impossibility results require taking large inputs:
+%Certainly, for any bound on the input length, we can construct a transformer that does anything we want.
+%However, we are interested in the extent to which a transformer is able to handle arbitrarily long inputs -- similar to analogous work on RNNs/LSTMs/GRUs.
 
 %Our results are consistent with the fact that transformer-based models tend to have far more layers than comparable LSTMs (CITE).
 
@@ -704,15 +708,28 @@ One can show that the use of discontinuous activation functions such as the Heav
 
 
 
-...
-We have shown that transformers cannot recognize regular languages that are not counter-free.
-Since transformers have only linearly many activations in $n$, we conjecture that the class of regular languages recognized by transformers is $\bf{DA}$.
+%...
+%We have shown that transformers cannot recognize regular languages that are not counter-free.
+%Since transformers have only linearly many activations in $n$, we conjecture that the class of regular languages recognized by transformers is $\bf{DA}$.
 
 
-\paragraph{What does this mean for NLP?}
+%\paragraph{What does this mean for NLP?}
+
+
+%Hierarchical structure and recursion are agreed to be central properties of natural languages (CITE).
+%What reconciles the striking success of self attention in NLP with its theoretical limitations in modeling recursion?
+%One possible answer is that these models may be insufficient to understand language the way humans do
+%One possible answer is that unbounded recursion is 
+
+%Our results exhibit a class of formal languages that -- at infinite precision -- transformers cannot model, but LSTMs can.
+%In future work, we will try to answer whether transformers are strictly weaker than LSTMs, or their formal strengths are incomparable.
 
 
 \section{Conclusion}
+We formally investigated the capabilities of self-attention in modeling regular languages and hierarchical structure.
+We showed that transformers cannot model periodic regular languages, basic recursion, or Boolean formula evaluation, either with hard or soft attention, and even if infinite precision is allowed.
+Our results provide a theoretical confirmation of the idea that self-attention has quite limited computational power. %is not capable of modeling hierarchical structure.
+
 
 
 \bibliography{literature}
