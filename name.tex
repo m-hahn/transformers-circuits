@@ -158,7 +158,7 @@ The final activation of the head is computed by weighting according to attention
 In the soft attention version,
 $$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot}) $$
 In the hard attention variant \cite{perez2019turing} , we take the actual maximum of attention values instead of softmax:
-$\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{This requires an arbitrary setting when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
+$\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{This requires an arbitrary choice when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
 The final activation at each position is then computed as
 \begin{equation}
     y_i^{(k)} := f^{act}(y_i^{(k-1)}, b_{i,k,1}, ..., b_{i,k,H})
@@ -706,47 +706,50 @@ Having established the main theorem, we proceed to proving the technical lemma:
 Let us compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
 Let $D = \|x_i-x_i'\|_2$ the norm of the difference of the input embeddings at this position.
 
-	We show by induction over $k$ that, for some some $C, E > 0$ (depending on the parameter matrices) the difference between the activations $y_i^k$, ${y_i^k}'$ at this position are bounded independently of input length $n$:
+	We show by induction over $k$ that, for some some $C > 0$ (depending on the parameter matrices) the difference between the activations $y_j^k$, ${y_j^k}'$ are bounded as: %at this position are bounded independently of input length $n$:
 \begin{equation}
-	\|y_i^k-{y_i^k}'\| \leq (2C)^{2k}ED = \mathcal{O}(1)
+\begin{aligned}
+	\|y_i^k-{y_i^k}'\| &\leq (2C)^{2k}D = \mathcal{O}(1) \\
+	\|y_j^k-{y_j^k}'\| &\leq \frac{H^k (2C)^{2k}D}{n} = \mathcal{O}(1/n)\ \ \ (j \neq i)
+	\end{aligned}
 \end{equation}
-and the difference between the activation at other positions $j\neq i$ are bounded as
-\begin{equation}
-	\|y_j^k-{y_j^k}'\| \leq \frac{H^k (2C)^{2k}ED}{n} = \mathcal{O}(1/n)
-\end{equation} ($j \neq i$).
 Once we have shown this, we have found that the influence of any individual input on the final prediction is $\mathcal{O}(\frac{1}{n})$, with constants depending on the norms of parameter matrices and the number of layers.
 
 
-For $k=0$, $\|y_i^0 - {y_i^0}'\| \leq L_f D$ (where $L_f$ is the Lipschitz constant of the operation $f$ combining position and input embeddings), and $\|y_j^0 - {y_j^0}'\| = 0$ ($j \neq i$).
+For $k=0$, $\|y_i^0 - {y_i^0}'\| \leq D$,\footnote{We are assuming that $f$ is addition or concatenation \cite{vaswani2017attention}; for operations such as an MLP, there would be an additional Lipschitz constant depending on parameters and activation functions.}
+and %, where $L_f$ is the Lipschitz constant of the operation $f$ combining position and input embeddings.
+$\|y_j^0 - {y_j^0}'\| = 0$ for $j \neq i$.
 
-For $k>0$, we first note that for activations $\|y_i^k\|_2 \leq 2 L_{f^{act}}^{(k)} L_f (\|p_i\| + \|x_i\|) =: F$.
-Attention logits are bounded by $A := F^2 L_{f^{att}}$.
+For $k>0$, we first note that for activations $\|y_i^k\|_2 \leq 2 \left(L_{f^{act}}\right)^{L}  (\|p_i\| + \|x_i\|) =: F$, where
+$L_{f^{act}}$ is the Lipschitz constant of $f^{act}$.
+As $f^{act}$ is implemented as a ReLU MLP \cite{vaswani2017attention}, $L_{f^{act}}$ depends on the norms of the parameter matrices.
+Attention logits are bounded by $A := F^2 L_{f^{att}}$ in the case of multiplicative/bilinear attention, and $A := 2 F L_{f^{att}}$ in the case of additive attention.
 %If attention logits are bounded as $|a_i| \leq A$,
-Then any attention weight $\exp(a_i)/\sum_j \exp(a_j)$ is upper bounded by $\frac{\exp(A)}{\exp(A) + (n-1) \exp(-A)} \leq \frac{\exp(2A)}{n}$.
+Then any attention weight $\widehat{a}_{j,i} = \exp(a_i)/\sum_j \exp(a_j)$ is upper bounded by $\frac{\exp(A)}{\exp(A) + (n-1) \exp(-A)} \leq \frac{\exp(2A)}{n}$.
 
-Choose $E = L_f$, $C : = 2(1 + \exp(2A) + L_{f^{act}})$.
+Choose $C : = 2(1 + \exp(2A) + L_{f^{act}})$.
 
 Recall $y_i^k := f^{act}(y_i^{k-1}, b_{i,k,1}, ..., b_{i,k,H})$, where $b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{k-1}$.
 We first calculate
 \begin{align*}
 & \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y_w^{k-1}\| \\
 & \leq + \hat{a}_{j,i}^{k,h} \|y_i^{k-1} - y_i^{k-1}\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y_w^{k-1}\|  \\
-& \leq \frac{\exp(2A)}{n}  (2C)^{2(k-1)} ED + \frac{H^{k-1}(2C)^{2(k-1)}ED}{n} \\
-& \leq (2C)^{2(k-1)}ED \frac{C/2   + H^{k-1} }{n} \\
-& \leq \frac{H^{k-1} (2C)^{2(k-1)+1} ED}{n}
+& \leq \frac{\exp(2A)}{n}  (2C)^{2(k-1)} D + \frac{H^{k-1}(2C)^{2(k-1)}D}{n} \\
+%& \leq (2C)^{2(k-1)}D \frac{C/2   + H^{k-1} }{n} \\
+& \leq \frac{H^{k-1} (2C)^{2(k-1)+1} D}{n}
 \end{align*}
 Then, $\|y_j^k - {y_j^k}\|$ is at most
 \begin{equation}
 	L_{f^{act}} \cdot \left(\|y_j^{k-1}-{y_j^{k-1}}'\| + \sum_{q=1}^H \|b_{i,k,q} - b_{i,k,q}'\|\right)
 \end{equation}
-If $j= i$, this is bounded above by (as $n$ grows to infinity)
+If $j= i$, this is bounded (as $n \rightarrow \infty$)
 \begin{equation}
-L_{f^{act}} \cdot ((2C)^{2(k-1)}ED + o(1)) \leq (2C)^{2k}ED
+\leq L_{f^{act}} \cdot ((2C)^{2(k-1)}D + o(1)) \leq (2C)^{2k}D
 \end{equation}
 If $j\neq i$, this is bounded above by
 \begin{align*}
-  &  L_{f^{act}} \cdot \frac{H^{k-1} (2C)^{2(k-1)}ED + H^{k} (2C)^{2(k-1)+1} ED)}{n} \\
-  &  \leq  \frac{H^{k} (2C)^{2k} ED}{n} \\
+  &  L_{f^{act}} \cdot \frac{H^{k-1} (2C)^{2(k-1)}D + H^{k} (2C)^{2(k-1)+1} D)}{n} \\
+  &  \leq  \frac{H^{k} (2C)^{2k} D}{n} \\
 \end{align*} 
 This proves the inductive step for $k>0$.
 \end{proof}
