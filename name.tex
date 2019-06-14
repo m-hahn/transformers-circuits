@@ -191,7 +191,7 @@ We discuss finite the precision setting in the Discussion, Section REF.
 
 Furthermore, there is a choice between modelling soft attention and hard attention \cite{shen2018reinforced,perez2019turing}.
 The only prior study of transformers~\cite{perez2019turing} assumes hard attention.
-In practice, soft attention is much easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
+In practice, soft attention is easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
 We will  examine both hard and soft attention settings.
 %We will see that, if arbitrary activation functions are allowed, soft attention is significantly more powerful than hard attention.
 %On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, ...), hard and soft attention result in similar limitations.
@@ -563,7 +563,7 @@ After these preparations,
 %The number of heads that have to be satisfied is now $\leq Cn$, for some $C$ that was determined by the manipulations we made above. (this means that the restriction to one head per $n$ was unnecessary)
 
 \paragraph{Part 2: Constructing Restrictions}
-After the previous part, we are in the setting where every input has $\leq \frac{1}{\eta}kcH/C$ many depending layer-1 heads, and consequently every layer-1 head has at most $f \leq \frac{1}{\eta}c^2k^2H/C$ $k$-neighbors (for any $k$).
+After the previous part, we are in the setting where every input has $\leq \frac{1}{\eta}kcH/C$ many depending layer-1 heads, and consequently every layer-1 head has at most $f \leq \frac{1}{\eta}c^2k^2H/C$ many $k$-neighbors (for any $k$).
 %(Note that the transformations carried out above could at most have increased the value of $H$).
 Also, every input has $\leq \frac{1}{\eta}cH/C$ depending layer-0 heads.
 
@@ -580,13 +580,13 @@ Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set 
 We first show that the probability of $X_i$ decays exponentially in $k$.
 Let $Y_i^t$ ($t=1,...,k$) be the event that the layer-0 head $j_{i_t}$ is not assigned the value that produces the highest attention weight.
 Note that $X_i = \bigcap_t Y_i^t$.
-We have $P(Y_i^s) = 1-(q/2)^c < 0$ (where $q = 1-p$).
-Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}cH = \frac{1}{\eta}c^2H$ other events $Y_i^{s'}$.
-Therefore, there is a set of $\geq \frac{k}{\frac{1}{\eta}c^2H}$ independent events among these.
-Call these $Y_i^{t_1}, ..., Y_i^{\frac{k}{\frac{1}{\eta}c^2H}}$.
-Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2H}} Y_i^{t_s}$, and thus
+We have $P(Y_i^s) = 1-(q/2)^c \in (0,1)$. % (where $q = 1-p$).
+Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}cH/C = \frac{1}{\eta}c^2H/C$ other events $Y_i^{s'}$.
+Therefore, there is a set of $\geq \frac{k}{\frac{1}{\eta}c^2H/C}$ independent events among these.
+Call these $Y_i^{t_1}, ..., Y_i^{\frac{k}{\frac{1}{\eta}c^2H/C}}$.
+Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2H/C}} Y_i^{t_s}$, and thus
 \begin{equation}
-    P(X_i) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2H}} Y_i^{t_s} = \left(1-(q/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2H}}
+    P(X_i) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2H/C}} P(Y_i^{t_s}) = \left(1-(q/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2H/C}}
 \end{equation}
 %We use induction over $t \in \{1, ..., k\}$ to compute the probability that none of $j_{i_1}, ..., j_{i_t}$ are assigned to value achieving the maximal attention weight.
 %At $t=1$, the failure probability for $j_{i_1}$ is $\leq (1-(q/2)^c)$.
@@ -600,34 +600,40 @@ Furthermore, a Chernoff bound gives
 P(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)
 \end{equation}
 since the number of independent multinomial samples in the sampling of $\rho'$ is at least $Cn$.
-We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds, assuming $f \leq 2c^2k^2H$:
+We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds, assuming $f \leq \frac{1}{\eta}c^2k^2H/C$:
 \begin{align}
  P(X_i) &\leq  D^k \leq A(1-B)(1-A)^f \\
 P(X_0) &\leq \exp\left(-\frac{\delta^2qn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
 \end{align}
 where $D$ is a constant in $(0,1)$.
-Once we have this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, ..., X_{Hn}$.
+Once we have this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, X_2, \dots$.
 
 Choose %$q=0.5$, $\delta=0.5$, 
-$A=\frac{1}{\frac{1}{\eta}k^2c^2}$, $B=0.5$.
+$A=\frac{1}{\frac{1}{\eta}k^2c^2/C}$, $B=0.5$.
 First, we need to satisfy
 \begin{align}
-    D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{2kc^2} 
+    D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{\frac{1}{\eta}kc^2H/C} 
 \end{align}
 For the RHS, 
-$\lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \frac{1}{k^\frac{1}{kc^2}} = \lim_{k\rightarrow \infty} \exp(-\frac{\log(k)}{kc^2}) = 1$.
-Also, $\lim_{k\rightarrow \infty} (1-A)^{\frac{1}{\eta}kc^2} = \lim_{k\rightarrow \infty} (1-\frac{1}{Ek^2})^{Ek} = \lim_{k\rightarrow \infty} (1-\frac{\sqrt{E}}{k^2})^{k} = 1$ ($E = \frac{1}{\eta}c^2$). So, if we choose $k$ large enough, the RHS can be made arbitrarily close to $1$, in particular, greater than the LHS.
+\begin{equation}
+\lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \exp\left(-\frac{\log\left(\frac{1}{\eta} k^2 c^2/C\right)}{k}\right) = 1
+\end{equation}
+Also, $\lim_{k\rightarrow \infty} (1-A)^{\frac{1}{\eta}kc^2H/C}$ equals
+\begin{equation}
+\lim_{k\rightarrow \infty} \left(1-\frac{1}{Ek^2}\right)^{Ek} = \lim_{k\rightarrow \infty} \left(1-\frac{\sqrt{E}}{k^2}\right)^{k} = 1
+\end{equation}
+where we choose $E = \frac{1}{\eta}c^2H/C$. So, if we choose $k$ large enough, the RHS can be made arbitrarily close to $1$, in particular, greater than the LHS.
 
 In order to also satisfy
 \begin{equation}
 \exp\left(-\frac{\delta^2qC}{(2+\delta)}\right)  \leq B^{1/n} (1-A)^H
 \end{equation}
 make $n$, $k$ large enough to satisfy the inequality. %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
+In conclusion, there exists a restriction $\rho'$ that avoids all events $X_0, X_1, X_2, ...$.
 
-
-With such a $\rho'$, we have
+With such a $\rho'$, $|\{i \leq n: \rho_n'(i) = *\}|$ is at least
 \begin{equation}
-|\{i \leq n: \rho_n'(i) = *\}| \geq (1-\eta)^2\cdot (1-(1+\delta)q) C n
+\geq (1-\eta)^2\cdot (1-(1+\delta)q) C n
 \end{equation}
 Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such that $(1+\delta)q \in (0,1)$) in such a way to achieve $(1-\eta)^2\cdot (1-(1+\delta)q) = C'/C$.
 
@@ -637,8 +643,8 @@ Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such t
 %So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
 %\end{proof}
 
-We now note that, since every layer-1 head depends only on $\leq Hck$ many inputs after applying $\rho'$, we can remove layer 1, each $y_j^{(1)}$ only depends on $\leq Hck$ many inputs.
-Thus, we obtain a $(Hck)$-transformer performing the same computation.
+We now note that, since every layer-1 head depends only on $\leq ck$ many inputs after applying $\rho'$, each $y_j^{(1)}$ only depends on $\leq Hck$ many inputs.
+We can thus remove layer 1, and obtain a $(Hck)$-transformer performing the same computation when $\rho'$ is applied.
 This concludes the proof of the Depth Reduction Lemma.
 
 
