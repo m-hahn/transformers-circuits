@@ -100,7 +100,7 @@
 \newcommand{\thetap}[0]{{\theta_{P}}}
 
 
-\title{On the Computational Capabilities of Self-Attention}
+\title{Computational Limitations of Self-Attention}
 \author{Michael Hahn \\ Stanford University \\ mhahn2@stanford.edu}
 \date{\today}
 \begin{document}
@@ -111,10 +111,10 @@ Unlike LSTMs, transformers process input sequences entirely through self-attenti
 Previous work has suggested that the computational capabilities of self-attention to process hierarchical structures are restricted.
 %Limitations of transformers are believed to exist; this work presents what appear to be the first formal proofs.
 In this work, we mathematically investigate the computational power of self-attention to model formal languages.
-Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention, finding that it cannot model periodic finite-state languages, nor basic recursion or logical formula evaluation. %, with asymptotically better-than-chance cross entropy. % unless the number of layers or heads increases with input size.
+Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention, finding that it cannot model periodic finite-state languages, nor basic recursion. % or logical formula evaluation. %, with asymptotically better-than-chance cross entropy. % unless the number of layers or heads increases with input size.
 %These results contrast with LSTMs, which can model many such languages perfectly.
 %We discuss implications of our theoretical results for natural language and NLP.
-Our results open the door to formal understanding of the techniques underlying recent advances in NLP.
+Our results provide formal understanding of the techniques underlying recent advances in NLP.
     %We show equivalences between transformers and classes of Boolean circuits, which entail strong limitations on the computational power of transformers.
     %First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
     %Adding layer normalization, or using softmax self-attention, yields $TC^0$.
@@ -144,8 +144,8 @@ Transformers cannot model non-counter-free regular languages or languages contai
 
 
 \section{Self-Attention}
-Here we define self-attention following \cite{vaswani2017attention}.
-We have an input $x_1,...,x_n$, where $x_i \in \mathbb{R}^k$ are input embeddings.
+Here we define self-attention as used in Transformers, following \cite{vaswani2017attention}.
+We have an input $x_1,...,x_n$, where $x_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
 We furthermore have a sequence $p_1, p_2, ...$ of positional embeddings $p_i \in \mathbb{R}^k$. These can be computed through some predefined scheme, or could be learned for each position occurring in the training data.
 Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^0 = f(x_i, p_i)$.
 
@@ -169,7 +169,7 @@ The final activation at each position is then computed as
 \end{equation}
 where $f^{act}$ can be implemented as a fully-connected feedfoward network.
 
-Following the construction of Seq2Seq transformer networks, in the decoder part we compute a softmax probability vector from the last activation $y_{n+1}^L$.
+Following the construction of Seq2Seq transformer networks, in the decoder part we compute a softmax probability vector from the last activation $y_{n}^L$.
 
 %We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
 %To accomodate imprecision in computation, we will relax this to only demand that the result by separated from 0.5 by some constant $\delta$.
@@ -200,14 +200,14 @@ We will therefore examine both of these settings.
 %On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, ...), hard and soft attention result in similar limitations.
 
 \section{Related Work}
-
-\paragraph{Prior Work on Transformers}
-It has been a recurrent suggestion in the literature that transformers are restricted computationally, as they cannot process their input sequentially.
-\cite{dehghani2018universal} suggested that transformers are restricted computationally, motivating their proposal of a variant with adaptive and unbounded number of layers.
-They argued that transformers cannot compute functions that require sequential processing of input, without providing further details or proofs.
-Our results provide an explicit formalization of these limitations.
+\paragraph{Prior Work on Self-Attention}
+Transformers were proposed by \cite{vaswani2017attention}, previous related work using self-attention includes \cite{cheng2016long,parikh2016decomposable,paulus2017deep,lin2017structured}.
+It has been a recurrent suggestion in the literature that transformers, relying entirely on self-attention, are restricted computationally, as they cannot process their input sequentially.
+\cite{dehghani2018universal} suggested that %transformers are restricted computationally, motivating their proposal of a variant with adaptive and unbounded number of layers.
+%They argued that
+transformers cannot compute functions that require sequential processing of input, without providing further details or proofs.
 Similarly, \cite{shen2018disan,chen2018best,hao2019modeling} have introduced extensions of transformers with recurrence.
-
+Our results provide an explicit formalization of these limitations.
 
 Other studies have experimentally tested the abilities of transformers to learn structures.
 Most related to our work, \cite{tran2018importance} compared the ability of transformers and LSTMs to learn hierarchical structure, specifically English subject-verb agreeement and evaluating logical formulas.
@@ -249,10 +249,9 @@ Based on this insight, \cite{chen2017recurrent} have proven (un)decidability res
 
 
 
-\section{Three Formal Languages} % : \textsc{Parity}
+\section{Regular and Context-Free Languages} % : \textsc{Parity}
 
-We will analyze the ability of transformers to recognize formal languages, using three prominent regular and context-free languages.
-Two of these (\textsc{Parity} and \textsc{2Dyck}) are basic representatives of wide classes of regular and context-free languages; the third (\textsc{LogicalFormulas}) is arguably directly relevant to modeling the meaning of natural language (CITE).
+We will analyze the ability of transformers to recognize regular and context-free languages, using two prominent representatives (\textsc{Parity} and \textsc{2Dyck}). %, which are basic representatives of wide classes of regular and context-free languages. %; the third (\textsc{LogicalFormulas}) is arguably directly relevant to modeling the meaning of natural language (CITE).
 %\textsc{Parity}.
 
 
@@ -260,7 +259,16 @@ Two of these (\textsc{Parity} and \textsc{2Dyck}) are basic representatives of w
 This is a very simple regular language, recognized by a finite-state automaton with two states.
 The regular languages form the lowest layer of the Chomsky hierarchy, and even simple RNNs can compute all regular languages.
 All regular languages whose syntactic monoid contains a group are at least computationally as hard as \textsc{Parity}.
-This means, if transformers cannot compute \textsc{Parity}, they cannot recognize regular languages except for the counter-free ones.
+This means, if transformers cannot compute \textsc{Parity}, they cannot recognize regular languages that are not counter-free.
+
+In the context of natural language, \textsc{Parity} also arises in the context of evaluating logical formulas:
+%\paragraph{\textsc{LogicalFormulas}} is the set of Boolean formulas evaluating to True. Formally, we consider formulas using binary operators $\wedge, \vee$, negation $\neg$, atomic \textsc{true}, and brackets `(', `)'.
+%\cite{tran2018importance} experimentally studied the ability of transformers to learn this language, finding that they did not perform as well as LSTMs.
+%\textsc{LogicalFormulas} is also a natural linguistically-relevant setting in which \textsc{Parity} arises:
+Evaluating iterated negations is tantamount to counting whether the number of nested negations is even or odd.
+If we know that transformers cannot compute parity, this entails that they also cannot evaluate logical formulas accurately.
+
+
 
 %This contrastsir ability to emulate finite automata is strongly restricted, compared even to simple RNNs.
 
@@ -280,16 +288,14 @@ This means, if transformers cannot compute \textsc{Parity}, they cannot recogniz
 
 \paragraph{\textsc{2Dyck}} is the language of correctly bracketed words consisting of `(', `[' and `)', `]'.
 This language is a very simple model of hierarchical structure.
-The Chomsky-Sch{\"u}tzenberger theorem states that any context-free language arises from a variant of \textsc{Dyck} with multiple types of parentheses through intersection with a regular language and homomorphisms.
-Consequently, the ability of LSTMs to model \textsc{Dyck} has been an object of study \cite{sennhauser2018evaluating,bernardy2018can}.
-As \textsc{1Dyck} is a deterministic counter language, finite-precision LSTMs are capable of perfectly modeling \textsc{1Dyck}; though they perform less well for versions with multiple types of parentheses \cite{sennhauser2018evaluating}, which are not counter languages any more.
-In contrast, our theoretical results will show that transformers cannot model \textsc{Dyck} even with a single type of parentheses.
+The Chomsky-Sch{\"u}tzenberger theorem states that any context-free language arises from a variant of \textsc{2Dyck} with multiple types of parentheses through intersection with a regular language and homomorphisms.
+Consequently, the ability of LSTMs to model \textsc{2Dyck} has been an object of study \cite{sennhauser2018evaluating,bernardy2018can}.
+%As \textsc{1Dyck} is a deterministic counter language, finite-precision LSTMs are capable of perfectly modeling \textsc{1Dyck};
+%Empirically, though they perform less well for versions with multiple types of parentheses \cite{sennhauser2018evaluating}, which are not counter languages any more.
+%In contrast, 
+Our theoretical results will show that transformers cannot model \textsc{2Dyck}, nor variants with fewer or more types of parentheses.
 
 
-\paragraph{\textsc{LogicalFormulas}} is the set of Boolean formulas evaluating to True. Formally, we consider formulas using binary operators $\wedge, \vee$, negation $\neg$, atomic \textsc{true}, and brackets `(', `)'.
-\cite{tran2018importance} experimentally studied the ability of transformers to learn this language, finding that they did not perform as well as LSTMs.
-\textsc{LogicalFormulas} is also a natural linguistically-relevant setting in which \textsc{Parity} arises: Evaluating iterated negations is tantamount to counting whether the number of nested negations is even or odd.
-If we know that transformers cannot compute parity, this entails that they also cannot evaluate logical formulas accurately.
 
 %Recognizing whether an expression is bracketed correctly is a basic example of a context-free language and of recursion. If transformers cannot compute parity, they also cannot decide whether long expressions are bracketed correctly.
 %To prove this reduction, we first note that a transformer capable of deciding whether an expression is bracketed correctly can be converted into a transformer for deciding whether a string has more $1$s than $0$s. TODO actually not recognizing, but to say whether there can be a closing bracket
@@ -329,8 +335,8 @@ If we know that transformers cannot compute parity, this entails that they also 
 
 \section{Results for Hard Attention}
 
-We will start our analysis of infinite precision with the study of hard attention~\cite{perez2019turing}.
-We show that hard attention transformers cannot represent \textsc{Parity}, \textsc{Dyck}, or \textsc{BooleanFormula}.
+We will start our analysis with the study of hard attention~\cite{perez2019turing}.
+We show that hard attention transformers cannot represent \textsc{Parity} or \textsc{2Dyck}. %, or \textsc{BooleanFormula}.
 To keep the results maximally general, our analysis will use combinatorial arguments and make no assumption about, e.g., activation functions and the norms of parameter matrices.
 In fact, we do not even assume that the internal representations $y_j^k$ are vector-valued, as opposed to, say, discrete structures.
 
@@ -377,20 +383,20 @@ We describe a new method to prove existence of suitable restrictions, as the pro
 %We assume that there is only a single head per layer. If there are no restrictions on the number of layers, this is no loss of generality.
 %We assume that, if two inputs have the same attention weight, the one with the smaller index is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.
 
-An $n$-restriction $\rho$ is a map $\{1, ..., n\} \rightarrow \{*, 0, 1\}$.
-After applying an $n$-restriction, the output value only depends on those inputs $x_i$ such that $\rho(i) = *$.
+A \key{restriction} $\rho$ is a family of maps $\rho_n : \{1, ..., n\} \rightarrow \{*, 0, 1\}$ for $n \in \mathbb{N}$.
+A restriction $\rho$ is applied to a transformer by restricting, when the input size is $n$, inputs $x_i$ to the value $\rho_n(i)$ if it is $0$ or $1$.
+The output value of the resulting transformer only depends on those inputs $x_i$ such that $\rho_n(i) = *$.
 
-This will be the main technical result in this section, formalizing the intuition described above:
+The following technical result formalizes the intuition described above:
 \begin{thm}\label{thm:hardmax-main}
 Let any transformer be given, and let $C \in (0,1)$.
-Then there is a family of input restrictions $\rho_n$ such that 
+Then there is a restriction $\rho$ such that 
 $$|\{i \leq n: \rho_n(i) = *\}| \geq Cn$$
-%$\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$,
-and such that the function computed by transformer on the restricted input depends only on a bounded number $c$ of inputs, independent of input length $n$.
+(for sufficiently large $n$) and such that the function computed by the transformer on the restricted input depends only on a bounded number $c$ of inputs, independent of input length $n$.
 \end{thm}
 We first show how this entails that transformers do not recognize the three formal languages:
 \begin{corollary}
-Transformers with hard attention cannot model \textsc{Parity} or \textsc{Dyck} or \textsc{BooleanFormula}.
+Transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck}. %, or \textsc{BooleanFormula}.
 %with cross-entropy asymptotically better than chance.
 %, or \textsc{BooleanFormula} (i.e., asymptotic cross-entropy is at chance level).
 \end{corollary}
@@ -400,85 +406,106 @@ For \textsc{Parity}, after applying a restriction, the output of the transformer
 An input of sufficiently large size $n$ thus has unrestricted inputs that do not influence the output.
 But flipping a single input bit changes the value, so the transformer's output cannot match membership in \textsc{Parity} beyond chance as soon as $n$ is sufficiently large.
 
-As a corollary, transformers also cannot model \textsc{BooleanFormula}, as they cannot model iterated negation.
+%As a corollary, transformers also cannot model \textsc{BooleanFormula}, as they cannot model iterated negation.
 
-For \textsc{Dyck}, we first restrict the first $0.2n$ input positions to `('.
+For \textsc{2Dyck}, we show that hard attention transformers cannot even solve the simpler variant \textsc{1Dyck} with a single bracket type (`(', `)').
+We first restrict the first $0.2n$ input positions to `('.
 After applying the restriction provided by the theorem, the resulting restricted input will still be compatible with both well-bracketed and non-well-bracketed inputs, but the prediction will depend only on a bounded number of positions.
-As the prediction depends on only a bounded number of positions, this shows the transformer could not recognize \textsc{Dyck}.
-
+As the prediction depends on only a bounded number of positions, this shows the transformer could not recognize \textsc{1Dyck}, and thus also not \textsc{2Dyck}.
 %The probability that 
-
 %for BooleanFormula, maybe the reduction to PARITY is okay, if there is a constant fraction of chance that parity will be relevant
-
 %
 %TODO but cross-entropy?
 \end{proof}
 
+\paragraph{Discussion}
+It may be instructive to compare to similar languages that \emph{can} be modeled by hard-attention transformers.
+$1^*$ (over the alphabet $\{0,1\}$) is the regular language of words that have only ones and no zeroes.
+A transformer can recognize this by having an attention head that attends to a position with zero input if it exists, and rejects if the head found such a position.
+$a^nb^n$ is a basic context-free language.
+It can be recognized using suitable positional embeddings by (1) having one head attend to the largest position $n$, (2) using this information to attend to any $b$ at position $<n/2$ or any $a$ at position $\geq n/2$. If such a symbol is found, the model rejects, else it accepts.
+A crucial difference between these languages and \textsc{Parity} / \textsc{2Dyck} is that fixing a few inputs can easily force nonmembership, e.g. a single 0 for $1^*$, and an $a$ in the second half for $a^nb^n$.
+Therefore, such simple languages are immune to the depth reduction method.
+
+%In general, languages are hard for transformers if any word has $\Omega(n)$ many Hamming neighbor that have the opposite label
+
 %As a corollary, we can show that: (1) Among regular languages, hard-attention transformers can at most model counter-free languages. (2) Among context-free languages that explicitly mark their hierarchical structure through bracketing (such as $a^nb^n$ and \textsc{2Dyck})
 
+\paragraph{Proof Idea of the Theorem}
 Our approach for proving Theorem~\ref{thm:hardmax-main} will be to iteratively remove the lowest layer of a given transformer by constructing input restrictions.
 This process is illustrated in Figure~\ref{fig:depth-reduction}.
 After the first step, each of the heads in the first layer will only depend on a bounded number $c$ of input positions.
 In the second step, we apply the same argument to the heads in the second layer, so that each head in the second layer only depends on a bounded number $c'$ of heads in the first layer.
-After this step, we can collapse the first layer into feedforward networks that transform a bounded number $\leq cc'$ of input positions into an activation $y_i^2$ of the second layer.
+After this step, we can collapse the first layer into a collection of feedforward networks that transform a bounded number $\leq cc'$ of input positions into an activation $y_i^2$ of the second layer.
 After this step, the first layer has been entirely removed.
 Iterating this argument, we remove all layers.
 
 After the removal of a layer, the resulting structure is not a transformer any more, as each head in the lowest layer now depends on a combination of input positions.
 We introduce a technical definition to make this concept precise:
 
-\begin{defin}[$c$-Augmented Transformer]
-Let $c$ a positive integer. A $c$-augmented transformer of depth $d$ is one in which there is additionally a lower layer such that the laver-1 activations at each position are a function of only $c$ input positions.
+\begin{defin}[$c$-Transformer]
+Let $c$ a positive integer. A $c$-transformer of depth $d$ is one in which the laver-0 activations $y_j^0$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions:
+\begin{equation}
+    y_j^0 = f^{inp}_{n,j}((x_{i_1^j}, p_{i_1^j}), \dots, (x_{i_c^j}, p_{i_c^j} ))
+\end{equation}
 \end{defin}
 
-Note that an ordinary transformer  of depth $d$ is also a $1$-augmented transformer of depth $d$.
+Note that an ordinary transformer  of depth $d$ is also a $1$-transformer of depth $d$.
 
-\begin{remark}
-If we hit a transformer with $H$ heads with a family of restrictions that leave a linear fraction of inputs free, i.e.,
+
+With this technical notion, we show that we can reduce layers, iteratively removing the lowest layer until no self-attention layer is left:
+\begin{lemma}[Depth Reduction Lemma]
+Given a $c$-transformer with $d$ layers, and some restriction $\rho$ such that
 \begin{equation}
 |\{i \leq n: \rho_n(i) = *\}| \geq Cn
 \end{equation}
-with $C \in (0,1)$, then we can also view the result as a transformer with $\operatorname{ceil}(1/C H)$ heads.
-
-We can absorb the restrictions into the augmented transformers, and get (after renumbering the input size $n$, possibly throwing away duplicates for the same input size, and additionally restricting inputs to pad out gaps in the sequence) a sequence of $c$-augmented transformers, potentially with a larger number of heads.
-\end{remark}
-With this technical notion, we show that we can reduce layers, iteratively removing the lowest layer until no self-attention layer is left:
-\begin{lemma}[Transformer Depth Reduction Lemma]
-Given a $c$-augmented transformer. %with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
-We show that there is a family of input restrictions $\rho_n$ % extending $\rho^0_n$
+for sufficiently large $n$.
+%with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
+Then there is a restriction $\rho'$ extending $\rho$ 
 such that
-%$\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$
-%(actually, it grows at most linearly)
 \begin{equation}
-|\{i \leq n: \rho_n(i) = *\}| \geq Cn %\frac{n}{10}
+|\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
-for some $C \in (0,1)$,
-and each second-layer head only depends on $ck$ inputs, for some constant $k$ independent of $n$.
+for sufficiently large $n$, 
+for some $C' \in (0,1)$, 
+and such that the resulting function is computed by a $(c\cdot k)$-transformer with $d-1$ layers, for some integer $k$.
 \end{lemma}
 Before proving this lemma, we note that it implies Theorem~\ref{thm:hardmax-main}.
 \begin{proof}[Proof of Theorem~\ref{thm:hardmax-main}]
 Apply the Depth Reduction Lemma iteratively, choosing the constants $C$ in the lemma small enough.
 \end{proof}
 
+
+%$(ab)^{2n}$ is a regular language with even numbers of a's and b's arranged in a particular order.
+%Checking membership amounts to checking that (1) the length is a multiple of four, (2) the symbol is $a$ at odd positions, and $b$ at even positions.
+%With suitable positional embeddings, we can construct a transformer that attends to any position violating (2)
+
 %In particular, the resulting $c$-transformer can be rewritten into a $c'$-transformer with one layer removed.
 
 %\begin{proof}
+\paragraph{Proving the Depth Reduction Lemma}
 The rest of this section will be devoted to proving the Depth Reduction Lemma.
 We will do the first part of the argument for any integer $k \in \mathbb{N}$.
 In the second part, we will select a sufficiently large $k$.
 %The aim is that $c' := ck$.
 
-\paragraph{Preliminaries}
-For the $i$-th level-1 head, we assemble for all inputs $j$ maximum attention value between head $i$ and input $j$ for the two possible inputs $0$, $1$.
-Then we sort the inputs $j$ in descending order by maximum attention value: $j_1, j_2, ..., j_n$ (if there are ties, we order by position).
-The following observation will be important: If we fix the input $j_k$ to the value that makes the attention value achieve the higher value, then the activation at element $i$ in level 1 only depends on the inputs $i, j_1, ..., j_{k-1}$.
+\paragraph{Part 1: Preliminaries}
+%For the $i$-th level-1 head, we assemble for all inputs $j$ maximum attention value between head $i$ and input $j$ for the two possible inputs $0$, $1$.
+%Then we sort the inputs $j$ in descending order by the maximum attention value: $j_1, j_2, ..., j_n$ (if there are ties, we order by position).
 
+%The following observation will be important: If we fix the input $j_k$ to the value that makes the attention value achieve the higher value, then the activation at element $i$ in level 1 only depends on the inputs $i, j_1, ..., j_{k-1}$.
 
-For each layer-2 head, let $j_1, ..., j_n$ be the layer-1 elements downwards by the highest possible attention value that can be achieved for the given head.
-We then select a subsequence $1 \leq i_1 < i_2 < ... < i_k \leq n$ such that (1) for each $i_s$, there is at least one input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
+We construct the restrictions $\rho'_n$ separately for each $n$.
+For each layer-2 attention head $h$ at position $i$ and each position $j \in \{1, ..., n\}$, we compute the maximum possible attention value that can be achieved for this pair:
+\begin{equation}
+\max_{x_1\dots x_n} f^{att}_{k,h}(y_i^{1}, y^{1}_j)
+\end{equation}
+We order the positions $\{1, ..., n\}$ downwards by this value, obtaining a sequence $j_1, ..., j_n$ (In the case of ties, we order by  position).
+
+We then select a sequence $1 \leq i_1 < i_2 < ... < i_k \leq n$ such that (1) for each $i_s$, there is at least one input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
 There is only one case in which we cannot find such a subsequence, which is if all $j_1, ..., j_n$ together depend only on $< ck$ inputs, in which case this head already satisfies the condition we're aiming for.
 
-A layer-2 head $k$-\textbf{depends} on some input $x_i$ if this input appears as an input to some $j_r$ for $r \leq i_k$.
+A layer-2 head $k$-\textbf{depends} on some input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r$ for $r \leq i_k$.
 A layer-2 head $k$-depends on an input if and only if that input appears as an input to some $j_{i_s}$ ($s \leq k$). (This is since $i_k$ is minimal).
 
 Two layer-2 head are $k$-\textbf{neighbors} if some $j_{i_s}$ for one and $j_{i_s'}$ for the other both $k$-depend on some input $x_l$.
@@ -493,22 +520,21 @@ We will construct input restrictions using probabilistic arguments over i.i.d. r
 For this approach to succeed, we require a  sufficient amount of independence between the activations of different heads in layer 2.
 We thus need to ensure that the number of neighbors of each head is bounded.
 
-Let $H$ be the number of attention heads in layer 2.
-First, assume there is some input that has $>2kcH$ many $k$-depending layer-2 heads.
+Let $H$ be the number of attention heads in each position of layer 2.
+First, assume there is some input that has $>2kcH/C$ many $k$-depending layer-2 heads.
 %We now show that the number of such inputs is small, and that we can remove those WLOG.
-Assume the number of such inputs is larger than $0.9n$ for some $n$.
-Then, the number of pairs of inputs and depending level-2 heads would be at least $0.9 n \cdot 2 H k c > Hckn$ for this $n$.
-On the other hand, there are only $Hckn$ many pairs of inputs and depending level-2 heads -- contradiction.
-Thus, the number of such inputs is at most $<0.9n$ for all $n$.
-We can therefore construct restrictions $\rho_n$ that are set to some fixed value (doesn't matter which one) for these $<0.9n$ inputs, and to $*$ to others.
-After this manipulation, every input has at most $2kcH$ many $k$-depending layer-2 heads, independent of $n$. %\footnote{For finitely many values of $n$ -- but by making $k$ larger after this manipulation, this will hold for all $n$.}
+Assume the number of such inputs is larger than $0.9 Cn$ for some $n$.
+Then, the number of pairs of inputs and depending level-2 heads would be at least $0.9 C n \cdot 2H k c/C > Hckn$ for this $n$.
+On the other hand, there are only $\leq Hckn$ many pairs of inputs and depending level-2 heads -- contradiction.
+Thus, the number of such inputs is at most $<0.9Cn$ for all $n$.
+We can therefore construct restrictions $\rho_n$ that are set to some fixed value (doesn't matter which one) for these $<0.9Cn$ inputs, and to $*$ to others.
+After this manipulation, every input has at most $2kcH/C$ many $k$-depending layer-2 heads, independent of $n$. 
 
-
-Furthermore, assume the number of inputs with $> 2cH$ depending layer-1 heads is $\geq 0.9n$.
-Then the number of input to layer-1 connections is $>0.9n \cdot 2cH$.
+Furthermore, assume the number of inputs with $> 2cH/C$ depending layer-1 heads is $\geq 0.9Cn$.
+Then the number of input to layer-1 connections is $>0.9Cn \cdot 2cH/C > ncH$.
 But there are at most $ncH$ such pairs, contradiction.
-So the number of inputs with $> 2cH$ depending layer-1 heads is $\leq Cn$ for $n$ large, for some costant $C \in (0,1)$.
-We can restrict these inputs, again rewriting into a $c$-transformer with a potentially larger number of heads.
+So the number of inputs with $> 2cH/C$ depending layer-1 heads is $\leq 0.9Cn$.
+We can again restrict these inputs.
 
 
 %Now consider those layer-2 heads that have $f > 2c^2k^2$ many $k$-neighbors.
@@ -531,19 +557,20 @@ We can restrict these inputs, again rewriting into a $c$-transformer with a pote
 
 %The number of heads that have to be satisfied is now $\leq Cn$, for some $C$ that was determined by the manipulations we made above. (this means that the restriction to one head per $n$ was unnecessary)
 
-\paragraph{Constructing Restrictions}
-After the previous part, we are in the setting where every input has $\leq 2kcH$ many depending layer-2 heads, and consequently every layer-2 head has at most $f \leq 2c^2k^2H$ $k$-neighbors (for any $k$).
-(Note that the transformations carried out above could at most have increased the value of $H$).
-Also, every input has $\leq 2cH$ depending layer-1 heads.
+\paragraph{Part 2: Constructing Restrictions}
+After the previous part, we are in the setting where every input has $\leq 2kcH/C$ many depending layer-2 heads, and consequently every layer-2 head has at most $f \leq 2c^2k^2H/C$ $k$-neighbors (for any $k$).
+%(Note that the transformations carried out above could at most have increased the value of $H$).
+Also, every input has $\leq 2cH/C$ depending layer-1 heads.
 
 % after applying restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$.
 %Note that the previous part works for any $k$; we will choose a suitable $k$ in this section.
 
-In order to prove the existence if suitable input restrictions, we apply the ``probabilistic method'': we define a probability distribution over restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
+In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': we define a probability distribution over restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 
 Define the distribution that independently assigns to each input the symbol $*$ with probability $p$, and $1$ or $0$ with equal probability else.
-Define $X_i$ ($i=1, ..., H n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the higher attention weight (each of these is assigned either the other value, or $*$).
-Define $X_0$ to be the event that more than $(1+\delta)qn$ many inputs are set to $0/1$.
+On those inputs where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
+Define $X_i$ ($i=1, ..., H n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the highest attention weight (each of these is assigned either the other value, or $*$).
+Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set to $0/1$.
 
 We first show that the probability of $X_i$ decays exponentially in $k$.
 Let $Y_i^t$ ($t=1,...,k$) be the event that the layer-1 head $j_{i_t}$ is not assigned the value that produces the highest attention weight.
@@ -565,30 +592,30 @@ Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{2c^2H}} Y_i^{t_s}$, and thus
 Furthermore, a Chernoff bound gives\footnote{See 
 \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 \begin{equation}
-P(X_0) \leq    \exp\left(-\frac{\delta^2qn}{(2+\delta)}\right)
+P(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)
 \end{equation}
 We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds, assuming $f \leq 2c^2k^2H$:
 \begin{align}
- P(X_i) &\leq  C^k \leq A(1-B)(1-A)^f \\
+ P(X_i) &\leq  D^k \leq A(1-B)(1-A)^f \\
 P(X_0) &\leq \exp\left(-\frac{\delta^2qn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
 \end{align}
+where $D$ is a constant in $(0,1)$.
 Once we have this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, ..., X_{Hn}$.
 
 Choose $q=0.5$, $\delta=0.5$, $A=\frac{1}{2k^2c^2}$, $B=0.5$.
 First, we need to satisfy
 \begin{align}
-    C &\leq A^{1/k}(1-B)^{1/k}(1-A)^{2kc^2} 
+    D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{2kc^2} 
 \end{align}
-where $C$ is a constant in $(0,1)$.
 For the RHS, 
 $\lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \frac{1}{k^\frac{1}{kc^2}} = \lim_{k\rightarrow \infty} \exp(-\frac{\log(k)}{kc^2}) = 1$.
-Also, $\lim_{k\rightarrow \infty} (1-A)^{2kc^2} = \lim_{k\rightarrow \infty} (1-\frac{1}{CK^2})^{Ck} = \lim_{k\rightarrow \infty} (1-\frac{\sqrt{C}}{k^2})^{k} = 1$. So, if we choose $k$ large enough, the RHS can be made arbitrarily close to $1$, in particular, greater than the LHS.
+Also, $\lim_{k\rightarrow \infty} (1-A)^{2kc^2} = \lim_{k\rightarrow \infty} (1-\frac{1}{Ek^2})^{Ek} = \lim_{k\rightarrow \infty} (1-\frac{\sqrt{E}}{k^2})^{k} = 1$ ($E = 2c^2$). So, if we choose $k$ large enough, the RHS can be made arbitrarily close to $1$, in particular, greater than the LHS.
 
 In order to also satisfy
 \begin{equation}
-\exp\left(-\frac{\delta^2q}{(2+\delta)}\right)  \leq B^{1/n} (1-A)^H
+\exp\left(-\frac{\delta^2qC}{(2+\delta)}\right)  \leq B^{1/n} (1-A)^H
 \end{equation}
-we calculate that the LHS is $<0.96$, and choose $n$, $k$ so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
+we choose $n$, $k$ large enough. %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
 
 %Consider $A=2^{-a}$.
 %So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
@@ -618,8 +645,8 @@ In this section, we study soft attention. %, where we will similarly show limita
 Here, we will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
 The idea behind the proof is that the impact of any single input on the output of the transformer is small if the input is long:
 \begin{lemma}
-If we exchange $l$ input bits, %a single input bit $x_i$ with the bit $x_i'$
-then the change in the resulting activations at the decoder layers is bounded as $\mathcal{O}(\frac{l\cdot C^k}{n})$, where $n$ is the input length, $k$ is the number of layers, and $C$ is the summed norm of the parameter matrices.
+If we exchange one input bit, %a single input bit $x_i$ with the bit $x_i'$
+then the change in the resulting activations at the decoder layers is bounded as $\mathcal{O}(\frac{1}{n})$ with constants depending on the parameter matrices, where $n$ is the input length. %, $k$ is the number of layers, and $C$ is the summed norm of the parameter matrices.
 \end{lemma}
 This contrasts with recurrent networks:
 Changing a single input can have nonnegligible impact on the final state even for very long input.
@@ -629,12 +656,12 @@ E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes par
 This result entails that, as inputs become longer, soft attention transformers cannot robustly model many formal languages, and cannot even achieve good cross-entropies on a large class of prediction problems.
 To make this precise, we take a more quantitative angle and assign probability distributions over inputs for each input length $n$, and consider the behavior of cross-entropy as $n\rightarrow\infty$.
 For \textsc{Parity}, we simply consider the distribution over i.i.d. bitstrings of length $n$, and consider the task of predicting the label (odd or even) from the string.
-For \textsc{LogicalFormulas}, we consider the uniform distribution over formulas of length $n$, again considering the task of predicting the label (TRUE or FALSE).
-For \textsc{2Dyck}, we take a slightly different approach, taking the uniform distribution of well-bracketed prefixes of length $n$, and predicting the set of valid next characters, which is a subset of $\{(,),[, ]\}$.\footnote{Only an exponentially small subset of the strings over $n$ symbols are well-labeled; thus, cross-entropy on the classification task is less meaningful for this language. Considering prediction of the next symbol sidesteps this issue.}
+%For \textsc{LogicalFormulas}, we consider the uniform distribution over formulas of length $n$, again considering the task of predicting the label (TRUE or FALSE).
+For \textsc{2Dyck}, we take the uniform distribution of well-bracketed prefixes of length $n$, and ask the model to classify the set of valid next characters, which is a subset of $\{(,),[, ]\}$.\footnote{Only an exponentially small subset of the strings over $n$ symbols are well-labeled; thus, cross-entropy on the classification task is less meaningful for this language. Considering prediction of the next symbol sidesteps this issue.}
 We consider the problem of predicting the label from the input separately for each input length $n$, and consider cross-entropy as $n\rightarrow \infty$.
 
 \begin{thm}
-Let a soft attention transformer be given for one of the languages \textsc{Parity}, \textsc{2Dyck}, \textsc{BooleanFormula}.
+Let a soft attention transformer be given for one of the languages \textsc{Parity} and \textsc{2Dyck}. %, \textsc{BooleanFormula}.
 As $n\rightarrow\infty$, cross-entropy converges to chance level.
 \end{thm}
 
@@ -643,29 +670,59 @@ For \textsc{Parity}, exchanging a single bit flips membership.
 Thus, for any member of the language, there is a non-member such that the output activations differ by
 only $\mathcal{O}(\frac{\cdot C^k}{n})$.
 
-For \textsc{2Dyck} TODO
-
-For \textsc{BooleanFormula} TODO
-
-
+For \textsc{2Dyck}, the probability that a prefix is exactly balanced is $o(1)$.
+In all other cases, the correct label includes one of the two closing parentheses, which depends on one single previous symbol, and both possibilities are equally likely if that symbol is unknown.
+%For \textsc{BooleanFormula}, 
 \end{proof}
 
 Having established the main theorem, we proceed to proving the technical lemma:
 \begin{proof}[Proof of Lemma]
-Let $D = \|x_i-x_i'\|_2$.
-First, the difference in activations at this position is bounded as follows:
-$\|y_i^0 - {y_i^0}'\| \leq L_f D$
-where $L_f$ is the Lipschitz constant of the operation $f$ combining position and input embeddings.
-Next, $\|y_i^1 - {y_i^1}'\| \leq L_{f^act} L_f D$
+Let us compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
+Let $D = \|x_i-x_i'\|_2$ the norm of the difference of the input embeddings at this position.
 
-If $\|p_i\|, \|x_i\| \leq E$, then for activations $\|y_i^k\|_2 \leq 2 L_{f^act}^k L_f E =: F$.
+We show by induction over $k$ that, for some some $C, E > 0$ (depending on the parameter matrices) the difference between the activations $y_i^k$, $y_i^k'$ at this position are bounded independently of input length $n$:
+\begin{equation}
+\|y_i^k-y_i^k'\| \leq (2C)^{2k}ED = O(1)
+\end{equation}
+and the difference between the activation at other positions $j\neq i$ are bounded as
+\begin{equation}
+    \|y_j^k-y_j^k'\| \leq \frac{H^k (2C)^{2k}ED}{n} = O(1/n)
+\end{equation} ($j \neq i$).
+Once we have shown this, we have found that the influence of any individual input on the final prediction is $\mathcal{O}(\frac{1}{n})$, with constants depending on the norms of parameter matrices and the number of layers.
+
+
+For $k=0$, $\|y_i^0 - {y_i^0}'\| \leq L_f D$ (where $L_f$ is the Lipschitz constant of the operation $f$ combining position and input embeddings), and $\|y_j^0 - {y_j^0}'\| = 0$ ($j \neq i$).
+
+For $k>0$, we first note that for activations $\|y_i^k\|_2 \leq 2 L_{f^{act}}^{(k)} L_f (\|p_i\| + \|x_i\|) =: F$.
 Attention logits are bounded by $A := F^2 L_{f^{att}}$.
-If attention logits are bounded as $|a_i| \leq A$,
-then any attention weight $\exp(a_i)/\sum_j \exp(a_j)$ is upper bounded by $\frac{\exp(A)}{\exp(A) + (n-1) \exp(-A)} \leq \frac{\exp(2A)}{n}$.
+%If attention logits are bounded as $|a_i| \leq A$,
+Then any attention weight $\exp(a_i)/\sum_j \exp(a_j)$ is upper bounded by $\frac{\exp(A)}{\exp(A) + (n-1) \exp(-A)} \leq \frac{\exp(2A)}{n}$.
 
-Then, $\|y_j^k - {y_j^k}\| \leq C' k \frac{1}{n}$.
+Choose $E = L_f$, $C : = 2(1 + \exp(2A) + L_{f^{act}})$.
 
-Thus the influence of any individual input on the final prediction is $\mathcal{O}(\frac{k}{n})$, with constants depending on the norms of parameter matrices.
+Recall $y_i^k := f^{act}(y_i^{k-1}, b_{i,k,1}, ..., b_{i,k,H})$, where $b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{k-1}$.
+We first calculate
+\begin{align*}
+& \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y_w^{k-1}\| \\
+& \leq + \hat{a}_{j,i}^{k,h} \|y_i^{k-1} - y_i^{k-1}\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y_w^{k-1}\|  \\
+& \leq \frac{\exp(2A)}{n}  (2C)^{2(k-1)} ED + \frac{H^{k-1}(2C)^{2(k-1)}ED}{n} \\
+& \leq (2C)^{2(k-1)}ED \frac{C/2   + H^{k-1} }{n} \\
+& \leq \frac{H^{k-1} (2C)^{2(k-1)+1} ED}{n}
+\end{align*}
+Then, $\|y_j^k - {y_j^k}\|$ is at most
+\begin{equation}
+L_{f^{act}} \cdot \left(\|y_j^{k-1}-y_j^{k-1}'\| + \sum_{q=1}^H \|b_{i,k,q} - b_{i,k,q}'\|\right)
+\end{equation}
+If $j= i$, this is bounded above by (as $n$ grows to infinity)
+\begin{equation}
+L_{f^{act}} \cdot ((2C)^{2(k-1)}ED + o(1)) \leq (2C)^{2k}ED
+\end{equation}
+If $j\neq i$, this is bounded above by
+\begin{align*}
+  &  L_{f^{act}} \cdot \frac{H^{k-1} (2C)^{2(k-1)}ED + H^{k} (2C)^{2(k-1)+1} ED)}{n} \\
+  &  \leq  \frac{H^{k} (2C)^{2k} ED}{n} \\
+\end{align*} 
+This proves the inductive step for $k>0$.
 \end{proof}
 
 
@@ -688,7 +745,7 @@ We have shown that, even with infinite precision, transformers cannot robustly m
 How do our results compare to what is known about LSTMs?
 Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata (CITE), and therefore can model finite state languages with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with zero cross-entropy, independent of the input length.
-Infinite-precision RNNs and LSTMs can model stacks \cite{kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and \textsc{LogicalFormulas} perfectly.
+Infinite-precision RNNs and LSTMs can model stacks \cite{kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages perfectly. % and \textsc{LogicalFormulas} perfectly.
 This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers provides a theoretical explanation for the empirical findings of \cite{tran2018importance}.
 %On the other hand, the theoretical results of \cite{merrill2019sequential} show that finite-precision LSTMs cannot model these languages perfectly at long lengths.
 %Experimental evidence on the ability of LSTMs to learn \textsc{2Dyck} and \textsc{LogicalFormulas} from data is mixed, but clearly falls short of perfect accuracy or cross-entropy.
@@ -704,7 +761,12 @@ This clear contrast between infinite-precision LSTMs and our findings for infini
 
 While our hard attention results hold under extremely general assumptions, the analysis of soft attention builds on regularity properties of the operations that existing transformer models are composed of.
 It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations, or infinite attention logits -- are allowed.
-One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with \textsc{2Dyck} and \textsc{LogicalFormulas}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to compute \textsc{LogicalFormulas} even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.} % On the other hand, a proof that they can compute \textsc{LogicalFormulas} under such relaxations might translate into a proof that $TC^0$ and $NC^1$ coincide, }
+One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
+%  and \textsc{LogicalFormulas}
+
+
+
+% On the other hand, a proof that they can compute \textsc{LogicalFormulas} under such relaxations might translate into a proof that $TC^0$ and $NC^1$ coincide, }
 
 
 
@@ -727,8 +789,8 @@ One can show that the use of discontinuous activation functions such as the Heav
 
 \section{Conclusion}
 We formally investigated the capabilities of self-attention in modeling regular languages and hierarchical structure.
-We showed that transformers cannot model periodic regular languages, basic recursion, or Boolean formula evaluation, either with hard or soft attention, and even if infinite precision is allowed.
-Our results provide a theoretical confirmation of the idea that self-attention has quite limited computational power. %is not capable of modeling hierarchical structure.
+We showed that transformers cannot model periodic regular languages or basic recursion, either with hard or soft attention, and even if infinite precision is allowed. %, or Boolean formula evaluation
+Our results theoretically confirm the idea that self-attention, by avoiding recurrence, has quite limited computational power. %is not capable of modeling hierarchical structure.
 
 
 
@@ -1678,3 +1740,15 @@ Consequence: LSTM can only really do finite state + counting.
 
 
 \end{document}
+
+
+
+\begin{remark}
+If a $c$-transformer has $H$ attention heads in each layer, and we apply a restriction $\rho$ that leave a linear fraction of inputs free, i.e.,
+\begin{equation}
+|\{i \leq n: \rho_n(i) = *\}| \geq Cn
+\end{equation}
+with $C \in (0,1)$, then we can also view the result as a transformer with $\operatorname{ceil}(1/C H)$ heads in each layer.
+
+We can absorb the restrictions into the augmented transformers, and get (after renumbering the input size $n$, possibly throwing away duplicates for the same input size, and additionally restricting inputs to pad out gaps in the sequence) a sequence of $c$-augmented transformers, potentially with a larger number of heads.
+\end{remark}
