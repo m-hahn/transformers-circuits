@@ -347,11 +347,11 @@ In fact, we do not even assume that the internal representations $y_j^k$ are vec
 
 \begin{figure*}[ht]
     \centering
-    \begin{tabular}{llll}
+    \begin{tabular}{cccc}
     (a) & (b) & (c) & (d) \\
     \includegraphics[width=0.23\textwidth]{figures/sa1.png} &
         \includegraphics[width=0.23\textwidth]{figures/sa2.png}&
-    \includegraphics[width=0.23\textwidth]{figures/sa3.png} &
+    \includegraphics[width=0.22\textwidth]{figures/sa3.png} &
         \includegraphics[width=0.23\textwidth]{figures/sa4.png}
         \end{tabular}
 	\caption{Iteratively reducing the layers of a transformer by fixing a few input symbols. (a) We fix a small number of input symbols, `attracting' attention from the first layer to a few inputs. (b) After this step, each activation in the first layer only depends on a small number of input symbols. (c) We again fix a few input symbols in such a way as to `attract' attention of layer-1 heads to some layer-0 activations. As a result, each layer-1 activation only depends on a small number of layer-0 activations. (d) After this step, each layer-1 activation only depends on a few inputs, and we can remove layer 1. In this example, input $X_5$ ends up being ignored by the transformer after applying the restriction.}
