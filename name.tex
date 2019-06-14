@@ -100,7 +100,7 @@
 \newcommand{\thetap}[0]{{\theta_{P}}}
 
 
-\title{Computational Limitations of Self-Attention}
+\title{Theoretical Limitations of Self-Attention}
 \author{Michael Hahn \\ Stanford University \\ mhahn2@stanford.edu}
 \date{\today}
 \begin{document}
@@ -108,10 +108,10 @@
 \begin{abstract}
 Transformers are emerging as the new workhorse of NLP, showing great success across tasks.
 Unlike LSTMs, transformers process input sequences entirely through self-attention.
-Previous work has suggested that the computational capabilities of self-attention to process hierarchical structures are restricted.
+Previous work has suggested that the computational capabilities of self-attention to process hierarchical structures are limited.
 %Limitations of transformers are believed to exist; this work presents what appear to be the first formal proofs.
 In this work, we mathematically investigate the computational power of self-attention to model formal languages.
-Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention, finding that it cannot model periodic finite-state languages, nor basic recursion. % or logical formula evaluation. %, with asymptotically better-than-chance cross entropy. % unless the number of layers or heads increases with input size.
+Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention, finding that it cannot model periodic finite-state languages, nor hierarchical structure. % or logical formula evaluation. %, with asymptotically better-than-chance cross entropy. % unless the number of layers or heads increases with input size.
 %These results contrast with LSTMs, which can model many such languages perfectly.
 %We discuss implications of our theoretical results for natural language and NLP.
 Our results precisely describe theoretical limitations of the techniques underlying recent advances in NLP.
@@ -129,29 +129,22 @@ This enables them to scale to very long sequences \cite{vaswani2017attention,dai
 On the other hand, it has been suggested that this limits their expressiveness, as they cannot process input sequentially \cite{tran2018importance,dehghani2018universal,shen2018disan,chen2018best,hao2019modeling}.
 Some experimental evidence suggests that transformers might not be as strong as LSTMs at modeling hierarchical structure~\cite{tran2018importance}.
 
-Hierarchical structure is 
-
-\cite{linzen2016assessing,gulordava2018colorless}
-
-
-
 In this work, we examine these questions from a theoretical perspective.
-Formally, we consider the problem of language recognition, the task of classifying input strings as either belonging to or not belonging to a formal language.
-We mathematically examine the classes of languages that transformers can recognize.
-
 We focus on the ability of transformers to compute (1) regular languages, and (2) context-free languages containing hierarchical structure.
+%
+%We mathematically examine the classes of languages that transformers can recognize.
 Our results entail show strong theoretical limitations of self-attention:
-Transformers cannot model non-counter-free regular languages or languages containing unbounded recursion.
+Transformers essentially cannot model non-counter-free regular languages or languages containing unbounded recursion.
 
 
 \section{Self-Attention}
 Here we define self-attention as used in Transformers, following \citet{vaswani2017attention}.
 We have an input $x_1,\dots,x_n$, where $x_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
-We furthermore have a sequence $p_1, p_2, \dots$ of positional embeddings $p_i \in \mathbb{R}^k$. These can be computed through some predefined scheme, or could be learned for each position occurring in the training data.
+We furthermore have a sequence $p_1, p_2, \dots$ of positional embeddings $p_i \in \mathbb{R}^k$. These are independent of the input, and can be computed through some predefined scheme, or could be learned for each position occurring in the training data \citep{vaswani2017attention}.
 Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(x_i, p_i)$ ($i=1, \dots, n$), which we will refer to as Layer 0.
 
-A transformer has a fixed number $L$ of layers; the activations $y_i^{(k)}$ at position $i$ of the $k$-th layer ($k=1, \dots, L$) are defined as follows.
-Each layer has a set of $H$ attention heads; we first compute attention scores for the $h$-th head:
+A transformer has a fixed number $L$ of \key{layers}; the \key{activations} $y_i^{(k)}$ at position $i$ of the $k$-th layer ($k=1, \dots, L$) are defined as follows.
+Each layer has a set of $H$ \key{attention heads}; we first compute attention scores for the $h$-th head:
 \begin{equation}
     a_{i,j}^{(k,h)} = f^{att}_{k,h}\left(y_i^{(k-1)}, y_j^{(k-1)}\right)
 \end{equation}
@@ -181,7 +174,8 @@ We will  examine both hard and soft attention settings.
 
 
 \paragraph{Formalizing Language Recognition}
-Following~\citet{weiss2018practical}, we formalize the task of language recognition as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
+We consider the problem of language recognition, the task of classifying input strings as either belonging to or not belonging to a formal language.
+Following~\citet{weiss2018practical}, we formalize this as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
 Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
 
 %We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
@@ -210,17 +204,20 @@ Most related to our work, \citet{tran2018importance} compared the ability of tra
 Based on their experimental results, they suggested that LSTMs are better at learning hierarchical structure.
 
 \citet{yang2019assessing} experimentally investigated the power of self-attention to extract word order information, finding differences between recurrent and self-attention models; however, these were modulated by the training objective.
+\citet{lin2019open} and \citet{tenney2019bert} show that BERT \cite{devlin2018bert} encodes syntactic information.
 
 \citet{perez2019turing} theoretically studied the ability of Seq2Seq transformers to emulate the computation of Turing machines.
-There is no contrast between their results and ours: While we consider transducing inputs to a single label (0, 1), they study the setting in which the transformer computes an unbounded number of autoregressive decoding steps, not bounded in the input length $n$.
+%There is no contrast between their results and ours:
+While we consider transducing inputs to a single label (0, 1), they study the setting in which the transformer computes an unbounded number of autoregressive decoding steps, not bounded in the input length $n$.
 
 
 \paragraph{Investigating the Power of Sequence Learning Architectures}
 The computational power of recurrent neural networks has been a focus of study.
 A particular focus has been on their ability to learn non-regular context-free languages, often thought to provide simple models of recursion and hierarchical structure as found in natural language.
 
-A range of studies has experimentally examined the ability of recurrent networks to model counter languages such as $a^nb^n$ \cite{kalinke1998computation,gers2001lstm,weiss2018practical,suzgun2019evaluating}.
+A range of studies has experimentally examined the ability of recurrent networks to model counter languages such as $a^nb^n$ \cite{kalinke1998computation,gers2001lstm,cartling2008implicit,weiss2018practical,suzgun2019evaluating}.
 Other work has experimentally studied the performance of reccurent architectures on learning to recognize well-bracketed strings, a similar but more challenging problem \cite{sennhauser2018evaluating,skachkova2018closing,bernardy2018can}.
+Beyond modeling formal languages, another line of work has studied the ability of LSTMs to model hierarchical structure as occurring in realistic natural language data \cite{linzen2016assessing,gulordava2018colorless}.
 
 Recently, \citet{merrill2019sequential} theoretically studied several types of recurrent networks, showing that -- in the finite precision setting -- LSTMs recognize a subset of the counter languages, whereas GRUs and simple RNNs recognize regular languages.
 %Inter alia, their results entail that LSTMs cannot model the multi-symbol Dyck language in the finite precision setting.
@@ -415,12 +412,18 @@ As the prediction depends on only a bounded number of positions, this shows the 
 
 \paragraph{Discussion}
 It may be instructive to compare to similar languages that \emph{can} be modeled by hard-attention transformers.
-$1^*$ (over the alphabet $\{0,1\}$) is the regular language of words that have only ones and no zeroes.
+$1^*$ (over the alphabet $\{0,1\}$) is the regular language of words that have only ones and no zeroes; its minimal automaton has two states, like \textsc{Parity}.
 A transformer can recognize this by having an attention head that attends to a position with zero input if it exists, and rejects if the head found such a position.
 $a^nb^n$ is a basic context-free language.
 It can be recognized using suitable positional embeddings by (1) having one head attend to the largest position $n$, (2) using this information to attend to any $b$ at position $<n/2$ or any $a$ at position $\geq n/2$. If such a symbol is found, the model rejects, else it accepts.
 A crucial difference between these languages and \textsc{Parity} / \textsc{2Dyck} is that fixing a few inputs can easily force nonmembership, e.g. a single 0 for $1^*$, and an $a$ in the second half for $a^nb^n$.
-Therefore, such simple languages are immune to the depth reduction method.
+Therefore, such simple languages are immune to the depth reduction method, and indeed \emph{can} be modeled perfectly with self-attention.
+
+In general, the depth reduction method applies to languages that are sufficiently \emph{sensitive}: If fixing $\Theta(n)$ input symbols does not force a word to be inside or outside of the language, and if every word of length $n$ in the language has $\Theta(n)$ many Hamming neighbors that are outside of the language, then self-attention cannot recognize this language.
+Sensitivity of functions and the structure of Hamming neighborhoods have been studied in computational complexity~\cite{boppana1997average,gilmer2015new,gopalan2016smooth,rossman2018average} and more recently linked to generalization in feedforward networks~\cite{de2018deep}.
+We intend to investigate these connections in future work.
+
+
 
 %In general, languages are hard for transformers if any word has $\Omega(n)$ many Hamming neighbor that have the opposite label
 
@@ -646,7 +649,7 @@ Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such t
 %\end{proof}
 
 We now note that, since every layer-1 head depends only on $\leq ck$ many inputs after applying $\rho'$, each layer-1 activation $y_j^{(1)}$ only depends on $\leq Hck$ many inputs.
-We can thus remove layer 1, and obtain a $(Hck)$-transformer performing the same computation when $\rho'$ is applied.
+We can thus collapse layers 0 and 1, converting layer-1 activations into layer-0 activations $y_j^{(0)}$, and obtain a $(Hck)$-transformer performing the same computation as before when $\rho'$ is applied.
 This concludes the proof of the Depth Reduction Lemma.
 
 
@@ -771,14 +774,14 @@ This proves the inductive step for $k>0$.
 
 \section{Discussion}
 
-We have shown that, even with infinite precision, transformers cannot robustly model periodic regular languages, basic hierarchical structure, or Boolean formula evaluation.
+We have shown that, even with infinite precision, transformers cannot robustly model periodic regular languages or basic hierarchical structure.
 
 How do our results compare to what is known about LSTMs?
 Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model finite state languages with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with zero cross-entropy, independent of the input length.
 
 Infinite-precision RNNs and LSTMs can model stacks \cite{tabor2000fractal,gruning2006stack,kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages perfectly. % and \textsc{LogicalFormulas} perfectly.
-This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers provides a theoretical explanation for the empirical findings of \citet{tran2018importance}.
+This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers provides a theoretical explanation for the empirical finding that LSTMs seem to outperform transformers in modeling hierarchical structure \citep{tran2018importance}.
 %On the other hand, the theoretical results of \cite{merrill2019sequential} show that finite-precision LSTMs cannot model these languages perfectly at long lengths.
 %Experimental evidence on the ability of LSTMs to learn \textsc{2Dyck} and \textsc{LogicalFormulas} from data is mixed, but clearly falls short of perfect accuracy or cross-entropy.
 
@@ -790,6 +793,17 @@ This clear contrast between infinite-precision LSTMs and our findings for infini
 %However, we are interested in the extent to which a transformer is able to handle arbitrarily long inputs -- similar to analogous work on RNNs/LSTMs/GRUs.
 
 %Our results are consistent with the fact that transformer-based models tend to have far more layers than comparable LSTMs (CITE).
+
+
+Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
+Our results entail that self-attention is strongly limited in their ability to model context-free languages or Boolean formula evaluation.
+How should we reconcile this with the success of transformers at many natural language processing tasks?
+One possibility is that strong quantitative performance at NLP tasks can be achieved without genuine understanding of linguistic structure, as has been argued for other neural network models used in NLP \cite{linzen2016assessing,marvin2018targeted}.
+Another possibility is that humans also have limited capacity to solve such problems, which means that human-like language understanding may not require full computational power to solve such problems.
+For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
+Intriguingly, self-attention bears some resemblance to models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation}.
+Such models predict difficulty with center embedding because they cannot count brackets, akin to what we have shown theoretically for self-attention \cite{lewis2005activation}.
+
 
 While our hard attention results hold under extremely general assumptions, the analysis of soft attention builds on regularity properties of the operations that existing transformer models are composed of.
 It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations, or infinite attention logits -- are allowed.
