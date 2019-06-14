@@ -6,8 +6,8 @@
 \usepackage{url}
 
 
-  \usepackage{natbib}
-  \bibliographystyle{plainnat}
+%  \usepackage{natbib}
+ % \bibliographystyle{plainnat}
 
 \aclfinalcopy % Uncomment this line for the final submission
 
@@ -65,7 +65,7 @@
 \usepackage{url}
 %\usepackage[colorinlistoftodos]{todonotes}
 \usepackage{rotating}
-\usepackage{natbib}
+%\usepackage{natbib}
 \usepackage{amssymb}
 
 
@@ -139,7 +139,7 @@ Transformers cannot model non-counter-free regular languages or languages contai
 
 
 \section{Self-Attention}
-Here we define self-attention as used in Transformers, following \cite{vaswani2017attention}.
+Here we define self-attention as used in Transformers, following \citet{vaswani2017attention}.
 We have an input $x_1,...,x_n$, where $x_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
 We furthermore have a sequence $p_1, p_2, ...$ of positional embeddings $p_i \in \mathbb{R}^k$. These can be computed through some predefined scheme, or could be learned for each position occurring in the training data.
 Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(x_i, p_i)$, which we will refer to as Layer 0.
@@ -165,7 +165,7 @@ The final activation at each position is then computed as
 \end{equation}
 where $f^{act}$ is implemented as a fully-connected feedfoward network \cite{vaswani2017attention}.
 
-Following~\cite{weiss2018practical}, we formalize the task of language recognition as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
+Following~\citet{weiss2018practical}, we formalize the task of language recognition as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
 Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
 
 %We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
@@ -198,21 +198,21 @@ We will  examine both hard and soft attention settings.
 
 \section{Related Work}
 \paragraph{Prior Work on Self-Attention}
-Transformers were proposed by \cite{vaswani2017attention}, previous related work using self-attention includes \cite{cheng2016long,parikh2016decomposable,paulus2017deep,lin2017structured}.
+Transformers were proposed by \citet{vaswani2017attention}, previous related work using self-attention includes \citet{cheng2016long,parikh2016decomposable,paulus2017deep,lin2017structured}.
 It has been a recurrent suggestion in the literature that transformers, relying entirely on self-attention, are restricted computationally, as they cannot process their input sequentially.
-\cite{dehghani2018universal} suggested that %transformers are restricted computationally, motivating their proposal of a variant with adaptive and unbounded number of layers.
+\citet{dehghani2018universal} suggested that %transformers are restricted computationally, motivating their proposal of a variant with adaptive and unbounded number of layers.
 %They argued that
 transformers cannot compute functions that require sequential processing of input, without providing further details or proofs.
-Similarly, \cite{shen2018disan,chen2018best,hao2019modeling} have introduced extensions of transformers with recurrence, citing similar intuitions about limitations of transformers.
+Similarly, \citet{shen2018disan,chen2018best,hao2019modeling} have introduced extensions of transformers with recurrence, citing similar intuitions about limitations of transformers.
 Our results provide an explicit formalization of these limitations.
 
 Other studies have experimentally tested the abilities of transformers to learn structures.
-Most related to our work, \cite{tran2018importance} compared the ability of transformers and LSTMs to learn hierarchical structure, specifically English subject-verb agreeement and evaluating logical formulas.
+Most related to our work, \citet{tran2018importance} compared the ability of transformers and LSTMs to learn hierarchical structure, specifically English subject-verb agreeement and evaluating logical formulas.
 Based on their experimental results, they suggested that LSTMs are better at learning hierarchical structure.
 
-\cite{yang2019assessing} experimentally investigated the power of self-attention to extract word order information, finding differences between recurrent and self-attention models; however, these were modulated by the training objective.
+\citet{yang2019assessing} experimentally investigated the power of self-attention to extract word order information, finding differences between recurrent and self-attention models; however, these were modulated by the training objective.
 
-\cite{perez2019turing} theoretically studied the ability of Seq2Seq transformers to emulate the computation of Turing machines.
+\citet{perez2019turing} theoretically studied the ability of Seq2Seq transformers to emulate the computation of Turing machines.
 There is no contrast between their results and ours: While we consider transducing inputs to a single label (0, 1), they study the setting in which the transformer computes an unbounded number of autoregressive decoding steps, not bounded in the input length $n$.
 
 
@@ -223,16 +223,16 @@ A particular focus has been on their ability to learn non-regular context-free l
 A range of studies has experimentally examined the ability of recurrent networks to model counter languages such as $a^nb^n$ \cite{weiss2018practical,suzgun2019evaluating}.
 Other work has experimentally studied the performance of reccurent architectures on learning to recognize well-bracketed strings, a similar but more challenging problem \cite{sennhauser2018evaluating,bernardy2018can}.
 
-Recently, \cite{merrill2019sequential} theoretically studied several types of recurrent networks, showing that -- in the finite precision setting -- LSTMs recognize a subset of the counter languages, whereas GRUs and simple RNNs recognize regular languages.
+Recently, \citet{merrill2019sequential} theoretically studied several types of recurrent networks, showing that -- in the finite precision setting -- LSTMs recognize a subset of the counter languages, whereas GRUs and simple RNNs recognize regular languages.
 %Inter alia, their results entail that LSTMs cannot model the multi-symbol Dyck language in the finite precision setting.
 
 
 A related, though different, strand of research has investigated the power of neural networks to model Turing machines.
 A classical result~\cite{siegelman1991neural} states that -- given unlimited computation time -- recurrent networks can emulate the computation of Turing machines.
-Very recently, \cite{perez2019turing} have shown the same result for both (argmax-attention) Transformers and Neural GPUs.
-The crucial difference between these studies and studies of language recognition is that, in \cite{siegelman1991neural,perez2019turing}, the networks are allowed to perform unbounded recurrent computations, arbitrarily longer than the input length.
+Very recently, \citet{perez2019turing} have shown the same result for both (argmax-attention) Transformers and Neural GPUs.
+The crucial difference between these studies and studies of language recognition is that, in \citet{siegelman1991neural,perez2019turing}, the networks are allowed to perform unbounded recurrent computations, arbitrarily longer than the input length.
 
-Based on this insight, \cite{chen2017recurrent} have proven (un)decidability results for many properties of languages recognized by recurrent nets, partly on the basis of the classical result by \cite{siegelman1991neural}.
+Based on this insight, \citet{chen2017recurrent} have proven (un)decidability results for many properties of languages recognized by recurrent nets, partly on the basis of the classical result by \citet{siegelman1991neural}.
 
 %Beyond sequence modeling, the expressivity of other types of neural architectures has also been studied extensively.
 
@@ -367,7 +367,7 @@ The basic idea (see Figure~\ref{fig:depth-reduction}) behind the proof is that, 
 %That is, after fixing these inputs, the transformer ignores a large number of inputs.
 This shows that the transformer could not have solved a problem such as \textsc{Parity}, where every single input bit matters.
 The idea of using such input restrictions is borrowed from the theory of Boolean circuits~\cite{furst1984parity,yao1986separating,hastad1994optimal}.
-In particular, \cite{furst1984parity} used it to prove that polynomial-size bounded-depth Boolean circuits with $\wedge, \vee$, and $\neg$ gates cannot compute \textsc{Parity}.
+In particular, \citet{furst1984parity} used it to prove that polynomial-size bounded-depth Boolean circuits with $\wedge, \vee$, and $\neg$ gates cannot compute \textsc{Parity}.
 We describe a new method to prove existence of suitable restrictions, as the proof approaches from the Boolean circuit literature do not seem to carry over to self-attention with infinite precision. %The proofs have in common the use of the probabilistic method, but the proof method in \cite{furst1984parity} does not appear to generalize to self-attention with infinite precision.
 
 
@@ -593,8 +593,8 @@ Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2H}} Y_i^{t_s}$, and
 %Failure probability is $\leq F_t \cdot (1-(q/2)^w)$.
 %TODO maybe this isn't actually strict enough
 %\end{proof}
-Furthermore, a Chernoff bound gives\footnote{See 
-\url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
+Furthermore, a Chernoff bound gives
+%\footnote{See \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 \begin{equation}
 P(X_0) \leq    \exp\left(-\frac{\delta^2(1-p)Cn}{(2+\delta)}\right)
 \end{equation}
@@ -697,13 +697,13 @@ Having established the main theorem, we proceed to proving the technical lemma:
 Let us compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
 Let $D = \|x_i-x_i'\|_2$ the norm of the difference of the input embeddings at this position.
 
-We show by induction over $k$ that, for some some $C, E > 0$ (depending on the parameter matrices) the difference between the activations $y_i^k$, $y_i^k'$ at this position are bounded independently of input length $n$:
+	We show by induction over $k$ that, for some some $C, E > 0$ (depending on the parameter matrices) the difference between the activations $y_i^k$, ${y_i^k}'$ at this position are bounded independently of input length $n$:
 \begin{equation}
-\|y_i^k-y_i^k'\| \leq (2C)^{2k}ED = O(1)
+	\|y_i^k-{y_i^k}'\| \leq (2C)^{2k}ED = O(1)
 \end{equation}
 and the difference between the activation at other positions $j\neq i$ are bounded as
 \begin{equation}
-    \|y_j^k-y_j^k'\| \leq \frac{H^k (2C)^{2k}ED}{n} = O(1/n)
+	\|y_j^k-{y_j^k}'\| \leq \frac{H^k (2C)^{2k}ED}{n} = O(1/n)
 \end{equation} ($j \neq i$).
 Once we have shown this, we have found that the influence of any individual input on the final prediction is $\mathcal{O}(\frac{1}{n})$, with constants depending on the norms of parameter matrices and the number of layers.
 
@@ -728,7 +728,7 @@ We first calculate
 \end{align*}
 Then, $\|y_j^k - {y_j^k}\|$ is at most
 \begin{equation}
-L_{f^{act}} \cdot \left(\|y_j^{k-1}-y_j^{k-1}'\| + \sum_{q=1}^H \|b_{i,k,q} - b_{i,k,q}'\|\right)
+	L_{f^{act}} \cdot \left(\|y_j^{k-1}-{y_j^{k-1}}'\| + \sum_{q=1}^H \|b_{i,k,q} - b_{i,k,q}'\|\right)
 \end{equation}
 If $j= i$, this is bounded above by (as $n$ grows to infinity)
 \begin{equation}
@@ -763,7 +763,7 @@ How do our results compare to what is known about LSTMs?
 Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model finite state languages with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with zero cross-entropy, independent of the input length.
 Infinite-precision RNNs and LSTMs can model stacks \cite{kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages perfectly. % and \textsc{LogicalFormulas} perfectly.
-This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers provides a theoretical explanation for the empirical findings of \cite{tran2018importance}.
+This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers provides a theoretical explanation for the empirical findings of \citet{tran2018importance}.
 %On the other hand, the theoretical results of \cite{merrill2019sequential} show that finite-precision LSTMs cannot model these languages perfectly at long lengths.
 %Experimental evidence on the ability of LSTMs to learn \textsc{2Dyck} and \textsc{LogicalFormulas} from data is mixed, but clearly falls short of perfect accuracy or cross-entropy.
 
@@ -812,6 +812,7 @@ Our results theoretically confirm the idea that self-attention, by avoiding recu
 
 
 \bibliography{literature}
+\bibliographystyle{acl_natbib}
 
 
 \end{document}
@@ -826,946 +827,3 @@ Our results theoretically confirm the idea that self-attention, by avoiding recu
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\subsection{Step 1: Reducing first layer}
-The first step will be to fix input values in such a value that each element in level 1 only depends on a bounded number of inputs, for some uniform bound $c$.
-
-Take $c=20$.
-
-Let $d$ be the maximum number of neighbors in level 1 (possibly $+\infty$).
-
-If there are many neighbors, there is a straightforward way to construct a suitable input restrictions.
-If the number of neighbors is small, we instead use probabilistic arguments to show existence of such a restriction.
-
-\paragraph{Case 1} $d \leq 2c$.
-
-We apply the ``probabilistic method'': we define a probability distribution over random restrictions of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
-
-Define the distribution that assigns to an input $*$ with probability $p$, and $1$ or $0$ with equal probability else.
-Define $X_i$ ($i=1, ..., n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the higher attention weight (each of these is assigned either the other value, or $*$).
-Define $X_0$ to be the event that more than $(1+\delta)pn$ many inputs are set to $0/1$.
-
-We have\footnote{We get an inequality since it may happen that two input values produce the same attention weight}
-\begin{equation}
-    P(X_i) \leq (p + (1-p)/2)^c = (1/2 + p/2)^c
-\end{equation}
-and
-\begin{equation}
-P(X_0) \leq \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})
-\end{equation}
-by a Chernoff bound.\footnote{See 
-\url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
-
-
-Take $A=0.01$, $B=0.5$, $p=0.5$, $\delta=0.9$.
-Given also $c=20$, $n \geq 50$, the following bounds are true:
-
-\begin{align}
-\left(\frac{1+p}{2}\right) & \leq A^{1/c} (1-B)^{1/c} (1-A)^{2} \\
-\exp(-\frac{\delta^2(1-p)}{(2+\delta)})  &\leq B^{1/n} (1-A)
-\end{align}
-Therefore ($d \leq 2c$),
-\begin{equation}
-\left(\frac{1+p}{2}\right)^c \leq A (1-B) (1-A)^d
-\end{equation}
-\begin{equation}
-\exp(-\frac{\delta^2(1-p)n}{(2+\delta)})  \leq B (1-A)^n
-\end{equation}
-
-
-By the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, ..., X_n$.
-
-\paragraph{Case 2} $d > 2c$ 
-WLOG this holds for infinitely many $n$'s (otherwise we can just remove them, and return to Case 1). in any case, we remove all non-initial $n$'s for which this doesn't hold.
-Then we take one relevant chain, and reduce throughout.
-
-(If the first unsatisfied $n$ doesn't have a participating head, then we can apply LLL there and be done with it)
-
-In the next step, $d$ can at most have decreased.
-
-\subsection{Step 2: Induction}
-
-TODO this is copied from below
-
-
-Let $c$ the number of inputs we got from Step 1.
-
-Take $k$.
-For each layer-1 element, we select a set of $\approx [k, ck]$ layer-0 inputs that in total use $k$ different input bits (If we can't, then this element is already $ck$-satisfied).
-
-\paragraph{Case A:} There are boundedly many level-2 neighbors of these selected layer-1 elements ($f < 100 c k$ many).
-
-Failure prob for a given layer-1 element is
-\begin{equation}
-\leq (1-q/2)^{k} (1-(q/2)^{c-1})
-\end{equation}
-\begin{proof}
-TODO
-\end{proof}
-We want to obtain
-\begin{equation}
-    (1-q/2)^{k} (1-(q/2)^{c-1}) \leq A(1-B)(1-A)^f
-\end{equation}
-So we need
-\begin{equation}
-    (1-q/2) (1-(q/2)^{c-1})^{1/k} \leq A^{1/k}(1-B)^{1/k}(1-A)^{100c}
-\end{equation}
-We can make the LHS $(1-q/2) (1-(q/2)^{c-1})^{1/k} \approx 0.48$ with $q=0.99$ and $k=10$ (if $c=10$, greater $c$'s won't break it?! TODO).
-
-Can we generally even get (works for $c=10, k=100$ at $c=10$, though it gets worse for $k = 10^{9}$)? Note that, for induction, we will need that $c$ can be unboundedly large. Can we just choose $A$ smaller and smaller for larger $k$?
-\begin{equation}
-    (1-q/2) (1-(q/2)^{c-1})^{1/k} \leq A^{1/k}(1-B)^{1/k}(1-A)^{2kc^2}
-\end{equation}
-
-Consider $A=2^{-a}$.
-So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
-
-If $k$ is large enough in relation to $c$, then we can make the RHS large: First choose $A$ so that $(1-A)^c > 0.9$, then accept $k$ if $A^{1/k} > 0.9$ (else choose a larger $e$ to get a larger $k$).
-And we can choose $B$ as small as we want (just make $n$ bigger in the second condition).
-
-For the other element:
-\begin{equation}
-\exp\left(-\frac{\delta^2(1-p)}{(2+\delta)}\right)  \leq B^{1/n} (1-A)
-\end{equation}
-
-By making $A$ even bigger, we can make sure this is also true.
-
-\paragraph{Case B:} There are $f > 100ck$ many neighbors for the inputs of the layer-0 set we selected, for infinitely many layer-1 sets.
-
-(1) there is an unbounded number of elements (per $n$) that have less than $< 100ck$ neighbors -- we can apply LLL for this particular part of the input, and fill the other inputs arbitrarily. TODO but this might result in a too large number of filled inputs.
-
-(2) there is only a bounded number of elements that have $< 100ck$ neighbors (for arbitrarily large values of $k$). 
-Thus, asymptotically $>0.9n$ (say) of inputs are like this. But this can't be the case, as this would entail $90c  k n$ many under-consideration connections from input to second-layer when there are just $ckn$ many.
-
-\subsection{Depth Reduction Lemma}
-
-\begin{lemma}
-Given: Transformer with first-layer fanin $c$. We show that there is a family of input restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$, and each second-layer heads only depend on $c'$ inputs, for some constant $c'$ independent of $n$.
-\end{lemma}
-
-In particular, the resulting transformer can be rewritten into one with the second layer removed, and the new second layer having fanin $c'$.
-
-\begin{proof}
-
-Take $k$. $k$ will have to be chosen large enough for LLL to work. So we do the reduction to LLL for all $k$, and then choose $k$ large enough to make LLL work.
-
-For each layer-1 element, we select a set of $\approx [k, ck]$ layer-0 inputs that in total use $k$ different input bits (If we can't, then this element is already $ck$-satisfied).
-
-Now consider those layer-1 elements that have $f > 2c^2k^2$ many neighbors for the inputs of the layer-0 set we selected.
-
-If there are $\leq n/(1.1c)$ many such elements, then we can fix them manually, fixing only $\leq n/1.1$ many inputs.
-
-
-So there are $> n/(1.1c)$ many such elements with $f > 2ck^2$ many neighbors.
-How do we get a contradiction?
-
-- the number of inputs without $> 2kc$ attached layer-1-heads could be asymptotically infinite, in which case we can just fix these bad inputs (whose complement is asymptotically unboundedly large) to a fixed value, and then can apply LLL afterwards, as $f \leq 2k^2c^2$ then.
-
-- the number of inputs without $> 2kc$ attached layer-1-heads could be asymptotically bounded, so almost all inputs have $> 2kc$ attached layer-1-heads. This is a contradiction, as this would entail $>ckn$ many such connections.
-
--------------------
-
-After we previous part, we are in the setting where $f < 2c^2k^2$, and we apply LLL.
-
-
-
-Failure prob for a given layer-1 element is
-\begin{equation}
-\leq (1-q/2)^{k} (1-(q/2)^{c-1})
-\end{equation}
-\begin{proof}
-TODO
-\end{proof}
-
-We want to find that we can do find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds, assuming $f < 2c^2k^2$:
-\begin{align}
-    (1-q/2)^{k} (1-(q/2)^{c-1}) \leq A(1-B)(1-A)^f \\
-\exp\left(-\frac{\delta^2(1-p)n}{(2+\delta)}\right)  \leq B (1-A)^n
-\end{align}
-
-
-\begin{proof}
-We need to make
-
-\begin{align}
-    (1-q/2) (1-(q/2)^{c-1})^{1/k} &\leq A^{1/k}(1-B)^{1/k}(1-A)^{2kc^2} \\
-\exp\left(-\frac{\delta^2(1-p)}{(2+\delta)}\right)  &\leq B^{1/n} (1-A)
-\end{align}
-
-Consider $A=2^{-a}$.
-So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
-\end{proof}
-
--------
-
---------------
-- there could be linearly many input elements with a large number of attached layer-1-heads, but we know the total number of such connections cannot exceed $ckn$ many.
-
-- or there are only $o(n)$ input elements with so many attached layer-1-heads, in which 
-
-%So there are $> n/(1.1c)$ many input elements with $> f/ck = 2k$ many attached layer-1 heads. So there are $2kn/(1.1c)$ many connections from input to layer 2, when there can be only $ckn$ many.
-
-
-
-
-------------------------------------
-
-The number of under-consideration pairs of connected input + second-layer head is $\leq ckn$.
-
-So if there are $N$ many layer-1 heads with $Q$ neighbors, then there are $NQc$ many such pairs??? TODO this doesn't work
-
-Asymptotically only $<\frac{0.5}{c} n$ of inputs can be like this: Assume otherwise, would entail $0.5/c \cdot c^2 k n = 0.5 c k n$ many  TODO fix this
-
-Assume more than $0.1n$ of layer-1 head of $10000c^2k$ many neighbors.
-For each such head, there is some input that is connected to $\frac{10000c^2k}{ck} = 10000c$ many layer-1 heads.
-Also, there will be a linear number of such inputs, say $cn$ many such inputs each of which is connected to $100/c$ many layer-1 heads. (Note these constants all depend on how we chose $f$ to scale with $k$).
-
-Can we just fix $k$ to be $10$ from the start, and take the factor $\frac{f}{k}$ to be some for which LLL still works? E.g., we know $\frac{f}{k} = 100c$ works, so that's actually $k^2 c$ if $k=10$.
-
-So there are only $< 0.5/c  \cdot n$ many such bad layer-1 heads.
-We can satisfy every one of these inputs, filling $\leq c \frac{0.5}{c} n \leq 0.5 n$ many inputs.
-
-Once this is done, we only have layer-1 heads with less than $100ck = 1000c$ many neighbors, and we apply LLL.
-
-Well actually, great values of $c$ don't seem to work for LLL. $k$ has to be chosen in dependence of $c$ (or $100c$, for that matter, so this won't work).
-
-\end{proof}
-
-
-%PROBLEM.
-%maybe useful: $ k$ entails that there are exponentially more second-layer elements than input elements, which cannot be true for more than $\log n$ many input vars. so can we just fix $O(\log n)$ many such inputs and continue? Similarly for other sublinear functions in $k$. Can we show that for all but $o(n)$ many second-level elements, the number of relevant input elements grows somehow linearly in $k$, unless level 1 is somehow really degenerate???
-%PROBLEM but if we replace $k$ by $\log k$ to make LLL work, this part here will break!?
-
-
-
-
-
-\section{Step 1 (Reduce first layer)}
-
-For each $c$ and each head, we take the $c$ distinct inputs that can achieve the maximal values for a certain input.
-
-First start with small $c$, and go up until $c$ is large enough for LLL.
-
-Case 1: Can apply LLL, $d \leq 2c$.
-
-$\left(\frac{1+p}{2}\right)^c \leq A (1-B) (1-A)^d$
-
-$ \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})  \leq B (1-A)^n$
-
-
-
-------------------
-
-$\left(\frac{1+p}{2}\right)^c \leq A (1-B) (1-A)^{2c}$
-
-$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$
-
-
-----------------------
-
-$\left(\frac{1+p}{2}\right) \leq A^{1/c} (1-B)^{1/c} (1-A)^{2}$: e.g., for $c=20$, $A=0.01$, $B=0.5$, $p=0.5$
-
-$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$, e.g. for $\delta=0.9$, $n = 50$
-
--------------------------
-
-Case 2: $d$ has gotten too large, say $d > 2c$.
-
-WLOG this holds for infinitely many $n$'s (otherwise we can just remove them, and return to Case 1). in any case, we remove all non-initial $n$'s for which this doesn't hold.
-Then we take one relevant chain, and reduce throughout.
-
-(If the first unsatisfied $n$ doesn't have a participating head, then we can apply LLL there and be done with it)
-
-In the next step, $d$ can at most have decreased.
-
---------------------------
-
-Case 3: $d$ has gotten infinite: Deal with it as in Case 2.
-
-------------------------------
-
-Assume in the end there is only bounded number of free inputs (we never got into Case 3, and we never got into Case 1).
-So we must get into Case 2 infinitely often, so for $n \rightarrow \infty$, the number of times we have applied Case 2 must have been infinite.
-
-
-
-\section{Step 2 (Reduce second layer)}
-
-Let $c$ the number of inputs we got from Step 1.
-
-Let $e$ be the number of layer-0-inputs for each layer-1 element.
-
-Claim: For each layer-1 element, we can find an independent set of some size $k$ unbounded growing with $e$ (in relation to $c$ which is bounded). [TODO prove -- not generally true: maybe all layer-0 elements refer to exactly the same inputs, or maybe they all share one input. \textbf{TODO have to get an estimate of failure probability that decreases exponentially in $k$ nonetheless, even if this happens.}]
-
-(Exception: There may be units where we cannot get $k$ inputs, for the $k$ that we have chosen. Such units already satisfy the goal, their failure probability is just $0$)
-
-Probability of failure: $(1-q^2/4)^k$.
-
-
-As in Step 1, we increase $e$ until we succeed with one of the cases:
-
-
-Case A: There are boundedly many neighbors ($f < c k$ many). (We only consider the neighbors of the independent set) (Even if they are not all independent, can take a maximal set of $k$ things where no two have exactly the same input, and failure prob is still something like $\leq (1-q/2)^{k} (1-(q/2)^{c-1})$, which should still be enough for LLL as $k \rightarrow \infty$. We can ignore cases of full overlap, as those won't count towards the number of relevant inputs) or do we better avoid the $\log k$ thing by constructing a maximal set of first-layer elements such that each one of them contributes some unique input element, as we want to just put everything into a bounded-width feedforward net, so all we need to bound is the number of input bits. (We can of course be in the special situation, where we cannot get $k$ to infinity, but then we can just fix the relevant inputs to remove these concerning elements (!?)).
-
-PROBLEM the number of individual inputs (and thus independent observations) may just be $\propto \log k$! So we have $\leq (1-q/2)^{\log k} (1-(q/2)^{c-1})$. But then the number of neighbors also won't be a problem? So we have to somehow harmonize Case A and Case B to make sure this works.
-
-\begin{equation}
-    (1-q^2/4)^k \leq A(1-B)(1-A)^f
-\end{equation}
-So
-\begin{equation}
-    (1-q^2/4) \leq A^{1/k}(1-B)^{1/k}(1-A)^{c}
-\end{equation}
-We can make the LHS $(1-q^2/4) \approx 0.75$ with a very high $q$.
-
-If $k$ is large enough in relation to $c$, then we can make the RHS large: First choose $A$ so that $(1-A)^c > 0.9$, then accept $k$ if $A^{1/k} > 0.9$ (else choose a larger $e$ to get a larger $k$).
-And we can choose $B$ as small as we want (just make $n$ bigger in the second condition).
-
-For the other element:
-
-$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$
-
-By making $A$ even bigger, we can make sure this is also true.
-
-Case B: There are $f > ck$ many neighbors for the inputs of the independent set.
-TODO.
-
-????
-
-(1) there is an unbounded number of elements that have less than $< ck$ neighbors -- we can apply LLL for this particular part of the input, and fill the other inputs arbitrarily.
-
-(2) there is only a bounded number of elements that have $< ck$ neighbors (for arbitrarily large values of $k$). 
-
-WLOG there is an unbounded number of different inputs that all have $\geq 100c \log k$ (we can just take $100c  k$ throughout, instead of $c  k$) second-layer neighbors (else could just set them and forget about them). even, asymptotically $>0.9n$ (say) of inputs are like this. But this can't be the case, as this would entail $90c  k n$ many connections when there are just $ckn$ many?!
-%PROBLEM.
-%maybe useful: $ k$ entails that there are exponentially more second-layer elements than input elements, which cannot be true for more than $\log n$ many input vars. so can we just fix $O(\log n)$ many such inputs and continue? Similarly for other sublinear functions in $k$. Can we show that for all but $o(n)$ many second-level elements, the number of relevant input elements grows somehow linearly in $k$, unless level 1 is somehow really degenerate???
-%PROBLEM but if we replace $k$ by $\log k$ to make LLL work, this part here will break!?
-
-Case C: There are unboundedly many neighbors: Case B should be sufficient here.
-
-
-
-\section{Discussion}
-
-\paragraph{Comparison with RNNs, LSTMS, CNNs}
-
-RNNs can do all regular languages.
-
-Bounded-depth 1D CNNs cannot do all regular languages, they are even less powerful than transformers.
-
-What are transformers better at than LSTMs?
-Conjecture: where memory bottlenecks are relevant
-
-\paragraph{What does this say about NLP and Language?}
-
-
-\section{previous}
-
-
-
-Let $e$ be the number of first-layer elements we want to consider for a given head.
-That means, $ec$ input elements.
-
-Let $f(e)$ be the number of neighboring second-layer heads. 
-
-If $f(e)$ is infinite, or greater than $2ec$, it's not clear whether that's even useful?!
-
-probability of bad event:
-$1-((1-q)/2)^{c}$
-obstacle here is that the first-layer elements are not independent, since they might use the same input bits.
-
-can we do better on this?
-
-%$q = 1-p$
-%- no need to get all $c$ right, fixing the highest-ranking elements of these $c$ ones is enough: 1 (q/2), 01 (q/4), 001 (q/8), ....
-%probability of getting the $c$'s right for a fixed one: $q \sum_{i=1}^c 2^{-i} = 1-\frac{1}{c}$
-%probability of the bad event happening: $\leq 2^{-c}$
-
--------------------------
-
-- if there is a large set of independent first-layer elements, then might still be good $(1-((1-q)/2)^{c})^{e}$ (this seems like a rare case, since $e$ would need to be large for this prob to be usefully small)
-
-- can do induction? -- unclear
-
-
-\section{draft}
-
-Iterate:
-Take the smallest $n$ which hasn't been solved.
-
-Case A: there is a head for which $d$ really is so large, then process an entire chain through all $n$'s (just by setting $c$ variables, we can satisfy $1.5 c$ many heads. Satisfying all the remaining heads can only take fixating at most $n-1.5c$ variables).
-
-Case B: there is no so head, can just apply LLL
-
-Assume that the number of free things is bounded, then we did only go through A finitely often, but then we must have applied LLL, contradiction.
-
-
-\section{previous ideas}
-
-STEP 1: Reduce the first layer. Apply random restrictions + LLL.
-
-$p$ is the probability that a variable is left unassigned.
-
-Bad events:
-
-(1) $A_i$: did not hit any of the top $c$ inputs with the relevant input
-
-(2) $A_0$ have more than $(1+\delta)(1-p)n$ assigned variables
-
-$P(A_i) = (p+(1-p)/2)^c = \left(\frac{1+p}{2}\right)^c$
-
-$P(A_0) \leq \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})$
-
-$A$ assigned the $A_i$ events, $B$ assigned to $A_0$.
-
-
-$P(A_i) \leq A B (1-A)^n$
-
-$P(A_0) \leq B (1-A)^n$
-
-so we have
-
-$\left(\frac{1+p}{2}\right)^c \leq A B (1-A)^n$
-
-$ \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})  \leq B (1-A)^n$
-
-Set $A_n := \frac{1}{2^n}$:
-
-
-$\left(\frac{1+p}{2}\right)^c \leq \frac{1}{2^n} B (1-\frac{1}{2^n})^n$ (doesn't work!!!)
-
-$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-\frac{1}{2^n})$ (this one's okay)
-
-
--------------------------------------------------
-
-
-STEP 1: Reduce the first layer. Apply random restrictions + LLL.
-
-$p$ is the probability that a variable is left unassigned.
-
-Bad events:
-
-(1) $A_i$: did not hit any of the top $c$ inputs with the relevant input
-
-(2) $A_0$ have more than $(1+\delta)(1-p)n$ assigned variables
-
-$P(A_i) = (p+(1-p)/2)^c = \left(\frac{1+p}{2}\right)^c$
-
-$P(A_0) \leq \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})$
-
-$A$ assigned the $A_i$ events, $B$ assigned to $A_0$.
-
-TODO wrong!?!? each can be dependent on more than $c$ different ones
-
-$P(A_i) \leq A B (1-A)^c$
-
-$P(A_0) \leq B (1-A)^n$
-
-so we have
-
-$\left(\frac{1+p}{2}\right)^c \leq A B (1-A)^c$
-
-$ \exp(-\frac{\delta^2(1-p)n}{(2+\delta)})  \leq B (1-A)^n$
-
-So 
-
-$\left(\frac{1+p}{2}\right) \leq A^{1/c} B^{1/c} (1-A)$ (so choose $A$ close to $0$, and $c$ big)
-
-$ \exp(-\frac{\delta^2(1-p)}{(2+\delta)})  \leq B^{1/n} (1-A)$ (so choose $A$ close to $0$)
-
-Conclusion: The mass of good restrictions is at least
-
-$\geq (1-B)(1-A)^n$
-
--------------------------------------------------
-
-STEP 2: Reduce the second layer
-
-For each element in the second layer, the probability that we hit at least one of the top-$d$ inputs is at least $((1-q)/2)^c$.
-So the probability that we did not hit any of the inputs is at most $\leq 1-((1-q)/2)^c$.
-
-$1-((1-q)/2)^c \leq AB(1-A)^d$ -- so we need $q$ to be really small
-
-$ \exp(-\frac{\delta^2(1-q)}{(2+\delta)})  \leq B^{1/n} (1-A)$ -- again, need $q$ to be small
-
-TODO feels wrong, too easy.
-
---------------------------------------------------
-
-Probability that none is colored the right way, for one head: $(p+(1-p)/2)^d$.
-
-We have $4d P(bad) \leq 1$ for small $d$ (unless $p$ gets bigger), so by Lovasz Local Lemma, there is a good assignment. TODO but how do we ensure that this doesn't just end up restricting everything?
-
-(2) Now we just have to repeat this on the next level.
-
-Probability that none is colored the right way: heuristically $(c(p+(1-p)/2))^d$. but actually things aren't independent. TODO problem
-
-
-\section{Infinite Precision Transformers and Regular Languages}
-
-Self-attention itself is compatible with recognition of any language in the sense of separating them!? just positional embeddings are $2^{-n}$, sum them up, and have very complicated nonlinear transformation of a few numbers in the output.
-More interesting question is what can be implemented with e.g. a ReLU MLP.
-
-\begin{proposition}
-We can do parity with perfect accuracy, but not with perfect cross-entropy (neither with SoftMax not with ArgMax). At least if the nonlinearities are Lipschitz (does LayerNorm respect Lipschitzness?).
-\end{proposition}
-%take PARITY. want to get a final prediction. 
-
-%take two inputs where the bags of input vectors are extremely close. or flip one input in an extremely long word.
-
-(Problem: not clear how the proof would work with HardMax attention. But SoftMax has its own problem with long words. One way to deal with this is to modify Softmax by introducing a threshold below which a logit becomes minus infinity. But then cannot enforce that there will be nonzero values)
-
-\begin{proof}
-%Take an extremely long word, of length $n$, with $\approx n/2$ ones and zeroes.
-
-Take some very long $n_\epsilon$.
-
-Take three positions $i, j, k \leq n$ such that their embeddings differ only by $\leq \epsilon$.
-
-Now consider the word where there are zeros everywhere, except for $i$, or except for $i$ and $j$.
-
-The first level will also only differ by $\leq C \epsilon$.
-
-Now take attention weight of $i,j,k$ with some other $l$. They can differ only by $\leq C' \epsilon$.
-
-Take softmax over attention weights, again attention weights differ only by $\leq C'' \epsilon$.
-
-Also the summed up things will be almost the same. And so on.
-
-TODO LayerNorm. (the SDs will also be almost the same)
-\end{proof}
-
-Contrast this with RNNs: they can do any regular language easily
-
-In fact, transformers can't even do AND/OR well, since many small attention weights will ultimately drown out one big one. Cam change this to HardMax attention.
-
-QUESTION: Regular languages computable by HardMaxAtttention: $FO_2[<]$ ? HardMaxAttention can do all languages in this. Can it do additional ones?
-
-Equations of $DA$: $(xyz)^\omega y (xyz)^\omega = (xyz)^\omega$
-
-Also DA: $Me^\omega M \subseteq MsM$ imply $e^\omega s e^\omega = e^\omega$
-
-
-
-How about $(ab)^*$? cannot do this either (this is not in $FO_2[<]$)
-
-\section{Experiment: Transformers and Parity, requires large weights}
-
-\section{Finite Precision, Argmax}
-
-Finite precision transformers are related to Boolean circuits with bounded depth, linear number of gates, and very strong uniformity.
-
-\begin{proposition}
-Can at most do languages of this and that type (not restricted to regular, but extremely restricted).
-\end{proposition}
-
-- finite precision and argmax: AC0 with unary predicates and linear gates
-
-\section{Finite Pecision, Softmax}
-
-- finite precision and softmax: Majority with two variables and unary predicates
-
-actually extremely restricted
-
-\section{infinite precision and argmax}: ? TODO?
-
-- infinite precision and softmax (can use a rational approximation to softmax!?) (certainly cannot do good in the sense of cross-entropy, though perhaps hard to prove for arbitrary positional encodings. accuracy more challenging)
-
--- what can we say about the predicate class?
-
--- something about cross-entropy:
-
-conjecture Furst-Saxe-Sipser like result
-
-
-----------------------
-
-result
-
-- transformers can do some basic recursion: $a^nb^n$ with neutral letter, single-Dyck (can use attention map to illustrate how it's done)
-
-they can in the sense of argmax-accuracy
-
-but can they also do it with optimal cross-entropy? (modulo a bound on the weights) (e.g., in the sense of perfectly saying whether the word is valid or not, for some length distribution with infintie support)
-a thresholding thing cannot really do this. so less powerful than an LSTM!?
-
-- formally, transformers sorta coincide wtih $LTC^0$
-
--- presumably cannot do multi-Dyck!? (or even multi $a^nb^n$ with neutral letter) (can argue that LSTMs cannot do this either)
-
-(BUT if the goal is just to say, assuming wellformedness, predict the one next thing, then it works. this is different from recognizing though, which would rquire quadratically many hedas.)
-
-- neither can do logical formulas (assuming widely believed circuit lower bounds)
-
-- on the other hand, there are regular languages that transformers cannot do (assuming those lower bounds)
-
-- we also show that transformer's ability to do any kind of recursion crucialy relies on the use of soft -- as opposed to hard -- attention.
-indeed, without soft attention, can do neither $a^nb^n$ not parity
-
-- is there something where transformers are better than LSTMs?
-
-(-- boring: things that can be solved by looking at positions, such as $a^nb^n$)
-
--- without counting or infinite precision, LSTM memory scales with number of units. for transformers, bottleneck is instead the ease of retrieving and combining info.
-
--- example? high crypticity process where everything MIGHT become relevant, but one doesn't know whether it will. e.g., $X_t$ informs which aspect of the past is relevant for $X_{t+1}$. as long as one can then also retrieve this part from the past, this is useful. maybe can do some actual language modeling thing where this matters. e.g. carrying around a lot of names.
-
-
-
-transformer cannot do anbn version with two letters
-\begin{proof}
-we formalize transformer with order + unary
-\end{proof}
-
-
-on the other hand, actually LSTMs can use fractal encoding of stack
-
-transformer cannot do such a thing. specifically, cannot do two-bracket neutral letter anbn. for simplicity can do incremental prediction. can you flesh out this argument?
-
-
-
-LSTMs cannot do the anbn version with two letters
-\begin{proof}
-We work in the finite precision setting assumed by Weiss Goldberg ... 2018.
-
-Note that at finite precision $h_t$ assumes finitely many values.
-
-$c_t$ is a number (integer + remainder from a finite set). At each step, multiplied by $f_t$, and a finite value in $[-1,+1]$ is added.
-If this multiplier $f_t$ is not saturated unboundedly often for some dimension of $c$, then this would destroy information.
-Consequence: LSTM can only really do finite state + counting + multiplication with one of these numbers.
-
-also control is saturated if c is really large, so always have to have some small c that reflects what to do next. but 
-\end{proof}
-
-
-issue: fixed transformer cannot simulate hard max over unboundedly long sequences, need to get larger and larger parameters to still enforce.
-
-transformer cannot do anbn+neutral with perfect perplexity
-\begin{proof}
-at least heuristically, a single thing can't contribute much
-\end{proof}
-
-
-
------------------------------------
-
-The success of transformers poses the question of what kinds of things they're capable of representing.
-There is quite a range of studies on LSTMs/GRUs/SRNNs from this perspective, but nothing on transformers.
-We examine the power of self-attention from a formal languages point of view, and compare to LSTMs.
-
-(1) transformers can do basic recursion, and this ability crucially relies on the presence of soft (as opposed to hard) attention. in fact, with hard attention, they couldn't even count modulo 2. also, their ability to do this is a bit restricted compared to LSTMs (perplexity has to worsen with length)
-
-(2) as it gets more complicated, neither transformers nor LSTMs work -- at least in the finite precision setting (Weiss et al. setting).
-In particular, neither can do logical formulas (generally, neither of them can do a stack).
-We show this by a combination of experiment, proof for LSTM, reduction to widely believed conjecture for transformer.
-
-(3) there are regular languages that transformers cannot do (assuming this conjecture).
-
-(4) we exhibit languages/processes that transformers do better on than LSTMs.
-
-
-
-------------
-
-- transformers have been tremendously successful in NLP
-
--- bert, gpt
-
-- question what they (can) learn 
-
--- what are their limits?
-
--- how much of linguistic structure as linguists have identified can they encode?
-
--- how can we improve NLP?
-
-- for more `traditional' recurrent models, some understanding
-
-- some work on understanding transformers
-
-- big problem for experimental work: hyperparameters
-
-- we address this question:
-
-- drawing on computational complexity
-
-- will show limitations of transformers
-
--- with hard (argmax) attention, they are extremely limited: cannot do modulo counting, cannot do recursion
-
--- with softmax, they are more powerful, but -- if widely believed conjectures in computational complexity are true -- still cannot do more complex recursive tasks such as evaluate logical formulas
-
-- show equivalence between transformers and certain classes of boolean circuits
-
-- as a consequence, we transfer a host of results from computational complexity to transformers
-
-- intuitively, transformers should not be able to do counting etc. We confirm this mathematically.
-
-- experimentally
-
--- parity
-
--- recursion $a^nb^n$ with neutral letter
-
-- We argue that our results have implications both for NLP and for linguistics.
-
-- For NLP, our result confirms the idea that transformers cannot do recursion
-
-- For linguistics, our results highlight an interesting question:
-transformer-based models are the best quantitative models we have of language, but they are formally incapable of representing unbounded recursion -- reputedly a core property of language
-
-Note that this is even stronger than with LSTMs:
-LSTMs can do $a^nb^n$, transformers cannot (if there is a neutral letter).
-
-- what to make of this?
-
--- language has recursion, but high depth is relatively infrequent, maybe due to human memory limitations
-
-
-
----------
-
-It has been suggested that self-attention is computationally restricted, and (REF) proposed the universal transformer to address limitations.
-
-No formal proof of the limitations, even though it seems intuitively plausible.
-
-We show:
-- Stacked self-Attention is strongly limited, coinciding with $FO[unary]$.
-
-- Layer normalization and softmax self-attention both yield class coinciding with $TC^0[unary]$.
-Widely believed to not be able to compute recursive things (such as evaluating logical formulas), BUT proving limitations on such architectures would be a breakthrough, so unlikelu.
-
-
-\section{Introduce Transformers in more detail}
-
-\section{Bounded-Depth Circuits}
-
-FIGURE
-
-In full generality, a Boolean circuit is a directed acyclic graph in which each vertex is labeled with some Boolean operation, and where the input and output vertices each are numbered.
-
-Here we will mainly be concerned with circuits having $\wedge, \vee, \neg$, but one can construct circuits using other Boolean operations.
-
-Clearly, circuits have a lot in common with feedforward networks, and the relation to quantized neural networks is particularly clear.
-Also, a finite-precision feedforward net is a circuit.
-
-Note a circuit -- like a feedforward net -- has fixed-dimensional input.
-
-A circuit family assigns a circuit with $n$ inputs to each $n \in \mathbb{N}$.
-
-A language is a set $L \subset \{0,1\}^\omega$.
-A language is recognized by a circuit family iff ...
-
-$AC^0$ is the class of languages recognized by circuit families that have (1) bounded depth, (2) polynomial size.
-
-
-
-
-
-Parallel computation has been studied a lot
-
-Circuit complexity
-
-Some strong lower bounds.
-In particular, FSS theorem. also some more things.
-Before we show that these results
-
-Our main technical result will be a reduction between (bounded precision) transformers and such $AC^0$ circuits.
-
-
-Before we prove this, we discuss what this will give us.
-
-Research has already identified lots of properties about the power of $AC^0$.
-
-$AC^0$ circuits can deal with some simple properties
-
--- is there a 1 before a 0?
-
--- ...
-
-
-
-The celebrated Furst-Saxe-Sipser theorem states that $AC^0$ circuits cannot recognize the \textsc{Parity} language, the language of bitstrings of even parity:
-$$Parity = \{w \in \{0,1\}^n : n \in \mathbb{N}, parity(w) = 0\}$$
-That is, in order to recognize this language, circuits using only and/or gates have to either grow in depth or become exponentially wide as $n$ increases.
-
-As an example for the relevance of \textsc{Parity} for natural language:
-Being able to solve \textsc{Parity} is a first prerequisite to evaluating logical formulas (due to iterated negation), and it is thus unsurprising that $AC^0$ cannot evaluate logical formulas.
-
-In fact, $AC^0$ circuits cannot do recursion at all, beyond a trivial level:
-They can do $a^nb^n$, but they cannot do the version of $a^nb^n$ that has a `neutral' letter sprinkled in.
-
-
-make a picture of an $AC^0$ circuit
-
-
-
-AC0 limitations:
-
-- cannot decide whether the number of zeroes in a bitstring is even or odd
-
-- more generally, the only regular languages solved are the `star-free' ones
-
-- cannot handle recursion (cite tuebingen paper)
-
-TC0 limitations:
-
-- widely believed that it can't handle recursion
-
-also relation to communication complexity
-
-\section{Self-Attention with Argmax}
-
-technicality:
-For showing limitations, use Non-Uniform but bounded-precision transformers. this way, corresponds exactly to $AC^0$.
-
-Prop:
-Assume bounded-precision arithmetic. Argmax attention, and NO layer normalization.
-Input: Embeddings for discrete symbols (finite alphabet); positional embeddings are arbitrary (though only finitely many distinct ones due to precision arithmetic -- corresponds to the use of unary predicates).
-
-Output: vector for each input word (say)
-
-Then any such transformer can be simulated in $AC^0$. The transformer depth linearly relates to the circuit depth.
-
-Consequence: cannot model modulo, nontrivial recursion things.
-
-
-%If yo do have layer normalization, can do $TC^0$ things?!. There is only one majority gate per neuron and layer, really. So it's still linear-wire $TC^0$ -- the number of wires that feed into majority gates is still linear, while the number of wires feeding into and gates is quadratic.
-
-Proof:
-
-Such a computation can be done in $FO[<,unary]$.
-
-\begin{proof}
-we first note
-
-- can do bounded-precision bounded-arity arithmetic.
-
-- all local layer-wise computations can be done (feedforward, layer-norm, skip-connection)
-
-- attention:
-
--- compute attention scores: ok
-
--- compute the max of the scores: can also be done, make explicit how it's done.
-
-By induction, show we can compute the first $k$ significant bits of the max.
-
--- then do the argmax by matching. If there are multiple matches, we take the first one.
-
-\end{proof}
-
-Converse: Convert $FO[unary]$ to transformer
-
-
-
-Converse
-
-\section{Argmax? Softmax?}
-
-Softmax gives all of $TC^0$ with suitable uniformity. But in NLP tends to be end up being argmax. if it's really top-k max will still be in $AC^0$.
-
-show that SOTA MT system has attention distributions with low entropy
-
-\section{Related work}
-
-Limitations of transformers have been informally suggested, and experimentally supported.
-
-- Tran et al
-
-- Universal transformers
-
-in a similar vein, power of GRUs: https://arxiv.org/pdf/1805.04908.pdf
-
-\section{Experiments?!}
-
-- show how transformers experimentally really can't do these things (e.g., scaling of required depth with length of input where it still works), and compare to LSTM.
-
-- throughout compare with LSTM
-
-\subsection{Parity}
-Extremely simple problem, a very simple regular language, recognized with a two-state automaton.
-Here also theoretical predictions.
-
--- parity: show how model size vs length scale
-
--- attention: show how transformer does it, clearly cannot scale
-
-(that this cannot work in $AC^0$: celebrated FSS theorem)
-
-\subsection{Simple Recursion}
--- $a^nb^n$ with neutral letter
-
-(that this cannot work in $AC^0$ can be seen from an elementary communication complexity argument)
-
--- Dyck language
-
--- logical formulas
-
--- first order quantifier alternation
-
-\section{finite precision}
-
-- dropout also similar effect
-
-- important problem for future research to understand this
-
-
-\section{LSTMs cannot really do Dyck with more than one symbol}
-
-We work in the finite precision setting assumed by Weiss Goldberg ... 2018.
-
-Note that at finite precision $h_t$ assumes finitely many values.
-
-$c_t$ is a number (integer + remainder from a finite set). At each step, multiplied by $f_t$, and a finite value in $[-1,+1]$ is added.
-If this multiplier $f_t$ is not saturated unboundedly often, then this would destroy information.
-Consequence: LSTM can only really do finite state + counting.
-
-
-\section{What does this mean for NLP?}
-
-- language can be modeled really well -- in a quantitative/statistical sense -- with a model that cannot do recursion, or large classes of regular languages. does this mean recursion doesn't matter much in language? (at least, depth doesn't matter so much in naturally occurring language -- we knew that already, but it's an interesting counterpoint to arguments that we need hierarchical structure in NLP architectures...)
-
-- does this mean transformers don't capture essential aspects of language?
-
-% Ke Tran paper
-% https://staff.science.uva.nl/c.monz/html/publications/D18-1503.pdf
-
-% http://u.cs.biu.ac.il/~yogo/bert-syntax.pdf
-
-% https://www.aclweb.org/anthology/D18-1458
-%Rather than concluding that RNNs are superior toTransformers for the modeling of long-range de-pendency phenomena, we find that the number ofheads in multi-head attention affects the ability ofTransformers  to  model  long-range  dependenciesin subject-verb agreemen
-
-
-% BIG QUESTION:
-% What can you compute with infinite precision but noise (e.g. Gaussian dropout)? Not really finite-state? Compare Braverman et al paper.
-
-
-
-\end{document}
-
-
-
-\begin{remark}
-If a $c$-transformer has $H$ attention heads in each layer, and we apply a restriction $\rho$ that leave a linear fraction of inputs free, i.e.,
-\begin{equation}
-|\{i \leq n: \rho_n(i) = *\}| \geq Cn
-\end{equation}
-with $C \in (0,1)$, then we can also view the result as a transformer with $\operatorname{ceil}(1/C H)$ heads in each layer.
-
-We can absorb the restrictions into the augmented transformers, and get (after renumbering the input size $n$, possibly throwing away duplicates for the same input size, and additionally restricting inputs to pad out gaps in the sequence) a sequence of $c$-augmented transformers, potentially with a larger number of heads.
-\end{remark}
