@@ -158,7 +158,7 @@ The final activation of the head is computed by weighting according to attention
 In the soft attention version,
 $$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot}) $$
 In the hard attention variant \cite{perez2019turing} , we take the actual maximum of attention values instead of softmax:
-$\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{k,h}}$.\footnote{This requires an arbitrary setting when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
+$\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{This requires an arbitrary setting when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
 The final activation at each position is then computed as
 \begin{equation}
     y_i^{(k)} := f^{act}(y_i^{(k-1)}, b_{i,k,1}, ..., b_{i,k,H})
@@ -291,7 +291,6 @@ Consequently, the ability of LSTMs to model \textsc{2Dyck} has been an object of
 %Empirically, though they perform less well for versions with multiple types of parentheses \cite{sennhauser2018evaluating}, which are not counter languages any more.
 %In contrast, 
 Our theoretical results will show that transformers cannot model \textsc{2Dyck}, nor variants with fewer or more types of parentheses.
-
 
 
 %Recognizing whether an expression is bracketed correctly is a basic example of a context-free language and of recursion. If transformers cannot compute parity, they also cannot decide whether long expressions are bracketed correctly.
@@ -481,7 +480,7 @@ Apply the Depth Reduction Lemma iteratively, choosing the constants $C'$ in the 
 %In particular, the resulting $c$-transformer can be rewritten into a $c'$-transformer with one layer removed.
 
 %\begin{proof}
-\paragraph{Proving the Depth Reduction Lemma}
+\subsection{Proving the Depth Reduction Lemma}
 The rest of this section will be devoted to proving the Depth Reduction Lemma.
 We will do the first part of the argument for any integer $k \in \mathbb{N}$.
 In the second part, we will select a sufficiently large $k$.
@@ -498,9 +497,9 @@ For each layer-1 attention head $h$ at position $i$ and each position $j \in \{1
 \begin{equation}
 \max_{x_1\dots x_n} f^{att}_{k,h}(y_i^{1}, y^{1}_j)
 \end{equation}
-We order the positions $\{1, ..., n\}$ downwards by this value, obtaining a sequence $j_1, ..., j_n$ (In the case of ties, we order by  position).
+We order the positions $\{1, ..., n\}$ downwards by this value, obtaining a sequence $j_1, ..., j_n$ for each layer-1 attention head $h$ at a position $i$ (In the case of ties, we order by  position).
 
-We then select a sequence $1 \leq i_1 < i_2 < ... < i_k \leq n$ such that (1) for each $i_s$, there is at least one input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
+For each layer-1 attention head, we then select a sequence $1 \leq i_1 < i_2 < ... < i_k \leq n$ such that (1) for each $i_s$, there is at least one input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
 There is only one case in which we cannot find such a subsequence, which is if all $j_1, ..., j_n$ together depend only on $< ck$ inputs, in which case this head already satisfies the condition we're aiming for.
 
 A layer-1 head $k$-\textbf{depends} on some input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r$ for $r \leq i_k$.
@@ -685,13 +684,14 @@ As $n\rightarrow\infty$, cross-entropy converges to chance level.
 \begin{proof}
 For \textsc{Parity}, exchanging a single bit flips membership.
 Thus, for any member of the language, there is a non-member such that the output activations differ by
-only $\mathcal{O}(\frac{\cdot C^k}{n})$.
+only $\mathcal{O}(\frac{1}{n})$.
 
-For \textsc{2Dyck}, the probability that a prefix is exactly balanced is $o(1)$.
+For \textsc{2Dyck}, the probability that a well-bracketed prefix of length $n$ is exactly balanced is $o(1)$.
 In all other cases, the correct label includes one of the two closing parentheses, which depends on one single previous symbol, and both possibilities are equally likely if that symbol is unknown.
 %For \textsc{BooleanFormula}, 
 \end{proof}
 
+\subsection{Proof of the Lemma}
 Having established the main theorem, we proceed to proving the technical lemma:
 \begin{proof}[Proof of Lemma]
 Let us compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
@@ -699,11 +699,11 @@ Let $D = \|x_i-x_i'\|_2$ the norm of the difference of the input embeddings at t
 
 	We show by induction over $k$ that, for some some $C, E > 0$ (depending on the parameter matrices) the difference between the activations $y_i^k$, ${y_i^k}'$ at this position are bounded independently of input length $n$:
 \begin{equation}
-	\|y_i^k-{y_i^k}'\| \leq (2C)^{2k}ED = O(1)
+	\|y_i^k-{y_i^k}'\| \leq (2C)^{2k}ED = \mathcal{O}(1)
 \end{equation}
 and the difference between the activation at other positions $j\neq i$ are bounded as
 \begin{equation}
-	\|y_j^k-{y_j^k}'\| \leq \frac{H^k (2C)^{2k}ED}{n} = O(1/n)
+	\|y_j^k-{y_j^k}'\| \leq \frac{H^k (2C)^{2k}ED}{n} = \mathcal{O}(1/n)
 \end{equation} ($j \neq i$).
 Once we have shown this, we have found that the influence of any individual input on the final prediction is $\mathcal{O}(\frac{1}{n})$, with constants depending on the norms of parameter matrices and the number of layers.
 
