@@ -114,7 +114,7 @@ In this work, we mathematically investigate the computational power of self-atte
 Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention, finding that it cannot model periodic finite-state languages, nor basic recursion. % or logical formula evaluation. %, with asymptotically better-than-chance cross entropy. % unless the number of layers or heads increases with input size.
 %These results contrast with LSTMs, which can model many such languages perfectly.
 %We discuss implications of our theoretical results for natural language and NLP.
-Our results provide formal understanding of the techniques underlying recent advances in NLP.
+Our results precisely describe theoretical limitations of the techniques underlying recent advances in NLP.
     %We show equivalences between transformers and classes of Boolean circuits, which entail strong limitations on the computational power of transformers.
     %First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
     %Adding layer normalization, or using softmax self-attention, yields $TC^0$.
@@ -122,21 +122,16 @@ Our results provide formal understanding of the techniques underlying recent adv
 \end{abstract}
 
 
-Transformers are emerging as the new workhorse of NLP;
-unlike recurrent models, they process long sequences in parallel, enabling considerably faster processing of very large inputs \cite{vaswani2017attention}.
-Transformer-based models have achieved the state-of-the art in tasks such as language modeling, machine translation, and creating pretrained contextualized word embeddings.
-
-
+Transformers are emerging as the new workhorse of NLP; achieving the state-of-the art in tasks such as language modeling, machine translation, and creating pretrained contextualized word embeddings.
 %This poses the question of what kinds of structures they are capable of expressing, and what kinds of computations they are able to perform.
-Transformers are based on self-attention, performing their computations in a largely parallel fashion.
-This has allowed them to scale to very long sequences.
-On the other hand, it has been suggested that this limits their expressiveness, as they cannot process input sequentially \cite{dehghani2018universal,shen2018disan,chen2018best,hao2019modeling}.
+Eschewing recurrent computations, transformers are entirely based on self-attention, performing their computations in a largely parallel fashion.
+This enables them to scale to very long sequences \cite{vaswani2017attention,dai2019transformer,child2019generating}.
+On the other hand, it has been suggested that this limits their expressiveness, as they cannot process input sequentially \cite{tran2018importance,dehghani2018universal,shen2018disan,chen2018best,hao2019modeling}.
 Some experimental evidence suggests that transformers might not be as strong as LSTMs at modeling hierarchical structure~\cite{tran2018importance}.
 
-In this work, we consider these questions from a theoretical perspective.
+In this work, we examine these questions from a theoretical perspective.
 Formally, we consider the problem of language recognition, the task of classifying input strings as either belonging to or not belonging to a formal language.
 We mathematically examine the classes of languages that transformers can recognize.
-%: Transformer reads, and decides is the word in the language. Viewed as a seq2seq problem, with the target sequence being just TRUE or FALSE.
 
 We focus on the ability of transformers to compute (1) regular languages, and (2) context-free languages containing hierarchical structure.
 Our results entail show strong theoretical limitations of self-attention:
@@ -147,18 +142,18 @@ Transformers cannot model non-counter-free regular languages or languages contai
 Here we define self-attention as used in Transformers, following \cite{vaswani2017attention}.
 We have an input $x_1,...,x_n$, where $x_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
 We furthermore have a sequence $p_1, p_2, ...$ of positional embeddings $p_i \in \mathbb{R}^k$. These can be computed through some predefined scheme, or could be learned for each position occurring in the training data.
-Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^0 = f(x_i, p_i)$.
+Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(x_i, p_i)$, which we will refer to as Layer 0.
 
 A transformer has a fixed number $L$ of layers; the activations $y_i^k$ at position $i$ of the $k$-th layer ($k=1, ..., L$) are defined as follows.
 Each layer has a set of $H$ attention heads; we first compute attention scores for the $h$-th head:
 \begin{equation}
-    a_{i,j}^{k,h} = f^{att}_{k,h}(y_i^{k-1}, y_j^{k-1})
+    a_{i,j}^{(k,h)} = f^{att}_{k,h}(y_i^{(k-1)}, y_j^{(k-1)})
 \end{equation}
 where $f^{att}_{k,h}$ is a function combining the activations from the previous level into an attention score.
 In practice, this can be implemented e.g. using dot product or additive attention.
 The final activation of the head is computed by weighting according to attention weights:
 \begin{equation}
-    b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{k-1}
+    b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{(k,h)} y_j^{(k-1)}
 \end{equation}
 In the soft attention version,
 $$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot}) $$
@@ -166,11 +161,12 @@ In the hard attention variant \cite{perez2019turing} , we take the actual maximu
 $\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{k,h}}$.\footnote{This requires an arbitrary setting when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
 The final activation at each position is then computed as
 \begin{equation}
-    y_i^k := f^{act}(y_i^{k-1}, b_{i,k,1}, ..., b_{i,k,H})
+    y_i^{(k)} := f^{act}(y_i^{(k-1)}, b_{i,k,1}, ..., b_{i,k,H})
 \end{equation}
-where $f^{act}$ can be implemented as a fully-connected feedfoward network.
+where $f^{act}$ is implemented as a fully-connected feedfoward network \cite{vaswani2017attention}.
 
-Following the construction of Seq2Seq transformer networks, in the decoder part we compute a softmax probability vector from the last activation $y_{n}^L$.
+Following~\cite{weiss2018practical}, we formalize the task of language recognition as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
+Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
 
 %We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
 %To accomodate imprecision in computation, we will relax this to only demand that the result by separated from 0.5 by some constant $\delta$.
@@ -460,20 +456,21 @@ Given a $c$-transformer with $d$ layers, and some restriction $\rho$ such that
 \begin{equation}
 |\{i \leq n: \rho_n(i) = *\}| \geq Cn
 \end{equation}
+($C \in (0,1]$)
 for all sufficiently large $n$.
 %with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
+Choose any $C' < C$.
 Then there is a restriction $\rho'$ extending $\rho$ 
 such that
 \begin{equation}
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
 for all sufficiently large $n$, 
-for some $C' \geq \frac{2}{200}$, 
-and such that the resulting function is computed by a $(c\cdot k)$-transformer with $d-1$ layers, for some integer $k$.
+and such that the resulting function is computed by a $(c\cdot k)$-transformer with $d-1$ layers, for some integer $k$ (depending on $C'$).
 \end{lemma}
 Before proving this lemma, we note that it implies Theorem~\ref{thm:hardmax-main}.
 \begin{proof}[Proof of Theorem~\ref{thm:hardmax-main}]
-Apply the Depth Reduction Lemma iteratively, choosing the constants $C$ in the lemma small enough.
+Apply the Depth Reduction Lemma iteratively, choosing the constants $C'$ in the lemma appropriately.
 \end{proof}
 
 
@@ -518,28 +515,30 @@ Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s}$ for one and $j_{i_
 %Any head only depends on $\leq ck$ many inputs; by the Pigeonhole principle, this means,
 
 We will construct input restrictions using probabilistic arguments over i.i.d. random restrictions.
-For this approach to succeed, we require a  sufficient amount of independence between the activations of different heads in layer 2.
+For this approach to succeed, we require a  sufficient amount of independence between the activations of different heads in layer 1.
 We thus need to ensure that the number of neighbors of each head is bounded.
 
-Let $H$ be the number of attention heads in each position of layer 2.
-First, assume there is some input that has $>2kcH/C$ many $k$-depending layer-1 heads.
-%We now show that the number of such inputs is small, and that we can remove those WLOG.
-Assume the number of such inputs is larger than $0.9 Cn$ for some $n$.
-Then, the number of pairs of inputs and depending level-2 heads would be at least $0.9 C n \cdot 2H k c/C > Hckn$ for this $n$.
-On the other hand, there are only $\leq Hckn$ many pairs of inputs and depending level-2 heads -- contradiction.
-Thus, the number of such inputs is at most $<0.9Cn$ for all $n$.
-We can therefore construct restrictions $\rho_n$ that are set to some fixed value (doesn't matter which one) for these $<0.9Cn$ inputs, and to $*$ to others.
-After this manipulation, every input has at most $2kcH/C$ many $k$-depending layer-1 heads, independent of $n$. 
+Fix some $\eta \in (0,1)$ (to be chosen later).
 
-Furthermore, assume the number of inputs with $> 2cH/C$ depending layer-0 heads is $\geq 0.9Cn$.
-Then the number of pairs of inputs and layer-0 heads is $>0.9Cn \cdot 2cH/C > ncH$.
+Let $H$ be the number of attention heads in each position of layer 1.
+First, assume there is some input that has $>\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads.
+%We now show that the number of such inputs is small, and that we can remove those WLOG.
+Assume the number of such inputs is larger than $\eta Cn$ for some $n$.
+Then, the number of pairs of inputs and depending level-2 heads would be at least $\eta C n \cdot \frac{1}{\eta} H k c/C > Hckn$ for this $n$.
+On the other hand, there are only $\leq Hckn$ many pairs of inputs and depending layer-1 heads -- contradiction.
+Thus, the number of such inputs is at most $<\frac{1}{\eta}Cn$ for all $n$.
+We can therefore construct restrictions $\rho_n$ that are set to some fixed value (doesn't matter which one) for these $<\eta Cn$ inputs, and to $*$ to others.
+After this manipulation, every input has at most $\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads, independent of $n$. 
+
+Furthermore, assume the number of inputs with $> \frac{1}{\eta} cH/C$ depending layer-0 heads is $\geq \eta Cn$.
+Then the number of pairs of inputs and layer-0 heads is $>\eta Cn \cdot \frac{1}{\eta} cH/C > ncH$.
 But there are at most $ncH$ such pairs, contradiction.
-So the number of inputs with $> 2cH/C$ depending layer-0 heads is $\leq 0.9Cn$.
+So the number of inputs with $> \frac{1}{\eta} cH/C$ depending layer-0 heads is $\leq \eta Cn$.
 We can again restrict these inputs to some fixed value (again, it doesn't matter which one).
 
 After these preparations, 
 \begin{equation}
-|\{i \leq n: \rho_n(i) = *\}| \geq \frac{C}{100}n
+|\{i \leq n: \rho_n(i) = *\}| \geq (1-\eta)^2 C n
 \end{equation}
 
 %Now consider those layer-1 heads that have $f > 2c^2k^2$ many $k$-neighbors.
@@ -563,30 +562,30 @@ After these preparations,
 %The number of heads that have to be satisfied is now $\leq Cn$, for some $C$ that was determined by the manipulations we made above. (this means that the restriction to one head per $n$ was unnecessary)
 
 \paragraph{Part 2: Constructing Restrictions}
-After the previous part, we are in the setting where every input has $\leq 2kcH/C$ many depending layer-1 heads, and consequently every layer-1 head has at most $f \leq 2c^2k^2H/C$ $k$-neighbors (for any $k$).
+After the previous part, we are in the setting where every input has $\leq \frac{1}{\eta}kcH/C$ many depending layer-1 heads, and consequently every layer-1 head has at most $f \leq \frac{1}{\eta}c^2k^2H/C$ $k$-neighbors (for any $k$).
 %(Note that the transformations carried out above could at most have increased the value of $H$).
-Also, every input has $\leq 2cH/C$ depending layer-0 heads.
+Also, every input has $\leq \frac{1}{\eta}cH/C$ depending layer-0 heads.
 
 % after applying restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$.
 %Note that the previous part works for any $k$; we will choose a suitable $k$ in this section.
 
 In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': we define a probability distribution over restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 
-For each input length $n$, define the distribution that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $p=0.5$, and $1$ or $0$ with equal probability else.
+For each input length $n$, define the distribution that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $p$ (to be chosen later), and $1$ or $0$ with equal probability else.
 On those inputs where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
 Define $X_i$ ($i=1, ..., H n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the highest attention weight (each of these is assigned either the other value, or $*$).
-Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set to $0/1$.
+Define $X_0$ to be the event that more than $(1+\delta)(1-p)Cn$ many inputs are set to $0/1$.
 
 We first show that the probability of $X_i$ decays exponentially in $k$.
 Let $Y_i^t$ ($t=1,...,k$) be the event that the layer-0 head $j_{i_t}$ is not assigned the value that produces the highest attention weight.
 Note that $X_i = \bigcap_t Y_i^t$.
 We have $P(Y_i^s) = 1-(q/2)^c < 0$ (where $q = 1-p$).
-Any $Y_i^s$ can be statistically dependent on at most $c \cdot 2cH = 2c^2H$ other events $Y_i^{s'}$.
-Therefore, there is a set of $\geq \frac{k}{2c^2H}$ independent events among these.
-Call these $Y_i^{t_1}, ..., Y_i^{\frac{k}{2c^2H}}$.
-Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{2c^2H}} Y_i^{t_s}$, and thus
+Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}cH = \frac{1}{\eta}c^2H$ other events $Y_i^{s'}$.
+Therefore, there is a set of $\geq \frac{k}{\frac{1}{\eta}c^2H}$ independent events among these.
+Call these $Y_i^{t_1}, ..., Y_i^{\frac{k}{\frac{1}{\eta}c^2H}}$.
+Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2H}} Y_i^{t_s}$, and thus
 \begin{equation}
-    P(X_i) \leq \prod_{s=1}^{\frac{k}{2c^2H}} Y_i^{t_s} = \left(1-(q/2)^c\right)^{\frac{k}{2c^2H}}
+    P(X_i) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2H}} Y_i^{t_s} = \left(1-(q/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2H}}
 \end{equation}
 %We use induction over $t \in \{1, ..., k\}$ to compute the probability that none of $j_{i_1}, ..., j_{i_t}$ are assigned to value achieving the maximal attention weight.
 %At $t=1$, the failure probability for $j_{i_1}$ is $\leq (1-(q/2)^c)$.
@@ -597,43 +596,47 @@ Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{2c^2H}} Y_i^{t_s}$, and thus
 Furthermore, a Chernoff bound gives\footnote{See 
 \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 \begin{equation}
-P(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)
+P(X_0) \leq    \exp\left(-\frac{\delta^2(1-p)Cn}{(2+\delta)}\right)
 \end{equation}
 We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds, assuming $f \leq 2c^2k^2H$:
 \begin{align}
  P(X_i) &\leq  D^k \leq A(1-B)(1-A)^f \\
-P(X_0) &\leq \exp\left(-\frac{\delta^2qn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
+P(X_0) &\leq \exp\left(-\frac{\delta^2(1-p)n}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
 \end{align}
 where $D$ is a constant in $(0,1)$.
 Once we have this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, ..., X_{Hn}$.
 
 Choose %$q=0.5$, $\delta=0.5$, 
-$A=\frac{1}{2k^2c^2}$, $B=0.5$.
+$A=\frac{1}{\frac{1}{\eta}k^2c^2}$, $B=0.5$.
 First, we need to satisfy
 \begin{align}
     D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{2kc^2} 
 \end{align}
 For the RHS, 
 $\lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \frac{1}{k^\frac{1}{kc^2}} = \lim_{k\rightarrow \infty} \exp(-\frac{\log(k)}{kc^2}) = 1$.
-Also, $\lim_{k\rightarrow \infty} (1-A)^{2kc^2} = \lim_{k\rightarrow \infty} (1-\frac{1}{Ek^2})^{Ek} = \lim_{k\rightarrow \infty} (1-\frac{\sqrt{E}}{k^2})^{k} = 1$ ($E = 2c^2$). So, if we choose $k$ large enough, the RHS can be made arbitrarily close to $1$, in particular, greater than the LHS.
+Also, $\lim_{k\rightarrow \infty} (1-A)^{2kc^2} = \lim_{k\rightarrow \infty} (1-\frac{1}{Ek^2})^{Ek} = \lim_{k\rightarrow \infty} (1-\frac{\sqrt{E}}{k^2})^{k} = 1$ ($E = \frac{1}{\eta}c^2$). So, if we choose $k$ large enough, the RHS can be made arbitrarily close to $1$, in particular, greater than the LHS.
 
 In order to also satisfy
 \begin{equation}
-\exp\left(-\frac{\delta^2qC}{(2+\delta)}\right)  \leq B^{1/n} (1-A)^H
+\exp\left(-\frac{\delta^2(1-p)C}{(2+\delta)}\right)  \leq B^{1/n} (1-A)^H
 \end{equation}
-we choose $q, \delta$ as desired, and then make $n$, $k$ large enough to satisfy the inequality. %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
+make $n$, $k$ large enough to satisfy the inequality. %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
 
 
 With such a $\rho'$, we have
 \begin{equation}
-|\{i \leq n: \rho_n'(i) = *\}| \geq \frac{C}{100}\cdot (3/4)\cdot pn
+|\{i \leq n: \rho_n'(i) = *\}| \geq (1-\eta)^2\cdot (1-(1+\delta)(1-p)) C n
 \end{equation}
+Then choose $\eta \in (0,1)$, $p \in (0,1)$, $\delta >0$ such that $(1+\delta)(1-p) \in (0,1)$ in such a way to achieve $(1-\eta)^2\cdot (1-(1+\delta)(1-p)) C = C'$.
 
 
 
 %Consider $A=2^{-a}$.
 %So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
 %\end{proof}
+
+We now note that, since every layer-1 head depends only on $\leq ck$ many inputs after applying $\rho'$, we can remove layer 1, each $y_j^{(1)}$ only depends on $\leq Hck$ many inputs.
+Thus, we obtain a $(Hck)$-transformer performing the same computation.
 This concludes the proof of the Depth Reduction Lemma.
 
 
