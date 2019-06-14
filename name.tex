@@ -442,8 +442,9 @@ We introduce a technical definition to make this concept precise:
 \begin{defin}[$c$-Transformer]
 Let $c$ a positive integer. A $c$-transformer of depth $d$ is one in which the laver-0 activations $y_j^0$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions:
 \begin{equation}
-    y_j^0 = f^{inp}_{n,j}((x_{i_1^j}, p_{i_1^j}), \dots, (x_{i_c^j}, p_{i_c^j} ))
+    y_j^0 = f^{inp}_{n,j}((x_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (x_{i_c^{j},n}, p_{i_c^{j,n}} ))
 \end{equation}
+Here, the indices $x_{i_s^{j,n}}$ depend on the input length $n$.
 \end{defin}
 
 Note that an ordinary transformer  of depth $d$ is also a $1$-transformer of depth $d$.
@@ -541,6 +542,7 @@ After these preparations,
 \begin{equation}
 |\{i \leq n: \rho_n(i) = *\}| \geq (1-\eta)^2 C n
 \end{equation}
+for all sufficiently large $n$.
 
 %Now consider those layer-1 heads that have $f > 2c^2k^2$ many $k$-neighbors.
 
@@ -594,47 +596,48 @@ Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2H/C}} Y_i^{t_s}$, a
 %Failure probability is $\leq F_t \cdot (1-(q/2)^w)$.
 %TODO maybe this isn't actually strict enough
 %\end{proof}
-Furthermore, a Chernoff bound gives
+Furthermore, a Chernoff bound gives~\cite{mitzenmacherprobability}
 %\footnote{See \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 \begin{equation}
 P(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)
 \end{equation}
 since the number of independent multinomial samples in the sampling of $\rho'$ is at least $Cn$.
-We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds, assuming $f \leq \frac{1}{\eta}c^2k^2H/C$:
+We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds: %, assuming $f \leq $:
 \begin{align}
- P(X_i) &\leq  D^k \leq A(1-B)(1-A)^f \\
-P(X_0) &\leq \exp\left(-\frac{\delta^2qn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
+ P(X_i) &\leq  D^k \leq A(1-B)(1-A)^{\frac{1}{\eta}c^2k^2H/C} \\
+P(X_0) &\leq \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
 \end{align}
 where $D$ is a constant in $(0,1)$.
 Once we have this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, X_2, \dots$.
 
 Choose %$q=0.5$, $\delta=0.5$, 
-$A=\frac{1}{\frac{1}{\eta}k^2c^2/C}$, $B=0.5$.
+$A=\frac{1}{\frac{1}{\eta}Hk^2c^2/C}$, $B=0.5$.
 First, we need to satisfy
 \begin{align}
     D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{\frac{1}{\eta}kc^2H/C} 
 \end{align}
 For the RHS, 
 \begin{equation}
-\lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \exp\left(-\frac{\log\left(\frac{1}{\eta} k^2 c^2/C\right)}{k}\right) = 1
+\lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \exp\left(-\frac{\log\left(\frac{1}{\eta} H k^2 c^2/C\right)}{k}\right) = 1
 \end{equation}
 Also, $\lim_{k\rightarrow \infty} (1-A)^{\frac{1}{\eta}kc^2H/C}$ equals
 \begin{equation}
-\lim_{k\rightarrow \infty} \left(1-\frac{1}{Ek^2}\right)^{Ek} = \lim_{k\rightarrow \infty} \left(1-\frac{\sqrt{E}}{k^2}\right)^{k} = 1
+\lim_{k\rightarrow \infty} \left(1-\frac{1}{Ek^2}\right)^{Ek} = \lim_{k\rightarrow \infty} \left(1-\frac{E}{k^2}\right)^{k} = 1
 \end{equation}
-where we choose $E = \frac{1}{\eta}c^2H/C$. So, if we choose $k$ large enough, the RHS can be made arbitrarily close to $1$, in particular, greater than the LHS.
+where we choose $E = \frac{1}{\eta}c^2H/C$. So, if we choose $k$ large enough (independently of $n$), the RHS can be made arbitrarily close to $1$, in particular, greater than the LHS.
 
 In order to also satisfy
 \begin{equation}
 \exp\left(-\frac{\delta^2qC}{(2+\delta)}\right)  \leq B^{1/n} (1-A)^H
 \end{equation}
-make $n$, $k$ large enough to satisfy the inequality. %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
-In conclusion, there exists a restriction $\rho'$ that avoids all events $X_0, X_1, X_2, ...$.
+make $n$, $k$ large enough to satisfy the inequality (again, choosing $k$ independent of $n$). %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
+In conclusion, there exists, for each $n$, a restriction $\rho'_n$ that avoids all events $X_0, X_1, X_2, ...$.
 
 With such a $\rho'$, $|\{i \leq n: \rho_n'(i) = *\}|$ is at least
 \begin{equation}
 \geq (1-\eta)^2\cdot (1-(1+\delta)q) C n
 \end{equation}
+for all sufficiently large $n$.
 Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such that $(1+\delta)q \in (0,1)$) in such a way to achieve $(1-\eta)^2\cdot (1-(1+\delta)q) = C'/C$.
 
 
