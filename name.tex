@@ -207,7 +207,7 @@ It has been a recurrent suggestion in the literature that transformers, relying 
 \cite{dehghani2018universal} suggested that %transformers are restricted computationally, motivating their proposal of a variant with adaptive and unbounded number of layers.
 %They argued that
 transformers cannot compute functions that require sequential processing of input, without providing further details or proofs.
-Similarly, \cite{shen2018disan,chen2018best,hao2019modeling} have introduced extensions of transformers with recurrence.
+Similarly, \cite{shen2018disan,chen2018best,hao2019modeling} have introduced extensions of transformers with recurrence, citing similar intuitions about limitations of transformers.
 Our results provide an explicit formalization of these limitations.
 
 Other studies have experimentally tested the abilities of transformers to learn structures.
@@ -359,7 +359,7 @@ In fact, we do not even assume that the internal representations $y_j^k$ are vec
     \includegraphics[width=0.23\textwidth]{figures/sa3.png} &
         \includegraphics[width=0.23\textwidth]{figures/sa4.png}
         \end{tabular}
-	\caption{Iteratively reducing the layers of a transformer by fixing a few input symbols. (a) We fix a small number of input symbols, `attracting' attention from the first layer to a few inputs. (b) After this step, each activation in the first layer only depends on a small number of input symbols. (c) We again fix a few input symbols in such a way as to `attract' attention of layer-2 heads to some layer-1 activations. As a result, each layer-2 activation only depends on a small number of layer-1 activations. (d) After this step, each layer-2 activation only depends on a few inputs, and we can remove layer 1. In this example, input $X_5$ ends up being ignored by the transformer after applying the restriction.}
+	\caption{Iteratively reducing the layers of a transformer by fixing a few input symbols. (a) We fix a small number of input symbols, `attracting' attention from the first layer to a few inputs. (b) After this step, each activation in the first layer only depends on a small number of input symbols. (c) We again fix a few input symbols in such a way as to `attract' attention of layer-1 heads to some layer-0 activations. As a result, each layer-1 activation only depends on a small number of layer-0 activations. (d) After this step, each layer-1 activation only depends on a few inputs, and we can remove layer 1. In this example, input $X_5$ ends up being ignored by the transformer after applying the restriction.}
 	\label{fig:depth-reduction}
 \end{figure*}
 
@@ -468,7 +468,7 @@ such that
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
 for all sufficiently large $n$, 
-for some $C' \in (0,1)$, 
+for some $C' \geq \frac{2}{200}$, 
 and such that the resulting function is computed by a $(c\cdot k)$-transformer with $d-1$ layers, for some integer $k$.
 \end{lemma}
 Before proving this lemma, we note that it implies Theorem~\ref{thm:hardmax-main}.
@@ -497,7 +497,7 @@ In the second part, we will select a sufficiently large $k$.
 %The following observation will be important: If we fix the input $j_k$ to the value that makes the attention value achieve the higher value, then the activation at element $i$ in level 1 only depends on the inputs $i, j_1, ..., j_{k-1}$.
 
 We construct the restrictions $\rho'_n$ separately for each $n$.
-For each layer-2 attention head $h$ at position $i$ and each position $j \in \{1, ..., n\}$, we compute the maximum possible attention value that can be achieved for this pair:
+For each layer-1 attention head $h$ at position $i$ and each position $j \in \{1, ..., n\}$, we compute the maximum possible attention value that can be achieved for this pair:
 \begin{equation}
 \max_{x_1\dots x_n} f^{att}_{k,h}(y_i^{1}, y^{1}_j)
 \end{equation}
@@ -506,12 +506,12 @@ We order the positions $\{1, ..., n\}$ downwards by this value, obtaining a sequ
 We then select a sequence $1 \leq i_1 < i_2 < ... < i_k \leq n$ such that (1) for each $i_s$, there is at least one input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
 There is only one case in which we cannot find such a subsequence, which is if all $j_1, ..., j_n$ together depend only on $< ck$ inputs, in which case this head already satisfies the condition we're aiming for.
 
-A layer-2 head $k$-\textbf{depends} on some input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r$ for $r \leq i_k$.
-A layer-2 head $k$-depends on an input if and only if that input appears as an input to some $j_{i_s}$ ($s \leq k$). (This is since $i_k$ is minimal).
+A layer-1 head $k$-\textbf{depends} on some input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r$ for $r \leq i_k$.
+A layer-1 head $k$-depends on an input if and only if that input appears as an input to some $j_{i_s}$ ($s \leq k$). (This is since $i_k$ is minimal).
 
-Two layer-2 head are $k$-\textbf{neighbors} if some $j_{i_s}$ for one and $j_{i_s'}$ for the other both $k$-depend on some input $x_l$.
+Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s}$ for one and $j_{i_s'}$ for the other both $k$-depend on some input $x_l$.
 
-%We first show that, WLOG, we can assume that every layer-2 head has $\leq f = 2c^2k^2H$ many $k$-neighbors.
+%We first show that, WLOG, we can assume that every layer-1 head has $\leq f = 2c^2k^2H$ many $k$-neighbors.
 %We do this by creating a restriction that hits at most a linear fraction of inputs that enforces this.
 
 %So let's assume there are heads with $f > 2c^2k^2H$ many neighbors (we do this argument for all values of $n$).
@@ -522,46 +522,50 @@ For this approach to succeed, we require a  sufficient amount of independence be
 We thus need to ensure that the number of neighbors of each head is bounded.
 
 Let $H$ be the number of attention heads in each position of layer 2.
-First, assume there is some input that has $>2kcH/C$ many $k$-depending layer-2 heads.
+First, assume there is some input that has $>2kcH/C$ many $k$-depending layer-1 heads.
 %We now show that the number of such inputs is small, and that we can remove those WLOG.
 Assume the number of such inputs is larger than $0.9 Cn$ for some $n$.
 Then, the number of pairs of inputs and depending level-2 heads would be at least $0.9 C n \cdot 2H k c/C > Hckn$ for this $n$.
 On the other hand, there are only $\leq Hckn$ many pairs of inputs and depending level-2 heads -- contradiction.
 Thus, the number of such inputs is at most $<0.9Cn$ for all $n$.
 We can therefore construct restrictions $\rho_n$ that are set to some fixed value (doesn't matter which one) for these $<0.9Cn$ inputs, and to $*$ to others.
-After this manipulation, every input has at most $2kcH/C$ many $k$-depending layer-2 heads, independent of $n$. 
+After this manipulation, every input has at most $2kcH/C$ many $k$-depending layer-1 heads, independent of $n$. 
 
-Furthermore, assume the number of inputs with $> 2cH/C$ depending layer-1 heads is $\geq 0.9Cn$.
-Then the number of pairs of inputs and layer-1 heads is $>0.9Cn \cdot 2cH/C > ncH$.
+Furthermore, assume the number of inputs with $> 2cH/C$ depending layer-0 heads is $\geq 0.9Cn$.
+Then the number of pairs of inputs and layer-0 heads is $>0.9Cn \cdot 2cH/C > ncH$.
 But there are at most $ncH$ such pairs, contradiction.
-So the number of inputs with $> 2cH/C$ depending layer-1 heads is $\leq 0.9Cn$.
+So the number of inputs with $> 2cH/C$ depending layer-0 heads is $\leq 0.9Cn$.
 We can again restrict these inputs to some fixed value (again, it doesn't matter which one).
 
+After these preparations, 
+\begin{equation}
+|\{i \leq n: \rho_n(i) = *\}| \geq \frac{C}{100}n
+\end{equation}
 
-%Now consider those layer-2 heads that have $f > 2c^2k^2$ many $k$-neighbors.
+%Now consider those layer-1 heads that have $f > 2c^2k^2$ many $k$-neighbors.
 
 %If there are $\leq n/(1.1c)$ many such heads (for some infinite subsequence of $n$'s -- we can throw away the other $n$'s -- for bad $n$'s, we just fix every input, and they'll drop out of the $\limsup$), then we can fix them manually, fixing only $\leq n/1.1$ many inputs. [I don't think we need this case -- the Case A below subsumes this, and doesn't presuppose the existence of many bad elements]
 
 %So there are $> n/(1.1c)$ many such elements with $f > 2c^2k^2$ many neighbors (for all but finitely many $n$ -- we can throw away the other $n$'s).
-%By the Pigeonhole principle, this means, there is some input that has $> 2kc$ many $k$-depending layer-2 heads.
+%By the Pigeonhole principle, this means, there is some input that has $> 2kc$ many $k$-depending layer-1 heads.
 
 %\begin{enumerate}
-%\item Case A: the number of inputs with $\leq 2Hkc$ many $k$-depending layer-2-heads is $o(n)$ as $n\rightarrow\infty$, so the number of inputs with $> 2Hkc$ attached layer-2-heads dominates any linear fraction. Then, the number of pairs of inputs and depending level-2 heads would be at least $0.99 \cdot n 2 H k c > Hckn$ for $n$ sufficiently large. On the other hand, there are only $Hckn$ many pairs of inputs and depending level-2 heads.
+%\item Case A: the number of inputs with $\leq 2Hkc$ many $k$-depending layer-1-heads is $o(n)$ as $n\rightarrow\infty$, so the number of inputs with $> 2Hkc$ attached layer-1-heads dominates any linear fraction. Then, the number of pairs of inputs and depending level-2 heads would be at least $0.99 \cdot n 2 H k c > Hckn$ for $n$ sufficiently large. On the other hand, there are only $Hckn$ many pairs of inputs and depending level-2 heads.
 
-%\item Case B: The number of inputs without $> 2kcH$ many $k$-depending layer-2-heads is $\Omega(n)$ as $n\rightarrow \infty$, in which case we can just fix these bad inputs (whose complement is asymptotically at least linearly large) to a fixed value. After this manipulation, $f \leq 2k^2c^2H$. We have hit only a linear fraction of inputs; by Remark above, we can rewrite this into a $c$-transformer with a potentially larger number of heads.
+%\item Case B: The number of inputs without $> 2kcH$ many $k$-depending layer-1-heads is $\Omega(n)$ as $n\rightarrow \infty$, in which case we can just fix these bad inputs (whose complement is asymptotically at least linearly large) to a fixed value. After this manipulation, $f \leq 2k^2c^2H$. We have hit only a linear fraction of inputs; by Remark above, we can rewrite this into a $c$-transformer with a potentially larger number of heads.
 %\end{enumerate}
 
 %NOTE:
 %The number of pairs between input and level-2 heads is $\leq Hckn$.
-%So the number of heads where that have more than $100 Hck$ attached layer-2 heads is $\leq n/100$.
+%So the number of heads where that have more than $100 Hck$ attached layer-1 heads is $\leq n/100$.
 %So we can make the fraction of replaced inputs very small.
 
 %The number of heads that have to be satisfied is now $\leq Cn$, for some $C$ that was determined by the manipulations we made above. (this means that the restriction to one head per $n$ was unnecessary)
 
 \paragraph{Part 2: Constructing Restrictions}
-After the previous part, we are in the setting where every input has $\leq 2kcH/C$ many depending layer-2 heads, and consequently every layer-2 head has at most $f \leq 2c^2k^2H/C$ $k$-neighbors (for any $k$).
+After the previous part, we are in the setting where every input has $\leq 2kcH/C$ many depending layer-1 heads, and consequently every layer-1 head has at most $f \leq 2c^2k^2H/C$ $k$-neighbors (for any $k$).
 %(Note that the transformations carried out above could at most have increased the value of $H$).
-Also, every input has $\leq 2cH/C$ depending layer-1 heads.
+Also, every input has $\leq 2cH/C$ depending layer-0 heads.
 
 % after applying restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$.
 %Note that the previous part works for any $k$; we will choose a suitable $k$ in this section.
@@ -574,7 +578,7 @@ Define $X_i$ ($i=1, ..., H n$) to be the event that, for the $i$-th head, none o
 Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set to $0/1$.
 
 We first show that the probability of $X_i$ decays exponentially in $k$.
-Let $Y_i^t$ ($t=1,...,k$) be the event that the layer-1 head $j_{i_t}$ is not assigned the value that produces the highest attention weight.
+Let $Y_i^t$ ($t=1,...,k$) be the event that the layer-0 head $j_{i_t}$ is not assigned the value that produces the highest attention weight.
 Note that $X_i = \bigcap_t Y_i^t$.
 We have $P(Y_i^s) = 1-(q/2)^c < 0$ (where $q = 1-p$).
 Any $Y_i^s$ can be statistically dependent on at most $c \cdot 2cH = 2c^2H$ other events $Y_i^{s'}$.
@@ -603,7 +607,8 @@ P(X_0) &\leq \exp\left(-\frac{\delta^2qn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
 where $D$ is a constant in $(0,1)$.
 Once we have this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, ..., X_{Hn}$.
 
-Choose $q=0.5$, $\delta=0.5$, $A=\frac{1}{2k^2c^2}$, $B=0.5$.
+Choose %$q=0.5$, $\delta=0.5$, 
+$A=\frac{1}{2k^2c^2}$, $B=0.5$.
 First, we need to satisfy
 \begin{align}
     D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{2kc^2} 
@@ -616,7 +621,15 @@ In order to also satisfy
 \begin{equation}
 \exp\left(-\frac{\delta^2qC}{(2+\delta)}\right)  \leq B^{1/n} (1-A)^H
 \end{equation}
-we choose $n$, $k$ large enough. %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
+we choose $q, \delta$ as desired, and then make $n$, $k$ large enough to satisfy the inequality. %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
+
+
+With such a $\rho'$, we have
+\begin{equation}
+|\{i \leq n: \rho_n'(i) = *\}| \geq \frac{C}{100}\cdot (3/4)\cdot pn
+\end{equation}
+
+
 
 %Consider $A=2^{-a}$.
 %So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
@@ -744,7 +757,7 @@ This proves the inductive step for $k>0$.
 We have shown that, even with infinite precision, transformers cannot robustly model periodic regular languages, basic hierarchical structure, or Boolean formula evaluation.
 
 How do our results compare to what is known about LSTMs?
-Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata (CITE), and therefore can model finite state languages with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
+Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model finite state languages with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with zero cross-entropy, independent of the input length.
 Infinite-precision RNNs and LSTMs can model stacks \cite{kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages perfectly. % and \textsc{LogicalFormulas} perfectly.
 This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers provides a theoretical explanation for the empirical findings of \cite{tran2018importance}.
@@ -888,11 +901,11 @@ TODO this is copied from below
 Let $c$ the number of inputs we got from Step 1.
 
 Take $k$.
-For each layer-2 element, we select a set of $\approx [k, ck]$ layer-1 inputs that in total use $k$ different input bits (If we can't, then this element is already $ck$-satisfied).
+For each layer-1 element, we select a set of $\approx [k, ck]$ layer-0 inputs that in total use $k$ different input bits (If we can't, then this element is already $ck$-satisfied).
 
-\paragraph{Case A:} There are boundedly many level-2 neighbors of these selected layer-2 elements ($f < 100 c k$ many).
+\paragraph{Case A:} There are boundedly many level-2 neighbors of these selected layer-1 elements ($f < 100 c k$ many).
 
-Failure prob for a given layer-2 element is
+Failure prob for a given layer-1 element is
 \begin{equation}
 \leq (1-q/2)^{k} (1-(q/2)^{c-1})
 \end{equation}
@@ -927,7 +940,7 @@ For the other element:
 
 By making $A$ even bigger, we can make sure this is also true.
 
-\paragraph{Case B:} There are $f > 100ck$ many neighbors for the inputs of the layer-1 set we selected, for infinitely many layer-2 sets.
+\paragraph{Case B:} There are $f > 100ck$ many neighbors for the inputs of the layer-0 set we selected, for infinitely many layer-1 sets.
 
 (1) there is an unbounded number of elements (per $n$) that have less than $< 100ck$ neighbors -- we can apply LLL for this particular part of the input, and fill the other inputs arbitrarily. TODO but this might result in a too large number of filled inputs.
 
@@ -946,9 +959,9 @@ In particular, the resulting transformer can be rewritten into one with the seco
 
 Take $k$. $k$ will have to be chosen large enough for LLL to work. So we do the reduction to LLL for all $k$, and then choose $k$ large enough to make LLL work.
 
-For each layer-2 element, we select a set of $\approx [k, ck]$ layer-1 inputs that in total use $k$ different input bits (If we can't, then this element is already $ck$-satisfied).
+For each layer-1 element, we select a set of $\approx [k, ck]$ layer-0 inputs that in total use $k$ different input bits (If we can't, then this element is already $ck$-satisfied).
 
-Now consider those layer-2 elements that have $f > 2c^2k^2$ many neighbors for the inputs of the layer-1 set we selected.
+Now consider those layer-1 elements that have $f > 2c^2k^2$ many neighbors for the inputs of the layer-0 set we selected.
 
 If there are $\leq n/(1.1c)$ many such elements, then we can fix them manually, fixing only $\leq n/1.1$ many inputs.
 
@@ -956,9 +969,9 @@ If there are $\leq n/(1.1c)$ many such elements, then we can fix them manually, 
 So there are $> n/(1.1c)$ many such elements with $f > 2ck^2$ many neighbors.
 How do we get a contradiction?
 
-- the number of inputs without $> 2kc$ attached layer-2-heads could be asymptotically infinite, in which case we can just fix these bad inputs (whose complement is asymptotically unboundedly large) to a fixed value, and then can apply LLL afterwards, as $f \leq 2k^2c^2$ then.
+- the number of inputs without $> 2kc$ attached layer-1-heads could be asymptotically infinite, in which case we can just fix these bad inputs (whose complement is asymptotically unboundedly large) to a fixed value, and then can apply LLL afterwards, as $f \leq 2k^2c^2$ then.
 
-- the number of inputs without $> 2kc$ attached layer-2-heads could be asymptotically bounded, so almost all inputs have $> 2kc$ attached layer-2-heads. This is a contradiction, as this would entail $>ckn$ many such connections.
+- the number of inputs without $> 2kc$ attached layer-1-heads could be asymptotically bounded, so almost all inputs have $> 2kc$ attached layer-1-heads. This is a contradiction, as this would entail $>ckn$ many such connections.
 
 -------------------
 
@@ -966,7 +979,7 @@ After we previous part, we are in the setting where $f < 2c^2k^2$, and we apply 
 
 
 
-Failure prob for a given layer-2 element is
+Failure prob for a given layer-1 element is
 \begin{equation}
 \leq (1-q/2)^{k} (1-(q/2)^{c-1})
 \end{equation}
@@ -996,11 +1009,11 @@ So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum
 -------
 
 --------------
-- there could be linearly many input elements with a large number of attached layer-2-heads, but we know the total number of such connections cannot exceed $ckn$ many.
+- there could be linearly many input elements with a large number of attached layer-1-heads, but we know the total number of such connections cannot exceed $ckn$ many.
 
-- or there are only $o(n)$ input elements with so many attached layer-2-heads, in which 
+- or there are only $o(n)$ input elements with so many attached layer-1-heads, in which 
 
-%So there are $> n/(1.1c)$ many input elements with $> f/ck = 2k$ many attached layer-2 heads. So there are $2kn/(1.1c)$ many connections from input to layer 2, when there can be only $ckn$ many.
+%So there are $> n/(1.1c)$ many input elements with $> f/ck = 2k$ many attached layer-1 heads. So there are $2kn/(1.1c)$ many connections from input to layer 2, when there can be only $ckn$ many.
 
 
 
@@ -1009,20 +1022,20 @@ So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum
 
 The number of under-consideration pairs of connected input + second-layer head is $\leq ckn$.
 
-So if there are $N$ many layer-2 heads with $Q$ neighbors, then there are $NQc$ many such pairs??? TODO this doesn't work
+So if there are $N$ many layer-1 heads with $Q$ neighbors, then there are $NQc$ many such pairs??? TODO this doesn't work
 
 Asymptotically only $<\frac{0.5}{c} n$ of inputs can be like this: Assume otherwise, would entail $0.5/c \cdot c^2 k n = 0.5 c k n$ many  TODO fix this
 
-Assume more than $0.1n$ of layer-2 head of $10000c^2k$ many neighbors.
-For each such head, there is some input that is connected to $\frac{10000c^2k}{ck} = 10000c$ many layer-2 heads.
-Also, there will be a linear number of such inputs, say $cn$ many such inputs each of which is connected to $100/c$ many layer-2 heads. (Note these constants all depend on how we chose $f$ to scale with $k$).
+Assume more than $0.1n$ of layer-1 head of $10000c^2k$ many neighbors.
+For each such head, there is some input that is connected to $\frac{10000c^2k}{ck} = 10000c$ many layer-1 heads.
+Also, there will be a linear number of such inputs, say $cn$ many such inputs each of which is connected to $100/c$ many layer-1 heads. (Note these constants all depend on how we chose $f$ to scale with $k$).
 
 Can we just fix $k$ to be $10$ from the start, and take the factor $\frac{f}{k}$ to be some for which LLL still works? E.g., we know $\frac{f}{k} = 100c$ works, so that's actually $k^2 c$ if $k=10$.
 
-So there are only $< 0.5/c  \cdot n$ many such bad layer-2 heads.
+So there are only $< 0.5/c  \cdot n$ many such bad layer-1 heads.
 We can satisfy every one of these inputs, filling $\leq c \frac{0.5}{c} n \leq 0.5 n$ many inputs.
 
-Once this is done, we only have layer-2 heads with less than $100ck = 1000c$ many neighbors, and we apply LLL.
+Once this is done, we only have layer-1 heads with less than $100ck = 1000c$ many neighbors, and we apply LLL.
 
 Well actually, great values of $c$ don't seem to work for LLL. $k$ has to be chosen in dependence of $c$ (or $100c$, for that matter, so this won't work).
 
@@ -1090,9 +1103,9 @@ So we must get into Case 2 infinitely often, so for $n \rightarrow \infty$, the 
 
 Let $c$ the number of inputs we got from Step 1.
 
-Let $e$ be the number of layer-1-inputs for each layer-2 element.
+Let $e$ be the number of layer-0-inputs for each layer-1 element.
 
-Claim: For each layer-2 element, we can find an independent set of some size $k$ unbounded growing with $e$ (in relation to $c$ which is bounded). [TODO prove -- not generally true: maybe all layer-1 elements refer to exactly the same inputs, or maybe they all share one input. \textbf{TODO have to get an estimate of failure probability that decreases exponentially in $k$ nonetheless, even if this happens.}]
+Claim: For each layer-1 element, we can find an independent set of some size $k$ unbounded growing with $e$ (in relation to $c$ which is bounded). [TODO prove -- not generally true: maybe all layer-0 elements refer to exactly the same inputs, or maybe they all share one input. \textbf{TODO have to get an estimate of failure probability that decreases exponentially in $k$ nonetheless, even if this happens.}]
 
 (Exception: There may be units where we cannot get $k$ inputs, for the $k$ that we have chosen. Such units already satisfy the goal, their failure probability is just $0$)
 
