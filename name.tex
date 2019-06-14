@@ -459,7 +459,7 @@ Given a $c$-transformer with $d$ layers, and some restriction $\rho$ such that
 for all sufficiently large $n$.
 %with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
 Choose any $C' < C$.
-Then there is a restriction $\rho'$ extending $\rho$ 
+Then there is a restriction $\rho'$ 
 such that
 \begin{equation}
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
@@ -469,7 +469,9 @@ and such that the resulting function is computed by a $(H\cdot c\cdot k)$-transf
 \end{lemma}
 Before proving this lemma, we note that it implies Theorem~\ref{thm:hardmax-main}.
 \begin{proof}[Proof of Theorem~\ref{thm:hardmax-main}]
+The output of the transformer is determined by the last activation $y_{n}^{(L)}$.
 Apply the Depth Reduction Lemma iteratively, choosing the constants $C'$ in the lemma appropriately.
+Then, after applying the resulting restriction, $y_{n}^{(L)}$ is determined by a bounded number of input bits.
 \end{proof}
 
 
