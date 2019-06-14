@@ -160,7 +160,8 @@ The final activation of the head is computed by weighting according to attention
 \begin{equation}
     b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{k-1}
 \end{equation}
-where $$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot}) $$
+In the soft attention version,
+$$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot}) $$
 In the hard attention variant \cite{perez2019turing} , we take the actual maximum of attention values instead of softmax:
 $\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{k,h}}$.\footnote{This requires an arbitrary setting when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
 The final activation at each position is then computed as
@@ -192,10 +193,10 @@ We focus on infinite precision transformers, showing that the capabilities of se
 We discuss finite the precision setting in the Discussion, Section REF.
 %Our theoretical results will confirm that the idealization of infinite precision can result in more realistic asymptotic characterizations of practically relevant behavior, and that the capabilities of self-attention are limited even in the setting of infinite precision.
 
-Furthermore, there is a choice between modelling soft attention and hard attention \cite{shen2018reinforced}.
-In practice, soft attention is much easier to train with gradient descent methods; however, attention typically concentrates on one or a few positions (CITE), and analysis of neural network attention focuses on the positions where attention concentrates, suggesting that attention behaves mostly like hard attention in practice.
+Furthermore, there is a choice between modelling soft attention and hard attention \cite{shen2018reinforced,perez2019turing}.
 The only prior study of transformers~\cite{perez2019turing} assumes hard attention.
-We will therefore examine both of these settings.
+In practice, soft attention is much easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
+We will  examine both hard and soft attention settings.
 %We will see that, if arbitrary activation functions are allowed, soft attention is significantly more powerful than hard attention.
 %On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, ...), hard and soft attention result in similar limitations.
 
@@ -390,11 +391,11 @@ The output value of the resulting transformer only depends on those inputs $x_i$
 The following technical result formalizes the intuition described above:
 \begin{thm}\label{thm:hardmax-main}
 Let any transformer be given, and let $C \in (0,1)$.
-Then there is a restriction $\rho$ such that 
+Then there is a restriction $\rho$ and an integer $c > 0$ such that 
 $$|\{i \leq n: \rho_n(i) = *\}| \geq Cn$$
-(for sufficiently large $n$) and such that the function computed by the transformer on the restricted input depends only on a bounded number $c$ of inputs, independent of input length $n$.
+(for all sufficiently large $n$) and such that the function computed by the transformer on the restricted input depends only on $\leq c$ inputs, independent of input length $n$.
 \end{thm}
-We first show how this entails that transformers do not recognize the three formal languages:
+We first show how this entails that transformers do not recognize the two formal languages:
 \begin{corollary}
 Transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck}. %, or \textsc{BooleanFormula}.
 %with cross-entropy asymptotically better than chance.
@@ -459,14 +460,14 @@ Given a $c$-transformer with $d$ layers, and some restriction $\rho$ such that
 \begin{equation}
 |\{i \leq n: \rho_n(i) = *\}| \geq Cn
 \end{equation}
-for sufficiently large $n$.
+for all sufficiently large $n$.
 %with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
 Then there is a restriction $\rho'$ extending $\rho$ 
 such that
 \begin{equation}
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
-for sufficiently large $n$, 
+for all sufficiently large $n$, 
 for some $C' \in (0,1)$, 
 and such that the resulting function is computed by a $(c\cdot k)$-transformer with $d-1$ layers, for some integer $k$.
 \end{lemma}
@@ -531,10 +532,10 @@ We can therefore construct restrictions $\rho_n$ that are set to some fixed valu
 After this manipulation, every input has at most $2kcH/C$ many $k$-depending layer-2 heads, independent of $n$. 
 
 Furthermore, assume the number of inputs with $> 2cH/C$ depending layer-1 heads is $\geq 0.9Cn$.
-Then the number of input to layer-1 connections is $>0.9Cn \cdot 2cH/C > ncH$.
+Then the number of pairs of inputs and layer-1 heads is $>0.9Cn \cdot 2cH/C > ncH$.
 But there are at most $ncH$ such pairs, contradiction.
 So the number of inputs with $> 2cH/C$ depending layer-1 heads is $\leq 0.9Cn$.
-We can again restrict these inputs.
+We can again restrict these inputs to some fixed value (again, it doesn't matter which one).
 
 
 %Now consider those layer-2 heads that have $f > 2c^2k^2$ many $k$-neighbors.
@@ -567,7 +568,7 @@ Also, every input has $\leq 2cH/C$ depending layer-1 heads.
 
 In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': we define a probability distribution over restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 
-Define the distribution that independently assigns to each input the symbol $*$ with probability $p$, and $1$ or $0$ with equal probability else.
+For each input length $n$, define the distribution that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $p=0.5$, and $1$ or $0$ with equal probability else.
 On those inputs where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
 Define $X_i$ ($i=1, ..., H n$) to be the event that, for the $i$-th head, none of $j_1, ..., j_c$ are assigned the value that produces the highest attention weight (each of these is assigned either the other value, or $*$).
 Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set to $0/1$.
