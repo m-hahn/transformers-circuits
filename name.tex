@@ -111,7 +111,7 @@ Unlike LSTMs, transformers process input sequences entirely through self-attenti
 Previous work has suggested that the computational capabilities of self-attention to process hierarchical structures are limited.
 %Limitations of transformers are believed to exist; this work presents what appear to be the first formal proofs.
 In this work, we mathematically investigate the computational power of self-attention to model formal languages.
-Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention, finding that it cannot model periodic finite-state languages, nor hierarchical structure. % or logical formula evaluation. %, with asymptotically better-than-chance cross entropy. % unless the number of layers or heads increases with input size.
+Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention, finding that it cannot model periodic finite-state languages, nor hierarchical structure, unless the number of layers or heads increases with input length.
 %These results contrast with LSTMs, which can model many such languages perfectly.
 %We discuss implications of our theoretical results for natural language and NLP.
 Our results precisely describe theoretical limitations of the techniques underlying recent advances in NLP.
@@ -127,69 +127,30 @@ Transformers are emerging as the new workhorse of NLP; achieving the state-of-th
 Eschewing recurrent computations, transformers are entirely based on self-attention, performing their computations in a largely parallel fashion.
 This enables them to scale to very long sequences \cite{vaswani2017attention,dai2019transformer,child2019generating}.
 On the other hand, it has been suggested that this limits their expressiveness, as they cannot process input sequentially \cite{tran2018importance,dehghani2018universal,shen2018disan,chen2018best,hao2019modeling}.
-Some experimental evidence suggests that transformers might not be as strong as LSTMs at modeling hierarchical structure~\cite{tran2018importance}.
+One aspect thought to be challenging for sequence models is hierarchical structure and recursion.
+Hierarchical structure is widely thought to be essential to modeling natural language, in particular its syntax~\cite{everaert2015structures}.
+Consequently, many researchers have studied the capability of recurrent neural network models to capture context-free languages (e.g., \citet{kalinke1998computation,gers2001lstm,gruning2006stack,weiss2018practical,sennhauser2018evaluating}) and linguistic phenomena involving hierarchical structure (e.g., \citet{linzen2016assessing,gulordava2018colorless}).
+Some experimental evidence suggests that transformers might not be as strong as LSTMs at modeling hierarchical structure~\cite{tran2018importance}, though analysis studies have shown that transformer-based models encode a good amount of syntactic knowledge (e.g., \citet{clark2019bert,lin2019open,tenney2019bert}).
 
-In this work, we examine these questions from a theoretical perspective.
-We focus on the ability of transformers to compute (1) regular languages, and (2) context-free languages containing hierarchical structure.
-%
-%We mathematically examine the classes of languages that transformers can recognize.
-Our results entail show strong theoretical limitations of self-attention:
-Transformers essentially cannot model non-counter-free regular languages or languages containing unbounded recursion.
+In this work, we examine these questions from a theoretical perspective, asking whether models entirely based on self-attention are theoretically capable of modeling hierarchical structures involving unbounded recursion.
+Formally, we study their ability to perform two computations that are thought to be essential to hierarchical structure:
+First, their ability to correctly \key{close brackets}, a basic problem underlying all nonregular context-free languages and formalized by the \key{\textsc{Dyck}} language \cite{chomsky1963algebraic}.
+Second, their ability to \key{evaluate iterated negation}, which is a basic component of the task of evaluating logical formulas, and which amounts to evaluating the \key{\textsc{Parity}} of bitstrings.
+We show that neither of these problems can be solved by transformers and similar models relying entirely on self-attention.
+Besides representing basic building blocks of hierarchical structure, these languages also represent large classes of regular and context-free languages, meaning that our results will carry over to wide classes of other formal languages.
+Our results therefore also yield more generally strong limitations on the ability of self-attention to model finite-state languages except for the counter-free ones, and to model wider classes of context-free languages.
+%Our results entail show strong theoretical limitations of self-attention:
+%Transformers essentially cannot model non-counter-free regular languages or languages containing unbounded recursion.
 
+While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential}), the theoretical study of self-attention has begun only recently \citep{perez2019turing}.
+%While computational limitations of transformers have been conjectured to exist~\cite{dehghani2018universal}, 
+Our study provide the first theoretical results about limitations in the power of transformers.
 
-\section{Self-Attention}
-Here we define self-attention as used in Transformers, following \citet{vaswani2017attention}.
-We have an input $x_1,\dots,x_n$, where $x_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
-We furthermore have a sequence $p_1, p_2, \dots$ of positional embeddings $p_i \in \mathbb{R}^k$. These are independent of the input, and can be computed through some predefined scheme, or could be learned for each position occurring in the training data \citep{vaswani2017attention}.
-Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(x_i, p_i)$ ($i=1, \dots, n$), which we will refer to as Layer 0.
+After discussing related work (Section~\ref{sec:related}), we first introduce self-attention (Section~\ref{sec:def-selfatt}) and two fundamental formal languages representing regular and context-free languages (Section~\ref{sec:langs}).
+We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:soft}) attention.
+Finally, we discuss our results (Section~\ref{sec:discussion}).
 
-A transformer has a fixed number $L$ of \key{layers}; the \key{activations} $y_i^{(k)}$ at position $i$ of the $k$-th layer ($k=1, \dots, L$) are defined as follows.
-Each layer has a set of $H$ \key{attention heads}; we first compute attention scores for the $h$-th head:
-\begin{equation}
-    a_{i,j}^{(k,h)} = f^{att}_{k,h}\left(y_i^{(k-1)}, y_j^{(k-1)}\right)
-\end{equation}
-where $f^{att}_{k,h}$ is a function combining the activations from the previous level into an attention score.
-In practice, this can be implemented e.g. using dot product or additive attention.
-The final activation of the head is computed by weighting according to attention weights:
-\begin{equation}
-    b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{(k,h)} y_j^{(k-1)}
-\end{equation}
-In the soft attention version,
-$$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot}) $$
-In the hard attention variant \cite{perez2019turing} , we take the actual maximum of attention values instead of softmax:
-$\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{This requires an arbitrary choice when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
-The final activation at each position is then computed as
-\begin{equation}
-    y_i^{(k)} := f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})
-\end{equation}
-where $f^{act}$ is implemented as a fully-connected feedforward network with a skip-connection \cite{vaswani2017attention}.
-
-\paragraph{Hard and Soft Attention}
-There is a choice between soft attention and hard attention \cite{shen2018reinforced,perez2019turing}.
-The one prior theoretical study of transformers~\cite{perez2019turing} assumes hard attention.
-In practice, soft attention is easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
-We will  examine both hard and soft attention settings.
-%We will see that, if arbitrary activation functions are allowed, soft attention is significantly more powerful than hard attention.
-%On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, \dots), hard and soft attention result in similar limitations.
-
-
-\paragraph{Formalizing Language Recognition}
-We consider the problem of language recognition, the task of classifying input strings as either belonging to or not belonging to a formal language.
-Following~\citet{weiss2018practical}, we formalize this as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
-Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
-
-%We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
-%To accomodate imprecision in computation, we will relax this to only demand that the result by separated from 0.5 by some constant $\delta$.
-
-
-%Finite/infinite precision, hardmax/softmax
-
-
-
-
-
-
-\section{Related Work}
+\section{Related Work}\label{sec:related}
 \paragraph{Prior Work on Self-Attention}
 Transformers were proposed by \citet{vaswani2017attention}, previous related work using self-attention includes \citet{cheng2016long,parikh2016decomposable,paulus2017deep,lin2017structured}.
 It has been a recurrent suggestion in the literature that transformers, relying entirely on self-attention, are restricted computationally, as they cannot process their input sequentially.
@@ -228,21 +189,57 @@ A classical result~\cite{siegelman1991neural} states that -- given unlimited com
 Very recently, \citet{perez2019turing} have shown the same result for both (argmax-attention) Transformers and Neural GPUs.
 The crucial difference between these studies and studies of language recognition is that, in \citet{siegelman1991neural,perez2019turing}, the networks are allowed to perform unbounded recurrent computations, arbitrarily longer than the input length.
 
-%Based on this insight, \citet{chen2017recurrent} have proven (un)decidability results for many properties of languages recognized by recurrent nets, partly on the basis of the classical result by \citet{siegelman1991neural}.
+\section{Self-Attention}\label{sec:def-selfatt}
+Here we define self-attention as used in Transformers, following \citet{vaswani2017attention}.
+We have an input $x_1,\dots,x_n$, where $x_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
+We furthermore have a sequence $p_1, p_2, \dots$ of positional embeddings $p_i \in \mathbb{R}^k$. These are independent of the input, and can be computed through some predefined scheme, or could be learned for each position occurring in the training data \citep{vaswani2017attention}.
+Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(x_i, p_i)$ ($i=1, \dots, n$), which we will refer to as Layer 0.
 
-%Beyond sequence modeling, the expressivity of other types of neural architectures has also been studied extensively.
+A transformer has a fixed number $L$ of \key{layers}; the \key{activations} $y_i^{(k)}$ at position $i$ of the $k$-th layer ($k=1, \dots, L$) are defined as follows.
+Each layer has a set of $H$ \key{attention heads}; we first compute attention scores for the $h$-th head:
+\begin{equation}
+    a_{i,j}^{(k,h)} = f^{att}_{k,h}\left(y_i^{(k-1)}, y_j^{(k-1)}\right)
+\end{equation}
+where $f^{att}_{k,h}$ is a function combining the activations from the previous level into an attention score.
+In practice, this can be implemented e.g. using dot product or additive attention.
+The final activation of the head is computed by weighting according to attention weights:
+\begin{equation}
+    b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{(k,h)} y_j^{(k-1)}
+\end{equation}
+In the soft attention version,
+$$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot}) $$
+In the hard attention variant \cite{perez2019turing} , we take the actual maximum of attention values instead of softmax:
+$\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{This requires an arbitrary choice when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
+The final activation at each position is then computed as
+\begin{equation}
+    y_i^{(k)} := f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})
+\end{equation}
+where $f^{act}$ is implemented as a fully-connected feedforward network with a skip-connection \cite{vaswani2017attention}.
+
+\paragraph{Hard and Soft Attention}
+There is a choice between soft attention and hard attention \cite{shen2018reinforced,perez2019turing}.
+The one prior theoretical study of transformers~\cite{perez2019turing} assumes hard attention.
+In practice, soft attention is easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
+We will  examine both hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:soft}) attention settings.
+%We will see that, if arbitrary activation functions are allowed, soft attention is significantly more powerful than hard attention.
+%On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, \dots), hard and soft attention result in similar limitations.
+
+
+\paragraph{Formalizing Language Recognition}
+We consider the problem of language recognition, the task of classifying input strings as either belonging to or not belonging to a formal language.
+Following~\citet{weiss2018practical}, we formalize this as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
+Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
+
+%We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
+%To accomodate imprecision in computation, we will relax this to only demand that the result by separated from 0.5 by some constant $\delta$.
+
+
+%Finite/infinite precision, hardmax/softmax
 
 
 
-%\paragraph{Computational Complexity}
-%Our work is also related to research in computational complexity, specifically the theory of Boolean circuits.
-%Transformers are reminiscent of bounded-depth circuits -- these are circuits that computer in a finite number of layers of gates that stays bounded as the input size increases.
-%A celebrated theorem \cite{furst1984parity} states that such circuits, using AND/OR and NOT gates, require a superpolynomial number of gates to compute \textsc{Parity}.
-%An important difference to neural transformers is that such circuits compute over Boolean inputs, whereas transformers operate over vectors of real numbers, a potentially more powerful representation format.
 
-
-
-\section{Regular and Context-Free Languages} % : \textsc{Parity}
+\section{Regular and Context-Free Languages}\label{sec:langs} % : \textsc{Parity}
 
 We will analyze the ability of transformers to recognize regular and context-free languages, using two prominent representatives (\textsc{Parity} and \textsc{2Dyck}). %, which are basic representatives of wide classes of regular and context-free languages. %; the third (\textsc{LogicalFormulas}) is arguably directly relevant to modeling the meaning of natural language (CITE).
 %\textsc{Parity}.
@@ -325,7 +322,7 @@ Our theoretical results will show that transformers are strongly limited in thei
 
 
 
-\section{Results for Hard Attention}
+\section{Results for Hard Attention}\label{sec:hard}
 
 We will start our analysis with the study of hard attention~\cite{perez2019turing}.
 We show that hard attention transformers cannot represent \textsc{Parity} or \textsc{2Dyck}. %, or \textsc{BooleanFormula}.
@@ -657,7 +654,7 @@ This concludes the proof of the Depth Reduction Lemma.
 
 
 
-\section{Results for Soft Attention}
+\section{Results for Soft Attention}\label{sec:soft}
 
 %We first notice that, with arbitary activation functions, infinite precision softmax transformers:
 %For simplicity, we consider languages over alphabets with only two elements, though the argument generalizes.
@@ -772,7 +769,8 @@ This proves the inductive step for $k>0$.
 
 
 
-\section{Discussion}
+
+\section{Discussion}\label{sec:discussion}
 
 We have shown that, even with infinite precision, transformers cannot robustly model periodic regular languages or basic hierarchical structure.
 
@@ -809,6 +807,24 @@ While our hard attention results hold under extremely general assumptions, the a
 It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations, or infinite attention logits -- are allowed.
 One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
 %  and \textsc{LogicalFormulas}
+
+
+
+
+
+
+%Based on this insight, \citet{chen2017recurrent} have proven (un)decidability results for many properties of languages recognized by recurrent nets, partly on the basis of the classical result by \citet{siegelman1991neural}.
+
+%Beyond sequence modeling, the expressivity of other types of neural architectures has also been studied extensively.
+
+
+
+%\paragraph{Computational Complexity}
+%Our work is also related to research in computational complexity, specifically the theory of Boolean circuits.
+%Transformers are reminiscent of bounded-depth circuits -- these are circuits that computer in a finite number of layers of gates that stays bounded as the input size increases.
+%A celebrated theorem \cite{furst1984parity} states that such circuits, using AND/OR and NOT gates, require a superpolynomial number of gates to compute \textsc{Parity}.
+%An important difference to neural transformers is that such circuits compute over Boolean inputs, whereas transformers operate over vectors of real numbers, a potentially more powerful representation format.
+
 
 
 
