@@ -10,6 +10,7 @@
  % \bibliographystyle{plainnat}
 
 \aclfinalcopy % Uncomment this line for the final submission
+\pagestyle{plain}
 
 %\setlength\titlebox{5cm}
 % You can expand the titlebox if you need extra space
@@ -100,7 +101,7 @@
 \newcommand{\thetap}[0]{{\theta_{P}}}
 
 
-\title{Theoretical Limitations of Self-Attention}
+\title{Theoretical Limitations of Self-Attention in Neural Sequence Models}
 \author{Michael Hahn \\ Stanford University \\ mhahn2@stanford.edu}
 \date{\today}
 \begin{document}
@@ -172,7 +173,7 @@ Based on their experimental results, they suggested that LSTMs are better at lea
 While we consider transducing inputs to a single label (0, 1), they study the setting in which the transformer computes an unbounded number of autoregressive decoding steps, not bounded in the input length $n$.
 
 
-\paragraph{Investigating the Power of Sequence Learning Architectures}
+\paragraph{Investigating the Power of Sequence Modeling Architectures}
 The computational power of recurrent neural networks has been a focus of study.
 A particular focus has been on their ability to learn non-regular context-free languages, often thought to provide simple models of recursion and hierarchical structure as found in natural language.
 
@@ -248,10 +249,12 @@ We will analyze the ability of transformers to recognize regular and context-fre
 \paragraph{\textsc{Parity}} is the set of bit strings such that the number of $1$s is even.
 This is a very simple regular language, recognized by a finite-state automaton with two states.
 The regular languages form the lowest layer of the Chomsky hierarchy, and even simple RNNs can compute all regular languages.
-All regular languages whose syntactic monoid contains a group are at least computationally as hard as \textsc{Parity}.
-This means, if transformers cannot compute \textsc{Parity}, they cannot recognize regular languages that are not counter-free.
+Within the regular languages, a particularly basic class is formed by the \emph{counter-free} or \emph{star-free} languages \cite{mcnaughton1971counter}, which can be expressed by regular expressions using only union, complementation, and concatenation.
+In some sense, \textsc{Parity} is the simplest non-counter-free, or \emph{periodic}, regular language.
+%Any regular language that is not counter-free whose syntactic monoid contains a group are at least computationally as hard as \textsc{Parity}.
+This means, if transformers cannot compute \textsc{Parity}, they cannot recognize any regular language that is not counter-free.
 
-In the context of natural language, \textsc{Parity} also arises in the context of evaluating logical formulas:
+In the context of natural language, \textsc{Parity} naturally arises in the context of evaluating logical formulas:
 %\paragraph{\textsc{LogicalFormulas}} is the set of Boolean formulas evaluating to True. Formally, we consider formulas using binary operators $\wedge, \vee$, negation $\neg$, atomic \textsc{true}, and brackets `(', `)'.
 %\cite{tran2018importance} experimentally studied the ability of transformers to learn this language, finding that they did not perform as well as LSTMs.
 %\textsc{LogicalFormulas} is also a natural linguistically-relevant setting in which \textsc{Parity} arises:
@@ -279,7 +282,7 @@ If we know that transformers cannot compute parity, this entails that they also 
 \paragraph{\textsc{2Dyck}} is the language of correctly bracketed words consisting of `(', `[' and `)', `]'.
 This language is a very simple model of hierarchical structure.
 The Chomsky-Sch{\"u}tzenberger theorem \cite{chomsky1963algebraic} states that any context-free language arises from a variant of \textsc{2Dyck} with multiple types of parentheses through intersection with a regular language and homomorphisms.
-Consequently, the ability of LSTMs to model \textsc{2Dyck} has been an object of experimental study \cite{sennhauser2018evaluating,skachkova2018closing,bernardy2018can}.
+Consequently, the ability of LSTMs to model languages such as \textsc{2Dyck} has been an object of experimental study \cite{sennhauser2018evaluating,skachkova2018closing,bernardy2018can}.
 %As \textsc{1Dyck} is a deterministic counter language, finite-precision LSTMs are capable of perfectly modeling \textsc{1Dyck};
 %Empirically, though they perform less well for versions with multiple types of parentheses \cite{sennhauser2018evaluating}, which are not counter languages any more.
 %In contrast, 
@@ -327,7 +330,7 @@ Our theoretical results will show that transformers are strongly limited in thei
 We will start our analysis with the study of hard attention~\cite{perez2019turing}.
 We show that hard attention transformers cannot represent \textsc{Parity} or \textsc{2Dyck}. %, or \textsc{BooleanFormula}.
 To keep the results maximally general, our analysis will use combinatorial arguments and make no assumption about, e.g., activation functions and the norms of parameter matrices.
-In fact, we do not even assume that the internal representations $y_j^k$ are vector-valued, as opposed to, say, discrete structures.
+In fact, we do not even assume that the internal position-wise representations $y_{(j)}^k$ in each layer are vector-valued, as opposed to, say, discrete structures.
 
 %\paragraph{General Formalization of Transformers}
 %Each head depends on a finite number of activations in the previous layer (skip-connections) and the one argmax thing that was attended to.
@@ -358,9 +361,9 @@ The basic idea (see Figure~\ref{fig:depth-reduction}) behind the proof is that, 
 %We show that, for large enough values of $n$, we can find a way to fix a small fraction of the inputs to 0 or 1, such that the prediction of the transformer depends only on a finitely bounded (independently of $n$) number of input positions.
 %That is, after fixing these inputs, the transformer ignores a large number of inputs.
 This shows that the transformer could not have solved a problem such as \textsc{Parity}, where every single input bit matters.
-The idea of using such input restrictions is borrowed from the theory of Boolean circuits~\cite{furst1984parity,yao1986separating,hastad1994optimal}.
-In particular, \citet{furst1984parity} used it to prove that polynomial-size bounded-depth Boolean circuits with $\wedge, \vee$, and $\neg$ gates cannot compute \textsc{Parity}.
-We describe a new method to prove existence of suitable restrictions, as the proof approaches from the Boolean circuit literature do not seem to carry over to self-attention with infinite precision. %The proofs have in common the use of the probabilistic method, but the proof method in \cite{furst1984parity} does not appear to generalize to self-attention with infinite precision.
+The idea of using such input restrictions has been successful in the theory of Boolean circuits~\cite{furst1984parity,yao1986separating,hastad1994optimal}.
+In particular, \citet{furst1984parity}  famously used it to prove that polynomial-size bounded-depth Boolean circuits with $\wedge, \vee$, and $\neg$ gates cannot compute \textsc{Parity}.
+We describe a new method to prove existence of suitable restrictions appropriate to transformers, as the proof approaches from the Boolean circuit literature do not seem to carry over to networks with continuous real-valued activations. %self-attention with unbounded numerical precision. %The proofs have in common the use of the probabilistic method, but the proof method in \cite{furst1984parity} does not appear to generalize to self-attention with infinite precision.
 
 
 %Notably, our proof will not make any assumption about the nonlinearities, parameter matrices, positional embeddings, etc. -- all that is assumed is the basic self-attention architecture described above.
@@ -409,9 +412,9 @@ As the prediction depends on only a bounded number of positions, this shows the 
 
 \paragraph{Discussion}
 It may be instructive to compare to similar languages that \emph{can} be modeled by hard-attention transformers.
-$1^*$ (over the alphabet $\{0,1\}$) is the regular language of words that have only ones and no zeroes; its minimal automaton has two states, like \textsc{Parity}.
+First, $1^*$ (over the alphabet $\{0,1\}$) is the regular language of words that have only ones and no zeroes; its minimal automaton has two states, like \textsc{Parity}.
 A transformer can recognize this by having an attention head that attends to a position with zero input if it exists, and rejects if the head found such a position.
-$a^nb^n$ is a basic context-free language.
+Second, $a^nb^n$ is a very basic context-free language.
 It can be recognized using suitable positional embeddings by (1) having one head attend to the largest position $n$, (2) using this information to attend to any $b$ at position $<n/2$ or any $a$ at position $\geq n/2$. If such a symbol is found, the model rejects, else it accepts.
 A crucial difference between these languages and \textsc{Parity} / \textsc{2Dyck} is that fixing a few inputs can easily force nonmembership, e.g. a single 0 for $1^*$, and an $a$ in the second half for $a^nb^n$.
 Therefore, such simple languages are immune to the depth reduction method, and indeed \emph{can} be modeled perfectly with self-attention.
@@ -431,11 +434,11 @@ Our approach for proving Theorem~\ref{thm:hardmax-main} will be to iteratively r
 This process is illustrated in Figure~\ref{fig:depth-reduction}.
 After the first step, each of the heads in the first layer will only depend on a bounded number $c$ of input positions.
 In the second step, we apply the same argument to the heads in the second layer, so that each head in the second layer only depends on a bounded number $c'$ of heads in the first layer.
-After this step, we can collapse the first layer into a collection of feedforward networks that transform a bounded number $\leq cc'$ of input positions into an activation $y_i^2$ of the second layer.
+After this step, we can collapse the first layer into a collection of feedforward networks that transform a bounded number $\leq cc'$ of input positions into an activation $y_i^{(0)}$ of the lowest layer.
 After this step, the first layer has been entirely removed.
-Iterating this argument, we remove all layers.
+Iterating this argument, we remove all layers until the prediction output only depends on a bounded number of input positions, bounded independently of input length.
 
-After the removal of a layer, the resulting structure is not a transformer any more, as each head in the lowest layer now depends on a combination of input positions.
+After the removal of a layer, the resulting structure is not a transformer any more, as each head in the lowest layer now depends on a \emph{combination} of input positions.
 We introduce a technical definition to make this concept precise:
 
 \begin{defin}[$c$-Transformer]
@@ -465,13 +468,13 @@ such that
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
 for all sufficiently large $n$, 
-and such that the resulting function is computed by a $(H\cdot c\cdot k)$-transformer with $d-1$ layers, for some integer $k$ (depending on $C'$).
+and such that the resulting function is computed by a $(H\cdot c\cdot k)$-transformer with $d-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
 \end{lemma}
 Before proving this lemma, we note that it implies Theorem~\ref{thm:hardmax-main}.
 \begin{proof}[Proof of Theorem~\ref{thm:hardmax-main}]
 The output of the transformer is determined by the last activation $y_{n}^{(L)}$.
-Apply the Depth Reduction Lemma iteratively, choosing the constants $C'$ in the lemma appropriately.
-Then, after applying the resulting restriction, $y_{n}^{(L)}$ is determined by a bounded number of input bits.
+Apply the Depth Reduction Lemma iteratively, choosing the constants $C'$ in the lemma appropriately, until only the zero-th layer remains.
+Then, after applying the resulting restriction, the final activation $y_{n}^{(L)}$ is now computed by $y_{n}^{(0)}$, which is determined by a bounded number of input bits.
 \end{proof}
 
 
@@ -573,7 +576,7 @@ Also, every input has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 
 In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': we define a probability distribution over restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 
-For each input length $n$, define the distribution that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q$ (to be chosen later), and $1$ or $0$ with equal probability else.
+For each input length $n$, define the distribution that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q \in (0,1)$ (to be chosen later), and $1$ or $0$ with equal probability else.
 On those inputs where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
 For the $i$-th layer-1 attention head (there are at most $Hn$ many such), define $X_i$ to be the event that, for the $i$-th head, none of $j_{i_1}, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight (each of these is assigned either the other value, or $*$).
 Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set to $0/1$.
@@ -682,7 +685,7 @@ E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes par
 
 This result entails that, as inputs become longer, soft attention transformers cannot robustly model many formal languages, and cannot even achieve good cross-entropies on a large class of prediction problems.
 To make this precise, we take a more quantitative angle and assign probability distributions over inputs for each input length $n$, and consider the behavior of cross-entropy as $n\rightarrow\infty$.
-For \textsc{Parity}, we simply consider the distribution over i.i.d. bitstrings of length $n$, and consider the task of predicting the label (odd or even) from the string.
+For \textsc{Parity}, we simply consider the distribution over i.i.d. bitstrings of length $n$, and consider the task of predicting whether the next symbol can be the \textsc{EndOfSequence} symbol -- which is true if and only if the prefix has an even number of ones. % the label (odd or even) from the string.
 %For \textsc{LogicalFormulas}, we consider the uniform distribution over formulas of length $n$, again considering the task of predicting the label (TRUE or FALSE).
 For \textsc{2Dyck}, we take the uniform distribution of well-bracketed prefixes of length $n$, and ask the model to classify the set of valid next characters, which is a subset of $\{(,),[, ]\}$.\footnote{Only an exponentially small subset of the strings over $n$ symbols are well-labeled; thus, cross-entropy on the classification task is less meaningful for this language. Considering prediction of the next symbol sidesteps this issue.}
 We consider the problem of predicting the label from the input separately for each input length $n$, and consider cross-entropy as $n\rightarrow \infty$.
@@ -772,14 +775,14 @@ This proves the inductive step for $k>0$.
 
 \section{Discussion}\label{sec:discussion}
 
-We have shown that, even with infinite precision, transformers cannot robustly model periodic regular languages or basic hierarchical structure.
+We have shown that, even with infinite precision, transformers cannot robustly non-counter-free regular languages, nor basic hierarchical structure.
 
 How do our results compare to what is known about LSTMs?
-Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model finite state languages with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
+Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model any finite state language with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with zero cross-entropy, independent of the input length.
 
 Infinite-precision RNNs and LSTMs can model stacks \cite{tabor2000fractal,gruning2006stack,kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages perfectly. % and \textsc{LogicalFormulas} perfectly.
-This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers provides a theoretical explanation for the empirical finding that LSTMs seem to outperform transformers in modeling hierarchical structure \citep{tran2018importance}.
+This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers may provide a theoretical explanation for the empirical finding that LSTMs seem to outperform transformers in modeling hierarchical structure \citep{tran2018importance}.
 %On the other hand, the theoretical results of \cite{merrill2019sequential} show that finite-precision LSTMs cannot model these languages perfectly at long lengths.
 %Experimental evidence on the ability of LSTMs to learn \textsc{2Dyck} and \textsc{LogicalFormulas} from data is mixed, but clearly falls short of perfect accuracy or cross-entropy.
 
@@ -794,20 +797,20 @@ This clear contrast between infinite-precision LSTMs and our findings for infini
 
 
 Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
-Our results entail that self-attention is strongly limited in their ability to model context-free languages or Boolean formula evaluation.
+Our results entail that self-attention is strongly limited in their ability to model context-free languages or evaluate logical formulas.
 How should we reconcile this with the success of transformers at many natural language processing tasks?
-One possibility is that strong quantitative performance at NLP tasks can be achieved without genuine understanding of linguistic structure, as has been argued for other neural network models used in NLP \cite{linzen2016assessing,marvin2018targeted}.
+One possibility is that strong quantitative performance on NLP tasks can be achieved without genuine understanding of linguistic structure, as has been argued for other neural network models used in NLP that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
 Another possibility is that humans also have limited capacity to solve such problems, which means that human-like language understanding may not require full computational power to solve such problems.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
-Intriguingly, self-attention bears some resemblance to models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation}.
-Such models predict difficulty with center embedding because they cannot count brackets, akin to what we have shown theoretically for self-attention \cite{lewis2005activation}.
+Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
+Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
+
 
 
 While our hard attention results hold under extremely general assumptions, the analysis of soft attention builds on regularity properties of the operations that existing transformer models are composed of.
 It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations, or infinite attention logits -- are allowed.
 One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
 %  and \textsc{LogicalFormulas}
-
 
 
 
