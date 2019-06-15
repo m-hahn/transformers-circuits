@@ -110,16 +110,9 @@
 Transformers are emerging as the new workhorse of NLP, showing great success across tasks.
 Unlike LSTMs, transformers process input sequences entirely through self-attention.
 Previous work has suggested that the computational capabilities of self-attention to process hierarchical structures are limited.
-%Limitations of transformers are believed to exist; this work presents what appear to be the first formal proofs.
 In this work, we mathematically investigate the computational power of self-attention to model formal languages.
 Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention, finding that it cannot model periodic finite-state languages, nor hierarchical structure, unless the number of layers or heads increases with input length.
-%These results contrast with LSTMs, which can model many such languages perfectly.
-%We discuss implications of our theoretical results for natural language and NLP.
 Our results precisely describe theoretical limitations of the techniques underlying recent advances in NLP.
-    %We show equivalences between transformers and classes of Boolean circuits, which entail strong limitations on the computational power of transformers.
-    %First, we show that stacked argmax self-attention attention can only compute functions in $AC^0$, which entails strong limitations on the computations they can perform (compared to fully-connected networks).
-    %Adding layer normalization, or using softmax self-attention, yields $TC^0$.
-    %Complements recent work on the power of transformers.
 \end{abstract}
 
 
@@ -535,7 +528,7 @@ We can therefore modify the restriction $\rho_n$ so that they are set to some fi
 After this manipulation, every input has at most $\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads, independent of $n$.
 
 Furthermore, assume the number of inputs with $> \frac{1}{\eta} c/C$ depending layer-0 activations is $\geq \eta Cn$.
-Then the number of pairs of inputs and layer-0 activations is $>\eta Cn \cdot \frac{1}{\eta} c/C > nc$.
+Then the number of pairs of inputs and layer-0 activations is $>\eta Cn \cdot \frac{1}{\eta} c/C = nc$.
 But there are at most $nc$ such pairs, contradiction.
 So the number of inputs with $> \frac{1}{\eta} c/C$ depending layer-0 heads is $\leq \eta Cn$.
 We can again restrict these inputs to some fixed value (again, it doesn't matter which one).
