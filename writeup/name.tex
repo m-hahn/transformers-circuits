@@ -130,15 +130,15 @@ In this work, we examine these questions from a theoretical perspective, asking 
 Formally, we study their ability to perform two computations that are thought to be essential to hierarchical structure:
 First, their ability to correctly \key{close brackets}, a basic problem underlying all nonregular context-free languages and formalized by the \key{\textsc{Dyck}} language \cite{chomsky1963algebraic}.
 Second, their ability to \key{evaluate iterated negation}, which is a basic component of the task of evaluating logical formulas, and which amounts to evaluating the \key{\textsc{Parity}} of bitstrings.
-We show that neither of these problems can be solved by transformers and similar models relying entirely on self-attention.
+We show that neither of these problems can be solved by transformers and similar models relying entirely on self-attention, unless the number of layers or parameters increases with the input length.
 Besides representing basic building blocks of hierarchical structure, these languages also represent large classes of regular and context-free languages, meaning that our results will carry over to wide classes of other formal languages.
-Our results therefore also yield more generally strong limitations on the ability of self-attention to model finite-state languages except for the counter-free ones, and to model wider classes of context-free languages.
+Our results therefore also yield more generally strong limitations on the ability of self-attention to model large classes of finite-state languages and context-free languages.
 %Our results entail show strong theoretical limitations of self-attention:
 %Transformers essentially cannot model non-counter-free regular languages or languages containing unbounded recursion.
 
 While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential}), the theoretical study of self-attention has begun only recently \citep{perez2019turing}.
 %While computational limitations of transformers have been conjectured to exist~\cite{dehghani2018universal}, 
-Our study provide the first theoretical results about limitations in the power of transformers.
+Our study provides the first theoretical results about limitations in the power of transformers.
 
 After discussing related work (Section~\ref{sec:related}), we first introduce self-attention (Section~\ref{sec:def-selfatt}) and two fundamental formal languages representing regular and context-free languages (Section~\ref{sec:langs}).
 We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:soft}) attention.
@@ -161,9 +161,9 @@ Based on their experimental results, they suggested that LSTMs are better at lea
 \citet{yang2019assessing} experimentally investigated the power of self-attention to extract word order information, finding differences between recurrent and self-attention models; however, these were modulated by the training objective.
 \citet{lin2019open} and \citet{tenney2019bert} show that BERT \cite{devlin2018bert} encodes syntactic information.
 
-\citet{perez2019turing} theoretically studied the ability of Seq2Seq transformers to emulate the computation of Turing machines.
+Theoretical study of transformers was initiated by \citet{perez2019turing}, who theoretically studied the ability of Seq2Seq transformers to emulate the computation of Turing machines.
 %There is no contrast between their results and ours:
-While we consider transducing inputs to a single label (0, 1), they study the setting in which the transformer computes an unbounded number of autoregressive decoding steps, not bounded in the input length $n$.
+While we consider incremental modeling of sequences, where the number of computation steps is bounded by the input length $n$, they study the setting in which the transformer computes an unbounded number of autoregressive decoding steps, not bounded in the input length $n$.
 
 
 \paragraph{Investigating the Power of Sequence Modeling Architectures}
@@ -181,7 +181,7 @@ Recently, \citet{merrill2019sequential} theoretically studied several types of r
 A related, though different, strand of research has investigated the power of neural networks to model Turing machines.
 A classical result~\cite{siegelman1991neural} states that -- given unlimited computation time -- recurrent networks can emulate the computation of Turing machines.
 Very recently, \citet{perez2019turing} have shown the same result for both (argmax-attention) Transformers and Neural GPUs.
-The crucial difference between these studies and studies of language recognition is that, in \citet{siegelman1991neural,perez2019turing}, the networks are allowed to perform unbounded recurrent computations, arbitrarily longer than the input length.
+The crucial difference between these studies and studies of language recognition is that, in these studies, the networks are allowed to perform unbounded recurrent computations, arbitrarily longer than the input length.
 
 \section{Self-Attention}\label{sec:def-selfatt}
 Here we define self-attention as used in Transformers, following \citet{vaswani2017attention}.
@@ -245,7 +245,7 @@ The regular languages form the lowest layer of the Chomsky hierarchy, and even s
 Within the regular languages, a particularly basic class is formed by the \emph{counter-free} or \emph{star-free} languages \cite{mcnaughton1971counter}, which can be expressed by regular expressions using only union, complementation, and concatenation.
 In some sense, \textsc{Parity} is the simplest non-counter-free, or \emph{periodic}, regular language.
 %Any regular language that is not counter-free whose syntactic monoid contains a group are at least computationally as hard as \textsc{Parity}.
-This means, if transformers cannot compute \textsc{Parity}, they cannot recognize any regular language that is not counter-free.
+This means, if transformers cannot compute \textsc{Parity}, they cannot recognize (almost)\footnote{More precisely, inability to compute \textsc{Parity} entails that they cannot recognize any regular language whose syntactic morphism is not quasi-aperiodic~\cite[p. 488]{barrington1992regular}.} any regular language that is not counter-free.
 
 In the context of natural language, \textsc{Parity} naturally arises in the context of evaluating logical formulas:
 %\paragraph{\textsc{LogicalFormulas}} is the set of Boolean formulas evaluating to True. Formally, we consider formulas using binary operators $\wedge, \vee$, negation $\neg$, atomic \textsc{true}, and brackets `(', `)'.
@@ -279,7 +279,7 @@ Consequently, the ability of LSTMs to model languages such as \textsc{2Dyck} has
 %As \textsc{1Dyck} is a deterministic counter language, finite-precision LSTMs are capable of perfectly modeling \textsc{1Dyck};
 %Empirically, though they perform less well for versions with multiple types of parentheses \cite{sennhauser2018evaluating}, which are not counter languages any more.
 %In contrast, 
-Our theoretical results will show that transformers are strongly limited in their ability to model \textsc{2Dyck}, or variants with fewer or more types of parentheses.
+Our theoretical results will show that transformers are strongly limited in their ability to model \textsc{2Dyck}, including variants with fewer or more types of parentheses.
 
 
 %Recognizing whether an expression is bracketed correctly is a basic example of a context-free language and of recursion. If transformers cannot compute parity, they also cannot decide whether long expressions are bracketed correctly.
@@ -412,8 +412,9 @@ It can be recognized using suitable positional embeddings by (1) having one head
 A crucial difference between these languages and \textsc{Parity} / \textsc{2Dyck} is that fixing a few inputs can easily force nonmembership, e.g. a single 0 for $1^*$, and an $a$ in the second half for $a^nb^n$.
 Therefore, such simple languages are immune to the depth reduction method, and indeed \emph{can} be modeled perfectly with self-attention.
 
-In general, the depth reduction method applies to languages that are sufficiently \emph{sensitive}: If fixing $\Theta(n)$ input symbols does not force a word to be inside or outside of the language, and if every word of length $n$ in the language has $\Theta(n)$ many Hamming neighbors that are outside of the language, then self-attention cannot recognize this language.
-Sensitivity of functions and the structure of Hamming neighborhoods have been studied in computational complexity~\cite{boppana1997average,gilmer2015new,gopalan2016smooth,rossman2018average} and more recently linked to generalization in feedforward networks~\cite{de2018deep}.
+In general, the depth reduction method applies to languages that are sufficiently \emph{sensitive}: If, for some $C \in (0,1)$, fixing $Cn$ input symbols cannot force a word to be inside or outside of the language, then hard-attention transformers cannot recognize this language.
+Sensitivity of functions %and the structure of Hamming neighborhoods
+has been studied in computational complexity~\cite{boppana1997average,gilmer2015new,gopalan2016smooth,rossman2018average} and more recently linked to generalization in feedforward networks~\cite{de2018deep}.
 We intend to investigate these connections in future work.
 
 
@@ -626,7 +627,7 @@ In order to also satisfy
 \exp\left(-\frac{\delta^2qC}{(2+\delta)}\right)  \leq B^{1/n} (1-A)^H
 \end{equation}
 make $n$, $k$ large enough to satisfy the inequality (again, choosing $k$ independent of $n$). %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
-In conclusion, there exists, for each $n$, a restriction $\rho'_n$ that avoids all events $X_0, X_1, X_2, \dots$.
+In conclusion, there exists, for each sufficiently-large $n$, a restriction $\rho'_n$ that avoids all events $X_0, X_1, X_2, \dots$.
 
 With such a $\rho'$, $|\{i \leq n: \rho_n'(i) = *\}|$ is at least
 \begin{equation}
@@ -690,7 +691,7 @@ As $n\rightarrow\infty$, cross-entropy converges to chance level.
 
 \begin{proof}
 For \textsc{Parity}, exchanging a single bit flips membership.
-Thus, for any member of the language, there is a non-member such that the output activations differ by
+Thus, for any member of the language, there is an equally likely non-member such that the output activations differ by
 only $\mathcal{O}(\frac{1}{n})$.
 
 For \textsc{2Dyck}, the probability that a well-bracketed prefix of length $n$ is exactly balanced is $o(1)$.
@@ -768,7 +769,7 @@ This proves the inductive step for $k>0$.
 
 \section{Discussion}\label{sec:discussion}
 
-We have shown that, even with infinite precision, transformers cannot robustly non-counter-free regular languages, nor basic hierarchical structure.
+We have shown that, even with infinite precision, transformers cannot robustly model non-counter-free regular languages, nor basic hierarchical structure.
 
 How do our results compare to what is known about LSTMs?
 Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model any finite state language with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
@@ -793,6 +794,7 @@ Hierarchical structure, at least at the level of context-free languages, is wide
 Our results entail that self-attention is strongly limited in their ability to model context-free languages or evaluate logical formulas.
 How should we reconcile this with the success of transformers at many natural language processing tasks?
 One possibility is that strong quantitative performance on NLP tasks can be achieved without genuine understanding of linguistic structure, as has been argued for other neural network models used in NLP that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
+This would suggest that models such as transformers may not be capable in principle to understand language in a fully human-like way.
 Another possibility is that humans also have limited capacity to solve such problems, which means that human-like language understanding may not require full computational power to solve such problems.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
