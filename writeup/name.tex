@@ -386,7 +386,7 @@ Transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck}.
 %, or \textsc{BooleanFormula} (i.e., asymptotic cross-entropy is at chance level).
 \end{corollary}
 \begin{proof}
-Take $C=0.1$.
+Take $C=0.6$.
 For \textsc{Parity}, after applying a restriction, the output of the transformer depends on $c$ inputs.
 An input of sufficiently large size $n$ thus has unrestricted inputs that do not influence the output.
 But flipping a single input bit changes the value, so the transformer's output cannot match membership in \textsc{Parity} beyond chance as soon as $n$ is sufficiently large.
@@ -394,7 +394,7 @@ But flipping a single input bit changes the value, so the transformer's output c
 %As a corollary, transformers also cannot model \textsc{BooleanFormula}, as they cannot model iterated negation.
 
 For \textsc{2Dyck}, we show that hard attention transformers cannot even solve the simpler variant \textsc{1Dyck} with a single bracket type (`(', `)').
-We first restrict the first $0.2n$ input positions to `('.
+We first restrict the first $0.2n$ input positions to `(', and the last $0.2n$ input positions to `)'.
 After applying the restriction provided by the theorem, the resulting restricted input will still be compatible with both well-bracketed and non-well-bracketed inputs, but the prediction will depend only on a bounded number of positions.
 As the prediction depends on only a bounded number of positions, this shows the transformer could not recognize \textsc{1Dyck}, and thus also not \textsc{2Dyck}.
 %The probability that 
@@ -491,18 +491,19 @@ In the second part, we will select a sufficiently large $k$.
 
 %The following observation will be important: If we fix the input $j_k$ to the value that makes the attention value achieve the higher value, then the activation at element $i$ in level 1 only depends on the inputs $i, j_1, \dots, j_{k-1}$.
 
+Fixing $n$, we say an input $x_i \in \{x_1, ..., x_n\}$ is $\rho$-\key{free} if $\rho_n(i) = *$.
 We construct the restrictions $\rho'_n$ separately for each $n$.
 For each layer-1 attention head $h$ at position $i$ and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
 \begin{equation}
-\max_{x_1\dots x_n} f^{att}_{k,h}(y_i^{1}, y^{1}_j)
+\max_{x_1\dots x_n \text{ compatible with } \rho_n} f^{att}_{k,h}(y_i^{1}, y^{1}_j)
 \end{equation}
 We order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1, \dots, j_n$ for each layer-1 attention head $h$ at a position $i$ (In the case of ties, we order by  position).
 
-For each layer-1 attention head, we then select a sequence $1 \leq i_1 < i_2 < \dots < i_k \leq n$ such that (1) for each $i_s$, there is at least one input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
-There is only one case in which we cannot find such a subsequence, which is if all $j_1, \dots, j_n$ together depend only on $< ck$ inputs, in which case this head already satisfies the condition we're aiming for.
+For each layer-1 attention head, we then select a sequence $1 \leq i_1 < i_2 < \dots < i_k \leq n$ such that (1) for each $i_s$, there is at least one $\rho$-free input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
+There is only one case in which we cannot find such a subsequence, which is if all $j_1, \dots, j_n$ together depend only on $< ck$ $\rho$-free inputs, in which case this head already satisfies the condition we're aiming for.
 
-A layer-1 head $k$-\textbf{depends} on some input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r$ for $r \leq i_k$.
-A layer-1 head $k$-depends on an input if and only if that input appears as an input to some $j_{i_s}$ ($s \leq k$). (This is since $i_k$ is minimal).
+A layer-1 head $k$-\textbf{depends} on some $\rho$-free input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r$ for $r \leq i_k$.
+A layer-1 head $k$-depends on a $\rho$-free input if and only if that input appears as an input to some $j_{i_s}$ ($s \leq k$). (This is since $i_k$ is minimal).
 
 Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s}$ for one and $j_{i_s'}$ for the other both $k$-depend on some input $x_l$.
 
@@ -519,14 +520,14 @@ We thus need to ensure that the number of neighbors of each head is bounded.
 Fix some $\eta \in (0,1)$ (to be chosen later).
 
 Let $H$ be the number of attention heads in each position of layer 1.
-First, assume there is some input that has $>\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads.
+First, assume there is some $\rho$-free input that has $>\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads.
 %We now show that the number of such inputs is small, and that we can remove those WLOG.
 Assume the number of such inputs is larger than $\eta Cn$ for some $n$.
 Then, the number of pairs of inputs and depending level-2 heads would be more than $> \eta C n \cdot \frac{1}{\eta} H k c/C = Hckn$ for this $n$.
-On the other hand, there are only $\leq Hckn$ many pairs of inputs and depending layer-1 heads -- contradiction.
+On the other hand, there are only $\leq Hckn$ many pairs of $\rho$-free inputs and depending layer-1 heads -- contradiction.
 Thus, the number of such inputs is at most $\leq \eta Cn$ for all $n$.
-We can therefore modify the restriction $\rho_n$ so that they are set to some fixed value (doesn't matter which one) for these $<\eta Cn$ inputs, and unchanged for the others.
-After this manipulation, every input has at most $\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads, independent of $n$.
+We can therefore modify the restriction $\rho_n$ so that they are set to some fixed value (doesn't matter which one) for these $<\eta Cn$ $\rho$-free inputs, and unchanged for the others.
+After this manipulation, every $\rho$-free input has at most $\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads, independent of $n$.
 
 Furthermore, assume the number of inputs with $> \frac{1}{\eta} c/C$ depending layer-0 activations is $\geq \eta Cn$.
 Then the number of pairs of inputs and layer-0 activations is $>\eta Cn \cdot \frac{1}{\eta} c/C = nc$.
@@ -570,7 +571,7 @@ Also, every input has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 
 In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': we define a probability distribution over restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 
-For each input length $n$, define the distribution that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q \in (0,1)$ (to be chosen later), and $1$ or $0$ with equal probability else.
+For each input length $n$, define the distribution that independently assigns to each $\rho$-free input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q \in (0,1)$ (to be chosen later), and $1$ or $0$ with equal probability else.
 On those inputs where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
 For the $i$-th layer-1 attention head (there are at most $Hn$ many such), define $X_i$ to be the event that, for the $i$-th head, none of $j_{i_1}, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight (each of these is assigned either the other value, or $*$).
 Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set to $0/1$.
@@ -648,6 +649,7 @@ This concludes the proof of the Depth Reduction Lemma.
 
 
 %Can the same proof work for Dyck? Fix the first $0.2n$ to `(', and can we force the random restrictions to only restrict $0.3n$ (replace $2$ by $10$)?
+
 
 
 
@@ -884,3 +886,76 @@ We discuss finite the precision setting in the Discussion, Section REF.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+\paragraph{What input size do we have to take to get failure}
+
+$L$ layers, $H$ heads
+
+
+
+$(1-\eta)^2 (1-(1+\delta)q) = C^{1/L}$
+
+$\eta = 1-C^{1/4L}$
+
+$(1+\delta)q = 1-C^{1/2L}$
+
+e.g.
+$q = (1-C^{1/2L}) \cdot \frac{10}{11}$
+
+$C=0.5$
+
+$q = (1-2^{-1/2L}) \cdot \frac{10}{11}$
+
+
+$\delta = \frac{1}{10}$
+
+Failure requires
+$Hk^L < Cn$
+so
+$n > \frac{Hk^L}{C}$
+
+How to choose $k$? Target for each of the terms: $1-\epsilon$.
+
+
+$(\frac{1}{\frac{1}{\eta}Hk^2c^2/C})^{1/k} = (\frac{C\eta}{Hc^2})^{1/k} \frac{1}{k^{2/k}}$
+
+$k^{-2/k} = \exp(-2\log k/k) \geq \exp(-2/\sqrt{k})$ so $k \geq \frac{4}{(\log(1-\epsilon))^2}$
+
+\begin{align*}
+&\left(1-\frac{1}{Ek^2}\right)^{Ek} \\
+= &\sum_{i=0}^{Ek} (-1)^i (\frac{1}{Ek^2})^i { Ek \choose i } \\
+= & 1 - \frac{Ek}{Ek^2}  + \sum_{i=2}^{Ek} (-1)^i (\frac{1}{Ek^2})^i { Ek \choose i } \\
+\geq & 1 - \frac{Ek}{Ek^2}  - \sum_{i=2}^{Ek} (\frac{1}{Ek^2})^i { Ek \choose i } \\
+\geq & 1 - \frac{Ek}{Ek^2}  - \sum_{i=2}^{Ek} (\frac{1}{Ek^2})^i \frac{(Ek)^i}{i!} \\
+= & 1 - \frac{Ek}{Ek^2}  - \sum_{i=2}^{Ek} (\frac{1}{k^{i}}) \frac{1}{i!} \\
+\geq & 1 - \frac{Ek}{Ek^2}  - \sum_{i=2}^{Ek} (\frac{1}{k^{2}}) \frac{1}{2!} \\
+= & 1 - \frac{1}{k}  -  \frac{E}{k} \frac{1}{2} = 1-\frac{1+E/2}{k} \\
+= & 1-\frac{1+\frac{1}{2\eta}c^2H/C}{k}
+\end{align*}
+so $k \geq \frac{1+\frac{1}{2\eta}c^2H/C}{\epsilon}$
+
+$(1-B)^{1/k} = 1/2^{1/k} \geq 1-\epsilon$ so $k \geq \frac{1}{\log_2 \frac{1}{1-\epsilon}}$
+
+TOGETHER:
+
+Let $D = (1-\epsilon)^3$. Then
+$k \geq \max(\frac{4}{(\log(1-\epsilon))^2}, \frac{1+\frac{1}{2\eta}c^2H/C}{\epsilon}, \frac{1}{\log_2 \frac{1}{1-\epsilon}})$
+
+
+
+$D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}}$
+
+$D_1 =  \left(1-(q/2)\right)^{C\eta}$
+
+$D_1 =  \left(1-\frac{10}{22}+\frac{10}{11} 2^{-1/2L-1}\right)^{C\eta} \approx (1/2 + 2^{-1/2L-1})^{2^{-L}(1-2^{-1/4})}$
