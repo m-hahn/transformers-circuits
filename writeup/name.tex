@@ -888,6 +888,19 @@ We discuss finite the precision setting in the Discussion, Section REF.
 
 
 
+\section{Alternative Proof for Soft Attention}\label{sec:soft-alternate}
+
+We now extend the previous proof to the soft attention setting.
+
+Fix $\epsilon > 0$.
+
+We find a restriction $\rho'$ such that each head depends only on $ck$ inputs, up to approximation error $C\epsilon$ (i.e., the values resulting for any completion are within a $C\epsilon$-ball), where $C$ depends on the norms of parameter matrices.
+
+Let $X_i$ be the event that no subset of size $\geq \frac{1}{\epsilon}$ of $j_1, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight.
+TODO redo equation (9).
+
+
+
 
 
 
@@ -958,4 +971,4 @@ $D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}}$
 
 $D_1 =  \left(1-(q/2)\right)^{C\eta}$
 
-$D_1 =  \left(1-\frac{10}{22}+\frac{10}{11} 2^{-1/2L-1}\right)^{C\eta} \approx (1/2 + 2^{-1/2L-1})^{2^{-L}(1-2^{-1/4})}$
+$D_1 =  \left(1-\frac{10}{22}+\frac{10}{11} 2^{-1/2L-1}\right)^{C\eta} \approx (1/2 + 2^{-1/2L-1})^{2^{-L}(1-2^{-1/4})} \approx ((1/2)( 1 + \frac{1}{2^{\frac{1}{2L}}}))^{\frac{1}{2^{L}} \cdot 0.15}$
