@@ -141,7 +141,7 @@ While theoretical studies have investigated the power of recurrent neural networ
 Our study provides the first theoretical results about limitations in the power of transformers.
 
 After discussing related work (Section~\ref{sec:related}), we first introduce self-attention (Section~\ref{sec:def-selfatt}) and two fundamental formal languages representing regular and context-free languages (Section~\ref{sec:langs}).
-We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:soft}) attention.
+We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) or soft (Section~\ref{sec:soft}) attention.
 Finally, we discuss our results (Section~\ref{sec:discussion}).
 
 \section{Related Work}\label{sec:related}
@@ -175,7 +175,7 @@ Other work has experimentally studied the performance of reccurent architectures
 Beyond modeling formal languages, another line of work has studied the ability of LSTMs to model hierarchical structure as occurring in realistic natural language data \cite{linzen2016assessing,gulordava2018colorless}.
 
 Recently, \citet{merrill2019sequential} and \citet{korsky2019computational} theoretically studied several types of recurrent networks. \citet{merrill2019sequential} showed that -- in the finite precision setting -- LSTMs recognize a subset of the counter languages, whereas GRUs and simple RNNs recognize regular languages.
-\citet{korsky2019computational} showed, among other results, that arbitrary-precision RNNs can emulate pushdown automata.
+\citet{korsky2019computational} showed, among other results, that arbitrary-precision RNNs can emulate pushdown automata, and can therefore recognize all deterministic context-free languages.
 %Inter alia, their results entail that LSTMs cannot model the multi-symbol Dyck language in the finite precision setting.
 
 
@@ -202,10 +202,14 @@ The final activation of the head is computed by weighting according to attention
     b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{(k,h)} y_j^{(k-1)}
 \end{equation}
 In the soft attention version,
-$$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot}) $$
-In the hard attention variant \cite{perez2019turing} , we take the actual maximum of attention values instead of softmax:
-$\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{This requires an arbitrary choice when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
-The final activation at each position is then computed as
+$$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,1\dots M_i}) $$
+where the limit $M_i$ is $n$ in the \key{non-autoregressive} Transformer, and $i-1$ in the \key{autoregressive} one.
+In the autoregressive transformer, we set $\hat{a}_{i,j} = 0$ for $j \geq i$.
+This definition reflects the need to mask out future observations when the task is to predict upcoming parts of the input, as in language modeling.
+In the hard attention variant \cite{perez2019turing}, we take the actual maximum of attention values instead of softmax:
+$\hat{a}_{i,j} = \delta_{j, \argmax_{j' = 1, \dots M_i} a_{i,j'}^{(k,h)}}$.\footnote{This requires an arbitrary choice when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
+
+In both versions of attention, the final activation at each position is then computed as
 \begin{equation}
     y_i^{(k)} := f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})
 \end{equation}
@@ -220,20 +224,32 @@ We will  examine both hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:s
 %On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, \dots), hard and soft attention result in similar limitations.
 
 
-\paragraph{Formalizing Language Recognition}
-We consider the problem of language recognition, the task of classifying input strings as either belonging to or not belonging to a formal language.
+\paragraph{Formalizing Language Model and Recognition}
+How do we formalize the concept that a Transformer model can accurately model a formal language?
+In work on LSTMs, the tasks of language modeling \citep{skachkova2018closing} and recognition \citep{weiss2018practical} have been proposed.
+These correspond to the NLP tasks of language modeling and text classification.
+
+\key{Language modeling} uses the autoregressive variant; here, the activations $y_{i}^{(L)}$ are fed through a linear or feedforward network and a softmax layer that computes a probability distribution $p_i(v)$ over the elements $v$ of the input vocabulary $\mathcal{V}$, attempting to predict the input $x_i$.
+Note that, due to the construction of the attention weights $\hat{a}_{i,j}$, the activations $y_{i}^{(L)}$ only depend on input symbols $x_1, \dots, x_{i-1}$, so that $p_i(v)$ computes a distribution that is conditioned only on those preceding inputs: $p_i(x_i|x_1\dots x_{i-1})$.
+The \key{cross-entropy} of an autoregressive language model on a distribution over input sequences ${\bf x} = x_1, \dots, x_{|{\bf x}|}$ is $- \mathbb{E}_{{\bf x}} \sum_{i=1,\dots |{\bf x}|} \log p_i(x_i|x_1\dots x_{i-1})$.
+This quantity is minimized if the transformer exactly captures the distribution over input strings.
+
+We will mostly consider the uniform distribution over even-parity bit strings of length $n$ for all $n = 1, 2, \dots$ (including an end-of-sequence symbol), where the probability of choosing a length $n$-string is $2^{-n}$.
+Our results hold under any string distribution that hold for any distribution that assigns non-zero probability to each string in the language.
+
+
+
+This is related to the task of \key{language recognition}, the task of classifying input strings as either belonging to or not belonging to a formal language.
 Following~\citet{weiss2018practical}, we formalize this as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
-Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
+Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector $p(\cdot|{\bf x})$ for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
+In this task, the transformer need not be autoregressive.
+Here, for some formal language $L$ and a fixed probability distribution over strings, the cross-entropy is $- \mathbb{E}_{{\bf x}} \log p(\delta_{{\bf x} \in L}|{\bf x})$.
+It is zero if and only if the model is both correct with perfect confidence on every input.
 
-We choose language modeling setting.
-
-TODO unify. say we want to show that, for any transformer, there are values of $n$ large enough such that cross-entropy cannot be perfect (for distributions assiging nonzero probability to any)
-
-We will also get results about classification.
-
+While one may think of the uniform distribution as a good example, we will also show results that hold under any string distribution that hold for any distribution that assigns non-zero probability to each string.
 
 %We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
-%To accomodate imprecision in computation, we will relax this to only demand that the result by separated from 0.5 by some constant $\delta$.
+%To accomodate imprecision in computation, we will relax this to only demand that the result by separated ufrom 0.5 by some constant $\delta$.
 
 
 %Finite/infinite precision, hardmax/softmax
@@ -263,6 +279,8 @@ Evaluating iterated negations is tantamount to counting whether the number of ne
 If we know that transformers cannot compute parity, this entails that they also cannot evaluate logical formulas accurately.
 
 
+For \textsc{Parity}, the language modeling task amounts to predicting well whether the next symbol can possibly be an end-of-sequence symbol -- which is true if and only if the preceding symbols have even parity.
+
 
 %This contrastsir ability to emulate finite automata is strongly restricted, compared even to simple RNNs.
 
@@ -288,6 +306,13 @@ Consequently, the ability of LSTMs to model languages such as \textsc{2Dyck} has
 %Empirically, though they perform less well for versions with multiple types of parentheses \cite{sennhauser2018evaluating}, which are not counter languages any more.
 %In contrast, 
 Our theoretical results will show that transformers are strongly limited in their ability to model \textsc{2Dyck}, including variants with fewer or more types of parentheses.
+
+
+
+%In the case of \textsc{Parity}, we consider the uniform distribution over even-parity bit strings of length $n$ for all $n = 1, 2, \dots$ (including an end-of-sequence symbol), where the probability of choosing a length $n$-string is $2^{-n}$.
+%This distribution can be generated by a probabilistic finite automaton with two states.
+%In the case of \textsc{2Dyck}, we again consider the uniform distribution, weighted by $2^{-n}$.
+%Here, reaching perfect cross-entropy requires classifying both whether the next symbol can be a closing bracket, and which type of bracket would have to be chosen.
 
 
 %Recognizing whether an expression is bracketed correctly is a basic example of a context-free language and of recursion. If transformers cannot compute parity, they also cannot decide whether long expressions are bracketed correctly.
@@ -387,11 +412,13 @@ Then there is a restriction $\rho$ and an integer $c > 0$ such that
 $$|\{i \leq n: \rho_n(i) = *\}| \geq Cn$$
 (for all sufficiently large $n$) and such that the function computed by the transformer on the restricted input depends only on $\leq c$ inputs, independent of input length $n$.
 \end{thm}
-We first show how this entails that transformers do not recognize the two formal languages:
+We first show how this entails that transformers cannot correctly model the two formal languages:
 \begin{corollary}
-Transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck}. %, or \textsc{BooleanFormula}.
+Transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck} with perfect cross-entropy, either in the prediction or recognition settings. %, or \textsc{BooleanFormula}.
 %with cross-entropy asymptotically better than chance.
 %, or \textsc{BooleanFormula} (i.e., asymptotic cross-entropy is at chance level).
+
+Furthermore, no classifier built from $y_n^{(L)}$ can have perfect accuracy on classifying strings as belonging to \textsc{Parity}, or classifying as belonging to \textsc{2Dyck}.
 \end{corollary}
 \begin{proof}
 Take $C=0.6$.
@@ -411,8 +438,27 @@ As the prediction depends on only a bounded number of positions, this shows the 
 %TODO but cross-entropy?
 \end{proof}
 
+%\paragraph{Implications for Other Languages}
+%As hinted at above, such results about \textsc{Parity} and \textsc{2Dyck} immediately entail results about an extremely wide range of languages.
+%The result holds for non-regular context-free languages, subject to a technical condition that limits the usefulness of positional information:
+%\begin{corollary}
+%The preceding result holds for any language $L$ such that
+%\begin{enumerate}
+%    \item $L$ is regular and its syntactic morphism is not quasi-aperiodic \citep[p. 488]{barrington1992regular}, or
+% $L$ is non-regular and context-free, and there is a non-empty string $e$ such that $xy \in L \Leftrightarrow xey \in L$ for all strings $x,y$.
+%\end{enumerate}
+%\end{corollary}
+%\begin{proof}
+%For (1), \cite[p. 488]{barrington1992regular} prove that \textsc{Parity} can be reduced to any such language.
+%For (2), we 
+%TODO
+%\end{proof}
+
+
+
+
 \paragraph{Discussion}
-It may be instructive to compare to similar languages that \emph{can} be modeled by hard-attention transformers.
+It may be instructive to compare to similar languages that \emph{can} be modeled perfectly by hard-attention transformers.
 First, $1^*$ (over the alphabet $\{0,1\}$) is the regular language of words that have only ones and no zeroes; its minimal automaton has two states, like \textsc{Parity}.
 A transformer can recognize this by having an attention head that attends to a position with zero input if it exists, and rejects if the head found such a position.
 Second, $a^nb^n$ is a very basic context-free language.
@@ -420,12 +466,19 @@ It can be recognized using suitable positional embeddings by (1) having one head
 A crucial difference between these languages and \textsc{Parity} / \textsc{2Dyck} is that fixing a few inputs can easily force nonmembership, e.g. a single 0 for $1^*$, and an $a$ in the second half for $a^nb^n$.
 Therefore, such simple languages are immune to the depth reduction method, and indeed \emph{can} be modeled perfectly with self-attention.
 
-In general, the depth reduction method applies to languages that are sufficiently \emph{sensitive}: If, for some $C \in (0,1)$, fixing $Cn$ input symbols cannot force a word to be inside or outside of the language, then hard-attention transformers cannot recognize this language.
-Sensitivity of functions %and the structure of Hamming neighborhoods
-has been studied in computational complexity~\cite{boppana1997average,gilmer2015new,gopalan2016smooth,rossman2018average} and more recently linked to generalization in feedforward networks~\cite{de2018deep}.
+
+In this context, we note that our depth reduction method applies to languages that are sufficiently `sensitive' in the following  sense: 
+\begin{corollary}
+Let $L$ be a formal language.
+Assume that, for some $C \in (0,1)$ and for all sufficiently large $n$, fixing at most $C \cdot n$ input symbols cannot force a word to be inside or outside of $L$.
+Then the preceding results hold for $L$.
+\end{corollary}
+\begin{proof}
+Immediate from Theorem~\ref{thm:hardmax-main}.
+\end{proof}
+Similar notions of sensitivity of functions %and the structure of Hamming neighborhoods
+have been studied in computational complexity~\cite{boppana1997average,gilmer2015new,gopalan2016smooth,rossman2018average} and more recently linked to generalization in feedforward networks~\cite{de2018deep}.
 We intend to investigate these connections in future work.
-
-
 
 %In general, languages are hard for transformers if any word has $\Omega(n)$ many Hamming neighbor that have the opposite label
 
@@ -505,7 +558,7 @@ For each layer-1 attention head $h$ at position $i$ and each position $j \in \{1
 \begin{equation}
 \max_{x_1\dots x_n \text{ compatible with } \rho_n} f^{att}_{k,h}(y_i^{1}, y^{1}_j)
 \end{equation}
-We order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1, \dots, j_n$ for each layer-1 attention head $h$ at a position $i$ (In the case of ties, we order by  position).
+We order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1, \dots, j_n$ for each layer-1 attention head $h$ at a position $i$ (In the case of ties, we order by  position).\footnote{If the Transformer is autoregressive, we order the positions $i, \dots, n$ after the positions $1, \dots, i-1$, irrespective of the attention weights.}
 
 For each layer-1 attention head, we then select a sequence $1 \leq i_1 < i_2 < \dots < i_k \leq n$ such that (1) for each $i_s$, there is at least one $\rho$-free input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
 There is only one case in which we cannot find such a subsequence, which is if all $j_1, \dots, j_n$ together depend only on $< ck$ $\rho$-free inputs, in which case this head already satisfies the condition we're aiming for.
@@ -678,25 +731,28 @@ In the previous section, we showed that transformers using hard attention are no
 In this section, we study soft attention. %, where we will similarly show limitations of transformers in recognizing formal languages. %computing \textsc{Parity}, \textsc{Dyck}, and \textsc{LogicalFormulas}.
 Here, we will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
 The idea behind the proof is that the impact of any single input on the output of the transformer is small if the input is long:
-\begin{lemma}
+\begin{lemma}\label{lemma:diff-1n}
 If we exchange one input symbol, %a single input bit $x_i$ with the bit $x_i'$
 then the change in the resulting activations at the decoder layers is bounded as $\mathcal{O}(\frac{1}{n})$ with constants depending on the parameter matrices, where $n$ is the input length. %, $k$ is the number of layers, and $C$ is the summed norm of the parameter matrices.
+In the autoregressive setting, the change is $\mathcal{O}(\frac{1}{i})$ for $y_i^{(L)}$ for all $i$ except the one at which the change was made.
 \end{lemma}
 This contrasts with recurrent networks:
 Changing a single input can have nonnegligible impact on the final state even for very long input.
-E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes parity of the current prefix will flip its hidden state if a single input bit is flipped.
+E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes parity of the current prefix will flip its hidden state in all future time steps if a single input bit is flipped.
 
 
 This result entails that, as inputs become longer, soft attention transformers cannot robustly model many formal languages, and cannot even achieve good cross-entropies on a large class of prediction problems.
-To make this precise, we take a more quantitative angle and assign probability distributions over inputs for each input length $n$, and consider the behavior of cross-entropy as $n\rightarrow\infty$.
-For \textsc{Parity}, we simply consider the distribution over i.i.d. bitstrings of length $n$, and consider the task of predicting whether the next symbol can be the \textsc{EndOfSequence} symbol -- which is true if and only if the prefix has an even number of ones. % the label (odd or even) from the string.
+%To make this precise, we take a more quantitative angle and assign probability distributions over inputs for each input length $n$, and consider the behavior of cross-entropy as $n\rightarrow\infty$.
+%For \textsc{Parity}, we simply consider the distribution over i.i.d. bitstrings of length $n$, and consider the task of predicting whether the next symbol can be the \textsc{EndOfSequence} symbol -- which is true if and only if the prefix has an even number of ones. % the label (odd or even) from the string.
 %For \textsc{LogicalFormulas}, we consider the uniform distribution over formulas of length $n$, again considering the task of predicting the label (TRUE or FALSE).
-For \textsc{2Dyck}, we take the uniform distribution of well-bracketed prefixes of length $n$, and ask the model to classify the set of valid next characters, which is a subset of $\{(,),[, ]\}$.\footnote{Only an exponentially small subset of the strings over $n$ symbols are well-labeled; thus, cross-entropy on the classification task is less meaningful for this language. Considering prediction of the next symbol sidesteps this issue.}
-We consider the problem of predicting the label from the input separately for each input length $n$, and consider cross-entropy as $n\rightarrow \infty$.
+%For \textsc{2Dyck}, we take the uniform distribution of well-bracketed prefixes of length $n$, and ask the model to classify the set of valid next characters, which is a subset of $\{(,),[, ]\}$.\footnote{Only an exponentially small subset of the strings over $n$ symbols are well-labeled; thus, cross-entropy on the classification task is less meaningful for this language. Considering prediction of the next symbol sidesteps this issue.}
+%We consider the problem of predicting the label from the input separately for each input length $n$, and consider cross-entropy as $n\rightarrow \infty$.
 
 \begin{thm}
 Let a soft attention transformer be given for one of the languages \textsc{Parity} and \textsc{2Dyck}. %, \textsc{BooleanFormula}.
-As $n\rightarrow\infty$, cross-entropy converges to chance level.
+Then it cannot achieve perfect cross-entropy on either the prediction or recognition tasks.
+
+Furthermore, in the prediction task, as $n\rightarrow\infty$, cross-entropy converges to chance level (1 bit per symbol).
 \end{thm}
 
 \begin{proof}
@@ -710,8 +766,10 @@ In all other cases, the correct label includes one of the two closing parenthese
 \end{proof}
 
 \subsection{Proof of the Lemma}
-Having established the main theorem, we proceed to proving the technical lemma:
+Having established the main theorem, we proceed to proving the technical Lemma~\ref{lemma:diff-1n}:
 \begin{proof}[Proof of Lemma]
+To reduce notational complexity, we only prove the lemma in the non-autoregressive case.
+
 Let us compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
 Let $D = \|x_i-x_i'\|_2$ the norm of the difference of the input embeddings at this position.
 
@@ -783,22 +841,21 @@ We have shown that, even with infinite precision, transformers cannot robustly m
 
 How do our results compare to what is known about LSTMs?
 Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model any finite state language with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
-In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with zero cross-entropy, independent of the input length.
+In particular, \textsc{Parity} of i.i.d. bitstrings can be classified with zero cross-entropy, independent of the input length.
 
-Infinite-precision RNNs and LSTMs can model stacks \cite{tabor2000fractal,gruning2006stack,kirov2012processing,korsky2019computational} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages perfectly. % and \textsc{LogicalFormulas} perfectly.
+Infinite-precision RNNs and LSTMs can model stacks \cite{tabor2000fractal,gruning2006stack,kirov2012processing,korsky2019computational} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages at optimal cross-entropy and perfect classification accuracy. % and \textsc{LogicalFormulas} perfectly.
 This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers may provide a theoretical explanation for the empirical finding that LSTMs seem to outperform transformers in modeling hierarchical structure \citep{tran2018importance}.
 %On the other hand, the theoretical results of \cite{merrill2019sequential} show that finite-precision LSTMs cannot model these languages perfectly at long lengths.
 %Experimental evidence on the ability of LSTMs to learn \textsc{2Dyck} and \textsc{LogicalFormulas} from data is mixed, but clearly falls short of perfect accuracy or cross-entropy.
 
 
-
+%In the setting of RNNs and LSTMs, some prior studies have considered the impact of finite numerical precision~\cite{weiss2018practical, merrill2019sequential, korsky2019computational}.
 
 %It is important to remark that all our impossibility results require taking large inputs:
 %Certainly, for any bound on the input length, we can construct a transformer that does anything we want.
 %However, we are interested in the extent to which a transformer is able to handle arbitrarily long inputs -- similar to analogous work on RNNs/LSTMs/GRUs.
 
 %Our results are consistent with the fact that transformer-based models tend to have far more layers than comparable LSTMs (CITE).
-
 
 Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
 Our results entail that self-attention is strongly limited in their ability to model context-free languages or evaluate logical formulas.
@@ -817,7 +874,9 @@ It would be interesting to investigate to what extent computational power increa
 One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
 %  and \textsc{LogicalFormulas}
 
-
+%We have considered the ability of Transformers to model probability distributions over elements of formal languages.
+%Formal languages, arguably unlike many problems in NLP, involve a clear-cut partitioning into words inside and outside of the language.
+%In future work, we intend to characterize the ability of self-attention to model 
 
 
 
