@@ -225,6 +225,13 @@ We consider the problem of language recognition, the task of classifying input s
 Following~\citet{weiss2018practical}, we formalize this as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
 Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
 
+We choose language modeling setting.
+
+TODO unify. say we want to show that, for any transformer, there are values of $n$ large enough such that cross-entropy cannot be perfect (for distributions assiging nonzero probability to any)
+
+We will also get results about classification.
+
+
 %We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
 %To accomodate imprecision in computation, we will relax this to only demand that the result by separated from 0.5 by some constant $\delta$.
 
