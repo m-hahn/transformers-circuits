@@ -118,7 +118,7 @@ Our results precisely describe theoretical limitations of the techniques underly
 
 Transformers are emerging as the new workhorse of NLP; achieving the state-of-the art in tasks such as language modeling, machine translation, and creating pretrained contextualized word embeddings.
 %This poses the question of what kinds of structures they are capable of expressing, and what kinds of computations they are able to perform.
-Eschewing recurrent computations, transformers are entirely based on self-attention, performing their computations in a largely parallel fashion.
+Eschewing recurrent computations, transformers are entirely based on self-attention, performing their computations largely in parallel.
 This enables them to scale to very long sequences \cite{vaswani2017attention,dai2019transformer,child2019generating}.
 On the other hand, it has been suggested that this limits their expressiveness, as they cannot process input sequentially \cite{tran2018importance,dehghani2018universal,shen2018disan,chen2018best,hao2019modeling}.
 One aspect thought to be challenging for sequence models is hierarchical structure and recursion.
@@ -152,7 +152,7 @@ It has been a recurrent suggestion in the literature that transformers, relying 
 %They argued that
 transformers cannot compute functions that require sequential processing of input, without providing further details or proofs.
 Similarly, \citet{shen2018disan,chen2018best,hao2019modeling} have introduced extensions of transformers with recurrence, citing similar intuitions about limitations of transformers.
-Our results provide an explicit formalization of these limitations.
+Our results provide the first explicit formalization of these limitations.
 
 Other studies have experimentally tested the abilities of transformers to learn structures.
 Most related to our work, \citet{tran2018importance} compared the ability of transformers and LSTMs to learn hierarchical structure, specifically English subject-verb agreeement and evaluating logical formulas.
@@ -186,9 +186,10 @@ The crucial difference between these studies and studies of language recognition
 
 \section{Self-Attention}\label{sec:def-selfatt}
 Here we define self-attention as used in Transformers, following \citet{vaswani2017attention}.
-We have an input $x_1,\dots,x_n$, where $x_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
-We furthermore have a sequence $p_1, p_2, \dots$ of positional embeddings $p_i \in \mathbb{R}^k$. These are independent of the input, and can be computed through some predefined scheme, or could be learned for each position occurring in the training data \citep{vaswani2017attention}.
-Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(x_i, p_i)$ ($i=1, \dots, n$), which we will refer to as Layer 0.
+We have an input ${\bf x} = x_1 \dots x_n$, where all $x_i$ come from some finite alphabet $\mathcal{V}$, and $x_n$ is an end-of-sequence symbol.
+This input is then encoded into a sequence of input embeddings $v_1,\dots,v_n$ using some embedding map $\mathcal{V} \rightarrow \mathbb{R}^k$. %, where $v_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
+We furthermore have a sequence $p_1, p_2, \dots$ of positional embeddings $p_i \in \mathbb{R}^k$. These are independent of the input ${\bf x}$, and can be computed through some predefined scheme, or could be learned for each position occurring in the training data \citep{vaswani2017attention}.
+Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(v_i, p_i)$ ($i=1, \dots, n$), which we will refer to as Layer 0.
 
 A transformer has a fixed number $L$ of \key{layers}; the \key{activations} $y_i^{(k)}$ at position $i$ of the $k$-th layer ($k=1, \dots, L$) are defined as follows.
 Each layer has a set of $H$ \key{attention heads}; we first compute attention scores for the $h$-th head:
@@ -218,7 +219,7 @@ where $f^{act}$ is implemented as a fully-connected feedforward network with a s
 \paragraph{Hard and Soft Attention}
 There is a choice between soft attention and hard attention \cite{shen2018reinforced,perez2019turing}.
 The one prior theoretical study of transformers~\cite{perez2019turing} assumes hard attention.
-In practice, soft attention is easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
+In practice, soft attention is easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions in trained transformer models \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
 We will  examine both hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:soft}) attention settings.
 %We will see that, if arbitrary activation functions are allowed, soft attention is significantly more powerful than hard attention.
 %On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, \dots), hard and soft attention result in similar limitations.
@@ -244,7 +245,7 @@ Following~\citet{weiss2018practical}, we formalize this as the sequence-to-seque
 Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector $p(\cdot|{\bf x})$ for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
 In this task, the transformer need not be autoregressive.
 Here, for some formal language $L$ and a fixed probability distribution over strings, the cross-entropy is $- \mathbb{E}_{{\bf x}} \log p(\delta_{{\bf x} \in L}|{\bf x})$.
-It is zero if and only if the model is both correct with perfect confidence on every input.
+It is zero if and only if the model is correct with perfect confidence on every input.
 
 While one may think of the uniform distribution as a good example, we will also show results that hold under any string distribution that hold for any distribution that assigns non-zero probability to each string.
 
@@ -733,8 +734,8 @@ Here, we will use the smoothness of the operations used in transformers to show 
 The idea behind the proof is that the impact of any single input on the output of the transformer is small if the input is long:
 \begin{lemma}\label{lemma:diff-1n}
 If we exchange one input symbol, %a single input bit $x_i$ with the bit $x_i'$
-then the change in the resulting activations at the decoder layers is bounded as $\mathcal{O}(\frac{1}{n})$ with constants depending on the parameter matrices, where $n$ is the input length. %, $k$ is the number of layers, and $C$ is the summed norm of the parameter matrices.
-In the autoregressive setting, the change is $\mathcal{O}(\frac{1}{i})$ for $y_i^{(L)}$ for all $i$ except the one at which the change was made.
+%then the change in the resulting activations at the decoder layers is bounded as $\mathcal{O}(\frac{1}{n})$ with constants depending on the parameter matrices, where $n$ is the input length. %, $k$ is the number of layers, and $C$ is the summed norm of the parameter matrices.
+then the change in the resulting activations $y_i^{(L)}$ is $\mathcal{O}(\frac{1}{i})$  for all $i$ except the one at which the change was made, with constants depending on the parameter matrices (independently of $i$ or the input length).
 \end{lemma}
 This contrasts with recurrent networks:
 Changing a single input can have nonnegligible impact on the final state even for very long input.
@@ -750,15 +751,16 @@ This result entails that, as inputs become longer, soft attention transformers c
 
 \begin{thm}
 Let a soft attention transformer be given for one of the languages \textsc{Parity} and \textsc{2Dyck}. %, \textsc{BooleanFormula}.
-Then it cannot achieve perfect cross-entropy on either the prediction or recognition tasks.
 
-Furthermore, in the prediction task, as $n\rightarrow\infty$, cross-entropy converges to chance level (1 bit per symbol).
+In the prediction task, as $n\rightarrow\infty$, cross-entropy on the second half of the input sequence ${\bf x}$ converges to unigram chance level.
+
+Consequently, the transformer cannot achieve perfect cross-entropy on either the prediction or recognition tasks.
 \end{thm}
 
 \begin{proof}
 For \textsc{Parity}, exchanging a single bit flips membership.
 Thus, for any member of the language, there is an equally likely non-member such that the output activations differ by
-only $\mathcal{O}(\frac{1}{n})$.
+only $\mathcal{O}(\frac{1}{i})$.
 
 For \textsc{2Dyck}, the probability that a well-bracketed prefix of length $n$ is exactly balanced is $o(1)$.
 In all other cases, the correct label includes one of the two closing parentheses, which depends on one single previous symbol, and both possibilities are equally likely if that symbol is unknown.
