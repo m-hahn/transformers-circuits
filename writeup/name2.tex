@@ -421,8 +421,10 @@ Choosing larger values of $c_n$, this constant $d$ can be brought arbitrarily cl
 We first show how this entails that transformers cannot correctly model the two formal languages:
 \begin{corollary}
 No classifier built from $y_n^{(L)}$ can have perfect accuracy on classifying strings as belonging to \textsc{Parity}, or classifying as belonging to \textsc{2Dyck}.
+Furthermore, as the input length $n \rightarrow \infty$, classification accuracy converges to chance level for \textsc{Parity}. (not clear for \textsc{2Dyck}?)
 
-Therefore, transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck} with perfect cross-entropy, for \emph{any} probability distribution that assigns some nonzero probability to every string (classification setting) or to every string in the language (prediction setting). %, or \textsc{BooleanFormula}.
+Therefore, transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck} with perfect cross-entropy, for \emph{any} probability distribution that assigns some nonzero probability to every string (classification setting) or to every string in the language (prediction setting).
+%, or \textsc{BooleanFormula}.
 %with cross-entropy asymptotically better than chance.
 %, or \textsc{BooleanFormula} (i.e., asymptotic cross-entropy is at chance level).
 \end{corollary}
@@ -440,6 +442,14 @@ We first restrict the first $0.2n$ input positions to `(', and the last $0.2n$ i
 After applying the restriction provided by the theorem, the resulting restricted input will still be compatible with both well-bracketed and non-well-bracketed inputs, but the prediction will depend only on a bounded number of positions.
 As the prediction depends on only a bounded number of positions, this shows the transformer could not recognize \textsc{1Dyck}, and thus also not \textsc{2Dyck}.
 Again, in the prediction task, the model thus cannot reliably identify when an end-of-sequence symbol is allowed (namely, if and only if the prefix is balanced).
+
+To show convergence to chance level:
+Fix some $d \in (0,1)$ (close to $1$), and sufficiently large input length $n$, so that success probability is $\geq d$.
+We randomly generate a string by sampling a restriction $\rho_n$ (subject to the preparations).
+The probability that this restriction is `good' is $\geq d$.
+So, the probability that a randomly sampled string will have neighbors that the transformer cannot distinguish from it is $\geq d$.
+For \textsc{Parity}, this shows that accuracy must be almost at chance if $d$ is close to $1$.
+
 %The probability that 
 %for BooleanFormula, maybe the reduction to PARITY is okay, if there is a constant fraction of chance that parity will be relevant
 %
