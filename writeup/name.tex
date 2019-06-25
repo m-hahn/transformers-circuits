@@ -35,6 +35,9 @@
 \newcommand{\cmark}{\ding{51}}%
 \newcommand{\xmark}{\ding{55}}%
 
+
+\newcommand{\Prob}{\mathbb{P}}%
+
 %\usepackage{pslatex}
 %\usepackage{latexsym}
 \usepackage[english]{babel}
@@ -412,7 +415,7 @@ The following technical result formalizes the intuition described above:
 Let any transformer be given, and let $C \in (0,1)$.
 Then there is a restriction $\rho$ and an integer $c > 0$ such that 
 $$|\{i \leq n: \rho_n(i) = *\}| \geq Cn$$
-(for all sufficiently large $n$) and such that the function computed by the transformer on the restricted input depends only on $\leq c$ inputs, independent of input length $n$.
+(for all sufficiently large $n$) and such that, on the restricted input, each of the final activations $y_{i}^{(L)}$ depends only on $\leq c$ inputs, independent of input length $n$.
 \end{thm}
 We first show how this entails that transformers cannot correctly model the two formal languages:
 \begin{corollary}
@@ -532,9 +535,9 @@ and such that the resulting function is computed by a $(H\cdot c\cdot k)$-transf
 \end{lemma}
 Before proving this lemma, we note that it implies Theorem~\ref{thm:hardmax-main}.
 \begin{proof}[Proof of Theorem~\ref{thm:hardmax-main}]
-The output of the transformer is determined by the last activation $y_{n}^{(L)}$.
+%The output of the transformer is determined by the last activations $y_{i}^{(L)}$.
 Apply the Depth Reduction Lemma iteratively, choosing the constants $C'$ in the lemma appropriately, until only the zero-th layer remains.
-Then, after applying the resulting restriction, the final activation $y_{n}^{(L)}$ is now computed by $y_{n}^{(0)}$, which is determined by a bounded number of input bits.
+Then, after applying the resulting restriction, the final activation $y_{i}^{(L)}$ is now computed by $y_{i}^{(0)}$, which is determined by a bounded number of input bits.
 \end{proof}
 
 
@@ -557,13 +560,13 @@ In the second part, we will select a sufficiently large $k$.
 
 %The following observation will be important: If we fix the input $j_k$ to the value that makes the attention value achieve the higher value, then the activation at element $i$ in level 1 only depends on the inputs $i, j_1, \dots, j_{k-1}$.
 
-Fixing $n$, we say an input $x_i \in \{x_1, ..., x_n\}$ is $\rho$-\key{free} if $\rho_n(i) = *$.
+Fixing the input length $n$, we say an input $x_i \in \{x_1, ..., x_n\}$ is $\rho$-\key{free} if $\rho_n(i) = *$.
 We construct the restrictions $\rho'_n$ separately for each $n$.
 For each layer-1 attention head $h$ at position $i$ and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
 \begin{equation}
 \max_{x_1\dots x_n \text{ compatible with } \rho_n} f^{att}_{k,h}(y_i^{1}, y^{1}_j)
 \end{equation}
-We order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1, \dots, j_n$ for each layer-1 attention head $h$ at a position $i$ (In the case of ties, we order by  position).\footnote{If the Transformer is autoregressive, we order the positions $i, \dots, n$ after the positions $1, \dots, i-1$, irrespective of the attention weights.}
+We order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1, \dots, j_n$ for each layer-1 attention head $h$ at a position $i$ (In the case of ties, we order by  position). If the Transformer is autoregressive, we order the positions $i, \dots, n$ after the positions $1, \dots, i-1$, irrespective of the attention weights.
 
 For each layer-1 attention head, we then select a sequence $1 \leq i_1 < i_2 < \dots < i_k \leq n$ such that (1) for each $i_s$, there is at least one $\rho$-free input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
 There is only one case in which we cannot find such a subsequence, which is if all $j_1, \dots, j_n$ together depend only on $< ck$ $\rho$-free inputs, in which case this head already satisfies the condition we're aiming for.
@@ -581,7 +584,7 @@ Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s}$ for one and $j_{i_
 
 We will construct input restrictions using probabilistic arguments over i.i.d. random restrictions.
 For this approach to succeed, we require a  sufficient amount of independence between the activations of different heads in layer 1.
-We thus need to ensure that the number of neighbors of each head is bounded.
+We thus need to ensure that the number of $k$-neighbors of each head is bounded.
 
 Fix some $\eta \in (0,1)$ (to be chosen later).
 
@@ -637,21 +640,21 @@ Also, every input has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 
 In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': we define a probability distribution over restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 
-For each input length $n$, define the distribution that independently assigns to each $\rho$-free input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q \in (0,1)$ (to be chosen later), and $1$ or $0$ with equal probability else.
-On those inputs where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
+For each input length $n$, define a probability distribution over restrictions,  independently assigning to each $\rho$-free input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q \in (0,1)$ (to be chosen later), and $1$ or $0$ with equal probability else.
+On those inputs where $\rho_n(i) \neq *$, we require this random restriction to agree with $\rho_n(i)$.
 For the $i$-th layer-1 attention head (there are at most $Hn$ many such), define $X_i$ to be the event that, for the $i$-th head, none of $j_{i_1}, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight (each of these is assigned either the other value, or $*$).
 Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set to $0/1$.
 
-We first show that the probability of $X_i$ decays exponentially in $k$.
-Let $Y_i^t$ ($t=1,\dots,k$) be the event that the layer-0 activation $j_{i_t}$ is not assigned the value that produces the highest attention weight, for the given attention head $i$.
+We first show that the probability of $X_i$ ($i=1, ..., Hn$) decays exponentially in $k$.
+For the $i$-th attention head, let $Y_i^t$ ($t=1,\dots,k$) be the event that the layer-0 activation $j_{i_t}$ is not assigned the value that produces the highest attention weight, for the given attention head $i$.
 Note that $X_i = \bigcap_t Y_i^t$.
-We have $P(Y_i^s) = 1-(q/2)^c \in (0,1)$. % (where $q = 1-p$).
+We have $\Prob(Y_i^s) = 1-(q/2)^c \in (0,1)$. % (where $q = 1-p$).
 Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}c/C = \frac{1}{\eta}c^2/C$ other events $Y_i^{s'}$.
 Therefore, there is a set of $\geq \frac{k}{\frac{1}{\eta}c^2/C}$ independent events among these.
 Call these $Y_i^{t_1}, \dots, Y_i^{\frac{k}{\frac{1}{\eta}c^2/C}}$.
 Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} Y_i^{t_s}$, and thus
 \begin{equation}
-    P(X_i) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} P(Y_i^{t_s}) = \left(1-(q/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2/C}}
+    \Prob(X_i) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} P(Y_i^{t_s}) = \left(1-(q/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2/C}}
 \end{equation}
 %We use induction over $t \in \{1, \dots, k\}$ to compute the probability that none of $j_{i_1}, \dots, j_{i_t}$ are assigned to value achieving the maximal attention weight.
 %At $t=1$, the failure probability for $j_{i_1}$ is $\leq (1-(q/2)^c)$.
@@ -662,13 +665,13 @@ Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} Y_i^{t_s}$, an
 Furthermore, a Chernoff bound gives~\cite{mitzenmacherprobability}
 %\footnote{See \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 \begin{equation}
-P(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)
+\Prob(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)
 \end{equation}
 since the number of independent multinomial samples in the sampling of $\rho'$ is at least $Cn$.
 We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds: %, assuming $f \leq $:
 \begin{align}
- P(X_i) &\leq  D^k \leq A(1-B)(1-A)^{\frac{1}{\eta}c^2k^2H/C} \\
-P(X_0) &\leq \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
+\Prob(X_i) &\leq  D^k \leq A(1-B)(1-A)^{\frac{1}{\eta}c^2k^2H/C} \\
+\Prob(X_0) &\leq \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
 \end{align}
 where $D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}} \in (0,1)$. % is a constant in $(0,1)$, depending on $c$, $q$, $C$, $\eta$, but \emph{not} on $k$.
 Once we have shown this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, X_2, \dots$.
@@ -865,7 +868,7 @@ This clear contrast between infinite-precision LSTMs and our findings for infini
 %Our results are consistent with the fact that transformer-based models tend to have far more layers than comparable LSTMs (CITE).
 
 Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
-Our results entail that self-attention is strongly limited in their ability to model context-free languages or evaluate logical formulas.
+Our results entail that self-attention is strongly limited in its ability to model context-free languages or evaluate logical formulas.
 How should we reconcile this with the success of transformers at many natural language processing tasks?
 One possibility is that strong quantitative performance on NLP tasks can be achieved without genuine understanding of linguistic structure, as has been argued for other neural network models used in NLP that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
 This would suggest that models such as transformers may not be capable in principle to understand language in a fully human-like way.
