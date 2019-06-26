@@ -421,7 +421,7 @@ Choosing larger values of $c_n$, this constant $d$ can be brought arbitrarily cl
 We first show how this entails that transformers cannot correctly model the two formal languages:
 \begin{corollary}
 No classifier built from $y_n^{(L)}$ can have perfect accuracy on classifying strings as belonging to \textsc{Parity}, or classifying as belonging to \textsc{2Dyck}.
-Furthermore, as the input length $n \rightarrow \infty$, classification accuracy converges to chance level for \textsc{Parity}. (not clear for \textsc{2Dyck}?)
+Furthermore, as the input length $n \rightarrow \infty$, classification accuracy converges to chance level for \textsc{Parity}. (not so for \textsc{2Dyck} -- this one is easier to approximate?! But for the $a^nb^n$ version with two types and a neutral letter, prediction will be at chance asymptotically)
 
 Therefore, transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck} with perfect cross-entropy, for \emph{any} probability distribution that assigns some nonzero probability to every string (classification setting) or to every string in the language (prediction setting).
 %, or \textsc{BooleanFormula}.
@@ -456,21 +456,40 @@ For \textsc{Parity}, this shows that accuracy must be almost at chance if $d$ is
 %TODO but cross-entropy?
 \end{proof}
 
-%\paragraph{Implications for Other Languages}
-%As hinted at above, such results about \textsc{Parity} and \textsc{2Dyck} immediately entail results about an extremely wide range of languages.
-%The result holds for non-regular context-free languages, subject to a technical condition that limits the usefulness of positional information:
-%\begin{corollary}
-%The preceding result holds for any language $L$ such that
-%\begin{enumerate}
-%    \item $L$ is regular and its syntactic morphism is not quasi-aperiodic \citep[p. 488]{barrington1992regular}, or
-% $L$ is non-regular and context-free, and there is a non-empty string $e$ such that $xy \in L \Leftrightarrow xey \in L$ for all strings $x,y$.
-%\end{enumerate}
-%\end{corollary}
-%\begin{proof}
-%For (1), \cite[p. 488]{barrington1992regular} prove that \textsc{Parity} can be reduced to any such language.
-%For (2), we 
-%TODO
-%\end{proof}
+\paragraph{Implications for Other Languages}
+As hinted at above, such results about \textsc{Parity} and \textsc{2Dyck} immediately entail results about an extremely wide range of languages.
+The result holds for non-regular context-free languages, subject to a technical condition that limits the usefulness of positional information:
+\begin{corollary}
+The preceding result holds for any language $L$ such that
+\begin{enumerate}
+    \item $L$ is regular and its syntactic morphism is not quasi-aperiodic \citep[p. 488]{barrington1992regular}, or
+\item $L$ is non-regular and context-free, and there is a non-empty string $e$ such that $xy \in L \Leftrightarrow xey \in L$ for all strings $x,y$.
+\end{enumerate}
+\end{corollary}
+\begin{proof}
+For (1), \cite[p. 488]{barrington1992regular} prove that \textsc{Parity} can be reduced to any such language.
+
+For (2), we want to show that $a^nb^n$ is reducible to any such language. Then it is clear that the neutral letter version is also reducible to it.
+
+TODO
+
+
+\end{proof}
+
+
+\begin{corollary}
+Let $L$ be a language such that no way of fixing $O(n)$ input bits can force (non)membership for infinitely many $n$. Then hard-attention transformers cannot model $L$.
+\end{corollary}
+
+\begin{corollary}
+Any language recognized by hard-attention transformers has average sensitivity $o(n)$.
+\end{corollary}
+
+\begin{proof}
+Given a transformer, almost all words are classified based on only $o(n)$ many input bits.
+Assume average sensitivity of $L$ is $\Theta(n)$, then sensitivity of words having so many neighbors is also $\Theta(n)$.
+So the transformer could not recognize $L$.
+\end{proof}
 
 
 
@@ -736,6 +755,51 @@ This concludes the proof of the Depth Reduction Lemma.
 
 
 
+\section{Alternative Proof for Soft Attention}\label{sec:soft-alternate}
+
+We now extend the previous proof to the soft attention setting.
+
+The proof will be slightly more general than softmax attention, by also covering models with mixed hard and soft attention.
+
+\begin{thm}\label{thm:softmax-main-adapt}
+Let any transformer be given, and let $C \in (0,1)$, $\epsilon > 0$.
+Then there is a restriction $\rho$ and a sequence of integers $c_n = o(n)$ such that 
+$$|\{i \leq n: \rho_n(i) = *\}| \geq Cn$$
+(for all sufficiently large $n$) and such that, for each $i$, there is a set of $\leq c_n$ inputs such that flipping any other individual input would change $y_i^{(L)}$ by at most $\leq \epsilon$.
+\end{thm}
+
+\begin{lemma}[Depth Reduction Lemma]
+Given a $(c_n)$-transformer with $d$ layers, and some restriction $\rho$ such that
+\begin{equation}
+|\{i \leq n: \rho_n(i) = *\}| \geq Cn
+\end{equation}
+($C \in (0,1]$)
+for all sufficiently large $n$.
+%with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
+Choose any $C' < C$.
+Then there is a restriction $\rho'$ 
+such that
+\begin{equation}
+|\{i \leq n: \rho'_n(i) = *\}| \geq C'n
+\end{equation}
+for all sufficiently large $n$, 
+and such that the resulting function is computed by a $(H\cdot c_n\cdot n^\frac{1}{L+1})$-transformer with $d-1$ layers, where $H \geq 1$ is the number of attention heads at each layer and position.
+\end{lemma}
+
+The proof is almost identical to the hard attention setup.
+The Preliminaries are identical.
+In the construction of restrictions, we 
+
+Fix $\epsilon > 0$.
+
+We find a restriction $\rho'$ such that, for any given attention head, except for $ck$ inputs, each input can contribute only $C\epsilon$.
+
+Let $X_i$ be the event that no subset of size $\geq \frac{1}{\epsilon}$ of $j_1, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight.
+TODO redo equation (9) -- it'll still be exponential in $k$, though dampened by $1/\epsilon$.
+
+After this, the attention weight of any input outside of these $ck$ many ones is $\leq \epsilon$.
+
+
 
 \section{Results for Soft Attention}\label{sec:soft}
 
@@ -979,18 +1043,6 @@ We discuss finite the precision setting in the Discussion, Section REF.
 
 
 
-
-
-\section{Alternative Proof for Soft Attention}\label{sec:soft-alternate}
-
-We now extend the previous proof to the soft attention setting.
-
-Fix $\epsilon > 0$.
-
-We find a restriction $\rho'$ such that each head depends only on $ck$ inputs, up to approximation error $C\epsilon$ (i.e., the values resulting for any completion are within a $C\epsilon$-ball), where $C$ depends on the norms of parameter matrices.
-
-Let $X_i$ be the event that no subset of size $\geq \frac{1}{\epsilon}$ of $j_1, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight.
-TODO redo equation (9).
 
 
 
