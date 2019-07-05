@@ -668,7 +668,7 @@ This concludes the proof of the Depth Reduction Lemma.
 In the previous section, we showed that transformers using hard attention are not able to recognize a range of core formal languages.
 We now extend the previous proof to the soft attention setting.
 We will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
-The proof will be slightly more general than softmax attention, by also covering models that have both hard and soft attention heads.
+The proof will be slightly more general than softmax attention, by also covering models that have both hard and soft attention heads, as proposed by \citet{shen2018reinforced}.
 
 %, and models that allow the attention logits $a_{i,j}^{(k,h)}$ to be infinite.
 
@@ -684,7 +684,7 @@ Let any transformer be given, and let $C \in (0,1)$, $\epsilon > 0$.
 Then there is a restriction $\rho$ and a constant $c \in \mathbb{N}$ % sequence of integers $c_n = o(n)$
 such that 
 $$|\{i \leq n: \rho_n(i) = *\}| \geq Cn$$
-(for all sufficiently large $n$) and such that, for each $i$, there is a set of $\leq c$ inputs such that flipping any other individual input would change $y_i^{(L)}$ by at most $\leq \epsilon$.
+(for all sufficiently large $n$) and such that, for each $i$, there is a set of $\leq c$ inputs such that $y_i^{(L)}$ is $\epsilon$-stable for any other $\rho$-free individual input. %flipping any other individual input would change  by at most $\leq \epsilon$.
 \end{thm}
 
 We first show how this entails that transformers cannot correctly model the two formal languages:
@@ -698,11 +698,11 @@ The proof is as before, TODO
 
 
 \begin{defin}[$c$-Transformer]
-Let $c$ a positive integer. A $c$-transformer of depth $d$ is one in which the layer-0 activations $y_j^0$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions:
+Let $c$ a positive integer. A $c$-transformer of depth $d$ is one in which the layer-0 activations $y_j^0$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions, up to a remainder:
 \begin{equation}
     y_j^0 = f^{inp}_{n,j}((x_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (x_{i_c^{j},n}, p_{i_c^{j,n}} )) + R_j(x_{1,\dots,n})
 \end{equation}
-where $R_j$ is $\epsilon$-stable. %with $\|R\| \leq \epsilon$.
+where $R_j$ is $\epsilon$-stable for each other input. %with $\|R\| \leq \epsilon$.
 Here, the indices $x_{i_s^{j,n}}$ depend on the input length $n$.
 \end{defin}
 
@@ -722,7 +722,7 @@ such that
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
 for all sufficiently large $n$, 
-and such that the resulting function is computed by a $(H\cdot c\cdot k, \epsilon')$-transformer with $d-1$ layers, where $H \geq 1$ is the number of attention heads at each layer and position, for some integer $k \in \mathbb{N}$, and for some $\epsilon' = O(\epsilon)$ (with constants depending on the parameters of the transformer, but independently of $n, k$).
+and such that the resulting function -- when applying $\rho'$ -- is computed by a $(H\cdot c\cdot k, \epsilon')$-transformer with $d-1$ layers, where $H \geq 1$ is the number of attention heads at each layer and position, for some integer $k \in \mathbb{N}$, and for some $\epsilon' = O(\epsilon)$ (with constants depending on the parameters of the transformer, but independently of $n, k$).
 \end{lemma}
 
 The proof is almost identical to the hard attention setup.
@@ -732,12 +732,14 @@ The Preliminaries are \textit{verbatim} identical.
 In the construction of restrictions, we make the following changes.
 
 
-TODO cannot exactly set any layer-0 activation. can only get it up to $\delta$ of the real intended attention value.
 
 We find a restriction $\rho'$ such that, for any given attention head, except for $ck$ inputs, each input can contribute only $C\epsilon$.
 
 We keep $X_0$ as before.
-Let $X_i$ be the event that, for the $i$-th head, no size $ceil(1/\epsilon)$ subset of $j_{i_1}, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight.
+Let $X_i$ be the event that, for the $i$-th head, no size $ceil(1/\epsilon)$ subset of $j_{i_1}, \dots, j_{i_k}$ are assigned the value that produces the highest attention score, up to difference $\delta$ (TODO)?????????
+
+
+TODO cannot exactly set any layer-0 activation. can only get it up to $\delta$ of the real intended attention value.
 
 Then $\Prob(X_i) \leq E_1 \exp(-E_2k)$ where the constants $E_1, E_2$ depend on $\eta, c, C, \epsilon$.
 
@@ -766,9 +768,9 @@ So it will also have impact $O(\epsilon)$ on the entire term (where the constant
 
 As a consequence every layer-1 activation $y_j^{(1)}$
 \begin{equation}
-    y_j^{(0)} = f^{inp}_{n,j}((x_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (x_{i_c^{j},n}, p_{i_c^{j,n}} )) + R
+    y_j^{(0)} = f^{inp}_{n,j}((x_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (x_{i_c^{j},n}, p_{i_c^{j,n}} )) + R_j
 \end{equation}
-where the dependence of $R$ on any input is $O(\epsilon)$ (with constants independent of $n, j, k$).
+where  $R_j$ is $O(\epsilon)$-stable on any other input (where $\mathcal{O}$ covers constants independent of $n, j, k$).
 This concludes the proof of the Soft Attention version of the Depth Reduction Lemma.
 
 
