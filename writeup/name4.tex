@@ -169,7 +169,7 @@ Theoretical study of transformers was initiated by \citet{perez2019turing}, who 
 While we consider incremental modeling of sequences, where the number of computation steps is bounded by the input length $n$, they study the setting in which the transformer computes an unbounded number of autoregressive decoding steps, not bounded in the input length $n$.
 Even more recently, and more closely related to our interest here, \citet{hsieh2019robustness} studied the adversarial robustness of transformers.
 While they focused on experiments with several NLP tasks, they also provide a theoretical analysis, showing that a single self-attention layer with a single head will be robust against input perturbations, assuming that input embeddings are drawn uniformly from the unit sphere.
-One of our results, Theorem~\ref{thm:softmax-main-adapt}, can be seen as considerably widening the scope of their result, both by avoiding distributional assumptions, and by applying to transformers with arbitrary numbers of heads and layers.
+One of our results, Lemma~\ref{lemma-stable-soft}, can be seen as considerably widening the scope of their result, both by avoiding distributional assumptions, and by applying to transformers with arbitrary numbers of heads and layers.
 
 
 \paragraph{Investigating the Power of Sequence Modeling Architectures}
@@ -457,7 +457,7 @@ Note that an ordinary transformer  of depth $d$ is also a $1$-transformer of dep
 
 
 With this technical notion, we show that we can reduce layers, iteratively removing the lowest layer until no self-attention layer is left:
-\begin{lemma}[Depth Reduction Lemma]
+\begin{lemma}[Depth Reduction Lemma]\label{lemma:depth-reduction}
 Given a $c$-transformer with $d$ layers, and some restriction $\rho$ such that
 \begin{equation}
 |\{i \leq n: \rho_n(i) = *\}| \geq Cn
@@ -679,7 +679,7 @@ In the previous section, we showed that transformers using hard attention are no
 In this section, we study soft attention. %, where we will similarly show limitations of transformers in recognizing formal languages. %computing \textsc{Parity}, \textsc{Dyck}, and \textsc{LogicalFormulas}.
 Here, we will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
 The idea behind the proof is that the impact of any single input on the output of the transformer is small if the input is long:
-\begin{lemma}
+\begin{lemma}\label{lemma-stable-soft}
 If we exchange one input symbol, %a single input bit $x_i$ with the bit $x_i'$
 then the change in the resulting activations at the decoder layers is bounded as $\mathcal{O}(\frac{1}{n})$ with constants depending on the parameter matrices, where $n$ is the input length. %, $k$ is the number of layers, and $C$ is the summed norm of the parameter matrices.
 \end{lemma}
@@ -825,8 +825,8 @@ While our hard attention results hold under extremely general assumptions, the a
 It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations -- are allowed.
 One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model certain context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
 
-Our application of the Lov{\'a}sz Local Lemma leaves room for tightening, and it would be possible to bring the probability mass of the restrictions $\rho'$ avoiding $X_0, X_1, ...$  arbitrarily close to $1$ by choosing $k$ dependent on $n$, at the cost of a more complicated proof.
-As a consequence, it would be possible to show that Theorem~\ref{thm:softmax-main-adapt} holds for `almost all' restrictions $\rho$, and to derive stronger gaps between the optimal cross-entropy and the cross-entropy achievable by transformers for problems such as \textsc{2Dyck} and \textsc{Parity}.
+Our application of the Lov{\'a}sz Local Lemma in the proof of Lemma~\ref{lemma:depth-reduction} leaves room for tightening, and it would be possible to bring the probability mass of the restrictions $\rho'$ avoiding $X_0, X_1, ...$  arbitrarily close to $1$ by choosing $k$ dependent on $n$, at the cost of a more complicated proof.
+As a consequence, it would be possible to show that Theorem~\ref{thm:hardmax-main} holds for `almost all' restrictions $\rho$, and to derive stronger gaps between the optimal cross-entropy and the cross-entropy achievable by transformers for problems such as \textsc{2Dyck} and \textsc{Parity}.
 We leave such improvements to future work.
 
 %In the theory of Boolean circuits, the method of reducing depth has led to further results such as lower bounds on the difficulty of even approximately modeling languages such as \textsc{Parity}, 
