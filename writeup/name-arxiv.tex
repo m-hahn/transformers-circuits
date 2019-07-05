@@ -25,7 +25,7 @@
 % Use the lineno option to display guide line numbers if required.
 
 \usepackage{amsmath}
-%\usepackage{tikz-dependency}
+\usepackage{tikz-dependency}
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator{\E}{\mathop{\mathbb{E}}}
@@ -101,7 +101,7 @@
 \newcommand{\thetap}[0]{{\theta_{P}}}
 
 
-\title{Theoretical Limitations of Self-Attention in Neural Sequence Models. VERSION 2 with large set of good restrictions}
+\title{Theoretical Limitations of Self-Attention in Neural Sequence Models}
 \author{Michael Hahn \\ Stanford University \\ mhahn2@stanford.edu}
 \date{\today}
 \begin{document}
@@ -118,12 +118,12 @@ Our results precisely describe theoretical limitations of the techniques underly
 
 Transformers are emerging as the new workhorse of NLP; achieving the state-of-the art in tasks such as language modeling, machine translation, and creating pretrained contextualized word embeddings.
 %This poses the question of what kinds of structures they are capable of expressing, and what kinds of computations they are able to perform.
-Eschewing recurrent computations, transformers are entirely based on self-attention, performing their computations largely in parallel.
+Eschewing recurrent computations, transformers are entirely based on self-attention, performing their computations in a largely parallel fashion.
 This enables them to scale to very long sequences \cite{vaswani2017attention,dai2019transformer,child2019generating}.
 On the other hand, it has been suggested that this limits their expressiveness, as they cannot process input sequentially \cite{tran2018importance,dehghani2018universal,shen2018disan,chen2018best,hao2019modeling}.
 One aspect thought to be challenging for sequence models is hierarchical structure and recursion.
 Hierarchical structure is widely thought to be essential to modeling natural language, in particular its syntax~\cite{everaert2015structures}.
-Consequently, many researchers have studied the capability of recurrent neural network models to capture context-free languages (e.g., \citet{kalinke1998computation,gers2001lstm,gruning2006stack,weiss2018practical,sennhauser2018evaluating,korsky2019computational}) and linguistic phenomena involving hierarchical structure (e.g., \citet{linzen2016assessing,gulordava2018colorless}).
+Consequently, many researchers have studied the capability of recurrent neural network models to capture context-free languages (e.g., \citet{kalinke1998computation,gers2001lstm,gruning2006stack,weiss2018practical,sennhauser2018evaluating}) and linguistic phenomena involving hierarchical structure (e.g., \citet{linzen2016assessing,gulordava2018colorless}).
 Some experimental evidence suggests that transformers might not be as strong as LSTMs at modeling hierarchical structure~\cite{tran2018importance}, though analysis studies have shown that transformer-based models encode a good amount of syntactic knowledge (e.g., \citet{clark2019bert,lin2019open,tenney2019bert}).
 
 In this work, we examine these questions from a theoretical perspective, asking whether models entirely based on self-attention are theoretically capable of modeling hierarchical structures involving unbounded recursion.
@@ -136,12 +136,12 @@ Our results therefore also yield more generally strong limitations on the abilit
 %Our results entail show strong theoretical limitations of self-attention:
 %Transformers essentially cannot model non-counter-free regular languages or languages containing unbounded recursion.
 
-While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential,korsky2019computational}), the theoretical study of self-attention has begun only recently \citep{perez2019turing}.
+While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential}), the theoretical study of self-attention has begun only recently \citep{perez2019turing}.
 %While computational limitations of transformers have been conjectured to exist~\cite{dehghani2018universal}, 
 Our study provides the first theoretical results about limitations in the power of transformers.
 
 After discussing related work (Section~\ref{sec:related}), we first introduce self-attention (Section~\ref{sec:def-selfatt}) and two fundamental formal languages representing regular and context-free languages (Section~\ref{sec:langs}).
-We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) or soft (Section~\ref{sec:soft}) attention.
+We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:soft}) attention.
 Finally, we discuss our results (Section~\ref{sec:discussion}).
 
 \section{Related Work}\label{sec:related}
@@ -152,7 +152,7 @@ It has been a recurrent suggestion in the literature that transformers, relying 
 %They argued that
 transformers cannot compute functions that require sequential processing of input, without providing further details or proofs.
 Similarly, \citet{shen2018disan,chen2018best,hao2019modeling} have introduced extensions of transformers with recurrence, citing similar intuitions about limitations of transformers.
-Our results provide the first explicit formalization of these limitations.
+Our results provide an explicit formalization of these limitations.
 
 Other studies have experimentally tested the abilities of transformers to learn structures.
 Most related to our work, \citet{tran2018importance} compared the ability of transformers and LSTMs to learn hierarchical structure, specifically English subject-verb agreeement and evaluating logical formulas.
@@ -174,8 +174,7 @@ A range of studies has experimentally examined the ability of recurrent networks
 Other work has experimentally studied the performance of reccurent architectures on learning to recognize well-bracketed strings, a similar but more challenging problem \cite{sennhauser2018evaluating,skachkova2018closing,bernardy2018can}.
 Beyond modeling formal languages, another line of work has studied the ability of LSTMs to model hierarchical structure as occurring in realistic natural language data \cite{linzen2016assessing,gulordava2018colorless}.
 
-Recently, \citet{merrill2019sequential} and \citet{korsky2019computational} theoretically studied several types of recurrent networks. \citet{merrill2019sequential} showed that -- in the finite precision setting -- LSTMs recognize a subset of the counter languages, whereas GRUs and simple RNNs recognize regular languages.
-\citet{korsky2019computational} showed, among other results, that arbitrary-precision RNNs can emulate pushdown automata, and can therefore recognize all deterministic context-free languages.
+Recently, \citet{merrill2019sequential} theoretically studied several types of recurrent networks, showing that -- in the finite precision setting -- LSTMs recognize a subset of the counter languages, whereas GRUs and simple RNNs recognize regular languages.
 %Inter alia, their results entail that LSTMs cannot model the multi-symbol Dyck language in the finite precision setting.
 
 
@@ -186,10 +185,9 @@ The crucial difference between these studies and studies of language recognition
 
 \section{Self-Attention}\label{sec:def-selfatt}
 Here we define self-attention as used in Transformers, following \citet{vaswani2017attention}.
-We have an input ${\bf x} = x_1 \dots x_n$, where all $x_i$ come from some finite alphabet $\mathcal{V}$, and $x_n$ is an end-of-sequence symbol.
-This input is then encoded into a sequence of input embeddings $v_1,\dots,v_n$ using some embedding map $\mathcal{V} \rightarrow \mathbb{R}^k$. %, where $v_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
-We furthermore have a sequence $p_1, p_2, \dots$ of positional embeddings $p_i \in \mathbb{R}^k$. These are independent of the input ${\bf x}$, and can be computed through some predefined scheme, or could be learned for each position occurring in the training data \citep{vaswani2017attention}.
-Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(v_i, p_i)$ ($i=1, \dots, n$), which we will refer to as Layer 0.
+We have an input $x_1,\dots,x_n$, where $x_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
+We furthermore have a sequence $p_1, p_2, \dots$ of positional embeddings $p_i \in \mathbb{R}^k$. These are independent of the input, and can be computed through some predefined scheme, or could be learned for each position occurring in the training data \citep{vaswani2017attention}.
+Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(x_i, p_i)$ ($i=1, \dots, n$), which we will refer to as Layer 0.
 
 A transformer has a fixed number $L$ of \key{layers}; the \key{activations} $y_i^{(k)}$ at position $i$ of the $k$-th layer ($k=1, \dots, L$) are defined as follows.
 Each layer has a set of $H$ \key{attention heads}; we first compute attention scores for the $h$-th head:
@@ -203,14 +201,10 @@ The final activation of the head is computed by weighting according to attention
     b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{(k,h)} y_j^{(k-1)}
 \end{equation}
 In the soft attention version,
-$$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,1\dots M_i}) $$
-where the limit $M_i$ is $n$ in the \key{non-autoregressive} Transformer, and $i-1$ in the \key{autoregressive} one.
-In the autoregressive transformer, we set $\hat{a}_{i,j} = 0$ for $j \geq i$.
-This definition reflects the need to mask out future observations when the task is to predict upcoming parts of the input, as in language modeling.
-In the hard attention variant \cite{perez2019turing}, we take the actual maximum of attention values instead of softmax:
-$\hat{a}_{i,j} = \delta_{j, \argmax_{j' = 1, \dots M_i} a_{i,j'}^{(k,h)}}$.\footnote{This requires an arbitrary choice when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
-
-In both versions of attention, the final activation at each position is then computed as
+$$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot}) $$
+In the hard attention variant \cite{perez2019turing} , we take the actual maximum of attention values instead of softmax:
+$\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{This requires an arbitrary choice when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
+The final activation at each position is then computed as
 \begin{equation}
     y_i^{(k)} := f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})
 \end{equation}
@@ -219,39 +213,19 @@ where $f^{act}$ is implemented as a fully-connected feedforward network with a s
 \paragraph{Hard and Soft Attention}
 There is a choice between soft attention and hard attention \cite{shen2018reinforced,perez2019turing}.
 The one prior theoretical study of transformers~\cite{perez2019turing} assumes hard attention.
-In practice, soft attention is easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions in trained transformer models \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
+In practice, soft attention is easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
 We will  examine both hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:soft}) attention settings.
 %We will see that, if arbitrary activation functions are allowed, soft attention is significantly more powerful than hard attention.
 %On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, \dots), hard and soft attention result in similar limitations.
 
 
-\paragraph{Formalizing Language Model and Recognition}
-How do we formalize the concept that a Transformer model can accurately model a formal language?
-In work on LSTMs, the tasks of language modeling \citep{skachkova2018closing} and recognition \citep{weiss2018practical} have been proposed.
-These correspond to the NLP tasks of language modeling and text classification.
-
-\key{Language Modeling} uses the autoregressive variant; here, the activations $y_{i}^{(L)}$ are fed through a linear or feedforward network and a softmax layer that computes a probability distribution $p_i(v)$ over the elements $v$ of the input vocabulary $\mathcal{V}$, attempting to predict the input $x_i$.
-Due to the construction of the attention weights $\hat{a}_{i,j}$, the activations $y_{i}^{(L)}$ only depend on input symbols $x_1, \dots, x_{i-1}$, so that $p_i(v)$ computes a distribution that is conditioned only on those preceding inputs: $p_i(x_i|x_1\dots x_{i-1})$.
-The \key{cross-entropy} of an autoregressive language model on a distribution over input sequences ${\bf x} = x_1, \dots, x_{|{\bf x}|}$ is $- \mathbb{E}_{{\bf x}} \sum_{i=1,\dots |{\bf x}|} \log p_i(x_i|x_1\dots x_{i-1})$.
-This quantity is minimized if the transformer exactly captures the distribution over input strings.
-We will not restrict ourselves to specific input distributions; a natural choice is distributions generated by weighted automata.
-
-%We will mostly consider the uniform distribution over even-parity bit strings of length $n$ for all $n = 1, 2, \dots$ (including an end-of-sequence symbol), where the probability of choosing a length $n$-string is $2^{-n}$.
-%Our results hold under any string distribution that hold for any distribution that assigns non-zero probability to each string in the language.
-
-
-
-\key{Language Recognition} is the task of classifying input strings as either belonging to (`1') or not belonging to (`0') a formal language~\citep{weiss2018practical}.
-%Following~, we formalize this as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
-Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector $p(\cdot|{\bf x})$ for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
-In this task, the transformer can be non-autoregressive.
-Here, for some formal language $L$ and a fixed probability distribution over strings, the cross-entropy is $- \mathbb{E}_{{\bf x}} \log p(1_{{\bf x} \in L}|{\bf x})$.
-It is zero if and only if the model is correct with perfect confidence on every input.
-
-%While one may think of the uniform distribution as a good example, we will also show results that hold under any string distribution that hold for any distribution that assigns non-zero probability to each string.
+\paragraph{Formalizing Language Recognition}
+We consider the problem of language recognition, the task of classifying input strings as either belonging to or not belonging to a formal language.
+Following~\citet{weiss2018practical}, we formalize this as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
+Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
 
 %We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
-%To accomodate imprecision in computation, we will relax this to only demand that the result by separated ufrom 0.5 by some constant $\delta$.
+%To accomodate imprecision in computation, we will relax this to only demand that the result by separated from 0.5 by some constant $\delta$.
 
 
 %Finite/infinite precision, hardmax/softmax
@@ -281,8 +255,6 @@ Evaluating iterated negations is tantamount to counting whether the number of ne
 If we know that transformers cannot compute parity, this entails that they also cannot evaluate logical formulas accurately.
 
 
-%For \textsc{Parity}, the language modeling task amounts to predicting well whether the next symbol can possibly be an end-of-sequence symbol -- which is true if and only if the preceding symbols have even parity.
-
 
 %This contrastsir ability to emulate finite automata is strongly restricted, compared even to simple RNNs.
 
@@ -308,13 +280,6 @@ Consequently, the ability of LSTMs to model languages such as \textsc{2Dyck} has
 %Empirically, though they perform less well for versions with multiple types of parentheses \cite{sennhauser2018evaluating}, which are not counter languages any more.
 %In contrast, 
 Our theoretical results will show that transformers are strongly limited in their ability to model \textsc{2Dyck}, including variants with fewer or more types of parentheses.
-
-
-
-%In the case of \textsc{Parity}, we consider the uniform distribution over even-parity bit strings of length $n$ for all $n = 1, 2, \dots$ (including an end-of-sequence symbol), where the probability of choosing a length $n$-string is $2^{-n}$.
-%This distribution can be generated by a probabilistic finite automaton with two states.
-%In the case of \textsc{2Dyck}, we again consider the uniform distribution, weighted by $2^{-n}$.
-%Here, reaching perfect cross-entropy requires classifying both whether the next symbol can be a closing bracket, and which type of bracket would have to be chosen.
 
 
 %Recognizing whether an expression is bracketed correctly is a basic example of a context-free language and of recursion. If transformers cannot compute parity, they also cannot decide whether long expressions are bracketed correctly.
@@ -410,113 +375,49 @@ The output value of the resulting transformer only depends on those inputs $x_i$
 The following technical result formalizes the intuition described above:
 \begin{thm}\label{thm:hardmax-main}
 Let any transformer be given, and let $C \in (0,1)$.
-Then there is a restriction $\rho$ and a sequence of integers $c_n = o(n)$ such that 
+Then there is a restriction $\rho$ and an integer $c > 0$ such that 
 $$|\{i \leq n: \rho_n(i) = *\}| \geq Cn$$
-(for all sufficiently large $n$) and such that the function computed by the transformer on the restricted input depends only on $\leq c_n$ inputs, for each input length $n$.
-
-Furthermore, the number of such restrictions is `large' in the following sense:
-There are subsets $A_n \subset \{1, ..., n\}$ of size bounded by a constant fraction of $n$, such that -- conditional on no element of $A_n$ being mapped to $*$ -- the probability mass of such restrictions $\rho_n$ is bounded below by a constant $d$, independent of $n$.
-Choosing larger values of $c_n$, this constant $d$ can be brought arbitrarily close to $1$.
+(for all sufficiently large $n$) and such that the function computed by the transformer on the restricted input depends only on $\leq c$ inputs, independent of input length $n$.
 \end{thm}
-We first show how this entails that transformers cannot correctly model the two formal languages:
+We first show how this entails that transformers do not recognize the two formal languages:
 \begin{corollary}
-No classifier built from $y_n^{(L)}$ can have perfect accuracy on classifying strings as belonging to \textsc{Parity}, or classifying as belonging to \textsc{2Dyck}.
-Furthermore, as the input length $n \rightarrow \infty$, classification accuracy converges to chance level for \textsc{Parity}. (not so for \textsc{2Dyck} -- this one is easier to approximate?! But for the $a^nb^n$ version with two types and a neutral letter, prediction will be at chance asymptotically)
-
-Therefore, transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck} with perfect cross-entropy, for \emph{any} probability distribution that assigns some nonzero probability to every string (classification setting) or to every string in the language (prediction setting).
-%, or \textsc{BooleanFormula}.
+Transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck}. %, or \textsc{BooleanFormula}.
 %with cross-entropy asymptotically better than chance.
 %, or \textsc{BooleanFormula} (i.e., asymptotic cross-entropy is at chance level).
 \end{corollary}
 \begin{proof}
-Take $C=0.6$.
+Take $C=0.1$.
 For \textsc{Parity}, after applying a restriction, the output of the transformer depends on $c$ inputs.
 An input of sufficiently large size $n$ thus has unrestricted inputs that do not influence the output.
 But flipping a single input bit changes the value, so the transformer's output cannot match membership in \textsc{Parity} beyond chance as soon as $n$ is sufficiently large.
-As a consequence, in the prediction task, cross-entropy cannot be perfect as the model cannot reliably identify which prefixes can be followed by the end-of-sequence symbol (namely exactly those prefixes with an even number of ones). 
 
 %As a corollary, transformers also cannot model \textsc{BooleanFormula}, as they cannot model iterated negation.
 
 For \textsc{2Dyck}, we show that hard attention transformers cannot even solve the simpler variant \textsc{1Dyck} with a single bracket type (`(', `)').
-We first restrict the first $0.2n$ input positions to `(', and the last $0.2n$ input positions to `)'.
+We first restrict the first $0.2n$ input positions to `('.
 After applying the restriction provided by the theorem, the resulting restricted input will still be compatible with both well-bracketed and non-well-bracketed inputs, but the prediction will depend only on a bounded number of positions.
 As the prediction depends on only a bounded number of positions, this shows the transformer could not recognize \textsc{1Dyck}, and thus also not \textsc{2Dyck}.
-Again, in the prediction task, the model thus cannot reliably identify when an end-of-sequence symbol is allowed (namely, if and only if the prefix is balanced).
-
-To show convergence to chance level:
-Fix some $d \in (0,1)$ (close to $1$), and sufficiently large input length $n$, so that success probability is $\geq d$.
-We randomly generate a string by sampling a restriction $\rho_n$ (subject to the preparations).
-The probability that this restriction is `good' is $\geq d$.
-So, the probability that a randomly sampled string will have neighbors that the transformer cannot distinguish from it is $\geq d$.
-For \textsc{Parity}, this shows that accuracy must be almost at chance if $d$ is close to $1$.
-
 %The probability that 
 %for BooleanFormula, maybe the reduction to PARITY is okay, if there is a constant fraction of chance that parity will be relevant
 %
 %TODO but cross-entropy?
 \end{proof}
 
-\paragraph{Implications for Other Languages}
-As hinted at above, such results about \textsc{Parity} and \textsc{2Dyck} immediately entail results about an extremely wide range of languages.
-The result holds for non-regular context-free languages, subject to a technical condition that limits the usefulness of positional information:
-\begin{corollary}
-The preceding result holds for any language $L$ such that
-\begin{enumerate}
-    \item $L$ is regular and its syntactic morphism is not quasi-aperiodic \citep[p. 488]{barrington1992regular}, or
-\item $L$ is non-regular and context-free, and there is a non-empty string $e$ such that $xy \in L \Leftrightarrow xey \in L$ for all strings $x,y$.
-\end{enumerate}
-\end{corollary}
-\begin{proof}
-For (1), \cite[p. 488]{barrington1992regular} prove that \textsc{Parity} can be reduced to any such language.
-
-For (2), we want to show that $a^nb^n$ is reducible to any such language. Then it is clear that the neutral letter version is also reducible to it.
-
-TODO
-
-
-\end{proof}
-
-
-\begin{corollary}
-Let $L$ be a language such that no way of fixing $O(n)$ input bits can force (non)membership for infinitely many $n$. Then hard-attention transformers cannot model $L$.
-\end{corollary}
-
-\begin{corollary}
-Any language recognized by hard-attention transformers has average sensitivity $o(n)$.
-\end{corollary}
-
-\begin{proof}
-Given a transformer, almost all words are classified based on only $o(n)$ many input bits.
-Assume average sensitivity of $L$ is $\Theta(n)$, then sensitivity of words having so many neighbors is also $\Theta(n)$.
-So the transformer could not recognize $L$.
-\end{proof}
-
-
-
-
 \paragraph{Discussion}
-It may be instructive to compare to similar languages that \emph{can} be modeled perfectly by hard-attention transformers.
+It may be instructive to compare to similar languages that \emph{can} be modeled by hard-attention transformers.
 First, $1^*$ (over the alphabet $\{0,1\}$) is the regular language of words that have only ones and no zeroes; its minimal automaton has two states, like \textsc{Parity}.
-A transformer can recognize this by having an attention head that attends to a position with zero input if it exists, and classifies the word as belonging to $1^*$ if and only if none exists.
+A transformer can recognize this by having an attention head that attends to a position with zero input if it exists, and rejects if the head found such a position.
 Second, $a^nb^n$ is a very basic context-free language.
-It can be recognized using suitable positional embeddings by (1) having one head attend to the largest position $n$, (2) using this information to attend to any $b$ at position $<n/2$ or any $a$ at position $\geq n/2$. The input belongs to $a^nb^n$ if and only if such a symbol is found.
-Very similar reasoning holds in the prediction setting.
+It can be recognized using suitable positional embeddings by (1) having one head attend to the largest position $n$, (2) using this information to attend to any $b$ at position $<n/2$ or any $a$ at position $\geq n/2$. If such a symbol is found, the model rejects, else it accepts.
 A crucial difference between these languages and \textsc{Parity} / \textsc{2Dyck} is that fixing a few inputs can easily force nonmembership, e.g. a single 0 for $1^*$, and an $a$ in the second half for $a^nb^n$.
 Therefore, such simple languages are immune to the depth reduction method, and indeed \emph{can} be modeled perfectly with self-attention.
 
-
-In this context, we note that our depth reduction method applies to languages that are sufficiently `sensitive' in the sense that fixing a constant fraction of input symbols cannot force the word to be inside or outside $L$.
-%\begin{corollary}
-%Let $L$ be a formal language.
-%Assume that, for some $C \in (0,1)$ and for all sufficiently large $n$, fixing at most $C \cdot n$ input symbols cannot force a word to be inside or outside of $L$.
-%Then the preceding results hold for $L$.
-%\end{corollary}
-%\begin{proof}
-%Immediate from Theorem~\ref{thm:hardmax-main}.
-%\end{proof}
-Similar notions of sensitivity of functions %and the structure of Hamming neighborhoods
-have been studied in computational complexity~\cite{boppana1997average,gilmer2015new,gopalan2016smooth,rossman2018average} and more recently linked to generalization in feedforward networks~\cite{de2018deep}.
+In general, the depth reduction method applies to languages that are sufficiently \emph{sensitive}: If, for some $C \in (0,1)$, fixing $Cn$ input symbols cannot force a word to be inside or outside of the language, then hard-attention transformers cannot recognize this language.
+Sensitivity of functions %and the structure of Hamming neighborhoods
+has been studied in computational complexity~\cite{boppana1997average,gilmer2015new,gopalan2016smooth,rossman2018average} and more recently linked to generalization in feedforward networks~\cite{de2018deep}.
 We intend to investigate these connections in future work.
+
+
 
 %In general, languages are hard for transformers if any word has $\Omega(n)$ many Hamming neighbor that have the opposite label
 
@@ -547,7 +448,7 @@ Note that an ordinary transformer  of depth $d$ is also a $1$-transformer of dep
 
 With this technical notion, we show that we can reduce layers, iteratively removing the lowest layer until no self-attention layer is left:
 \begin{lemma}[Depth Reduction Lemma]
-Given a $(c_n)$-transformer with $d$ layers, and some restriction $\rho$ such that
+Given a $c$-transformer with $d$ layers, and some restriction $\rho$ such that
 \begin{equation}
 |\{i \leq n: \rho_n(i) = *\}| \geq Cn
 \end{equation}
@@ -561,7 +462,7 @@ such that
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
 for all sufficiently large $n$, 
-and such that the resulting function is computed by a $(H\cdot c_n\cdot n^\frac{1}{L+1})$-transformer with $d-1$ layers, where $H \geq 1$ is the number of attention heads at each layer and position.
+and such that the resulting function is computed by a $(H\cdot c\cdot k)$-transformer with $d-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
 \end{lemma}
 Before proving this lemma, we note that it implies Theorem~\ref{thm:hardmax-main}.
 \begin{proof}[Proof of Theorem~\ref{thm:hardmax-main}]
@@ -590,19 +491,18 @@ In the second part, we will select a sufficiently large $k$.
 
 %The following observation will be important: If we fix the input $j_k$ to the value that makes the attention value achieve the higher value, then the activation at element $i$ in level 1 only depends on the inputs $i, j_1, \dots, j_{k-1}$.
 
-Fixing $n$, we say an input $x_i \in \{x_1, ..., x_n\}$ is $\rho$-\key{free} if $\rho_n(i) = *$.
 We construct the restrictions $\rho'_n$ separately for each $n$.
 For each layer-1 attention head $h$ at position $i$ and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
 \begin{equation}
-\max_{x_1\dots x_n \text{ compatible with } \rho_n} f^{att}_{k,h}(y_i^{1}, y^{1}_j)
+\max_{x_1\dots x_n} f^{att}_{k,h}(y_i^{1}, y^{1}_j)
 \end{equation}
-We order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1, \dots, j_n$ for each layer-1 attention head $h$ at a position $i$ (In the case of ties, we order by  position).\footnote{If the Transformer is autoregressive, we order the positions $i, \dots, n$ after the positions $1, \dots, i-1$, irrespective of the attention weights.}
+We order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1, \dots, j_n$ for each layer-1 attention head $h$ at a position $i$ (In the case of ties, we order by  position).
 
-For each layer-1 attention head, we then select a sequence $1 \leq i_1 < i_2 < \dots < i_k \leq n$ such that (1) for each $i_s$, there is at least one $\rho$-free input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
-There is only one case in which we cannot find such a subsequence, which is if all $j_1, \dots, j_n$ together depend only on $< ck$ $\rho$-free inputs, in which case this head already satisfies the condition we're aiming for.
+For each layer-1 attention head, we then select a sequence $1 \leq i_1 < i_2 < \dots < i_k \leq n$ such that (1) for each $i_s$, there is at least one input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
+There is only one case in which we cannot find such a subsequence, which is if all $j_1, \dots, j_n$ together depend only on $< ck$ inputs, in which case this head already satisfies the condition we're aiming for.
 
-A layer-1 head $k$-\textbf{depends} on some $\rho$-free input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r$ for $r \leq i_k$.
-A layer-1 head $k$-depends on a $\rho$-free input if and only if that input appears as an input to some $j_{i_s}$ ($s \leq k$). (This is since $i_k$ is minimal).
+A layer-1 head $k$-\textbf{depends} on some input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r$ for $r \leq i_k$.
+A layer-1 head $k$-depends on an input if and only if that input appears as an input to some $j_{i_s}$ ($s \leq k$). (This is since $i_k$ is minimal).
 
 Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s}$ for one and $j_{i_s'}$ for the other both $k$-depend on some input $x_l$.
 
@@ -619,19 +519,19 @@ We thus need to ensure that the number of neighbors of each head is bounded.
 Fix some $\eta \in (0,1)$ (to be chosen later).
 
 Let $H$ be the number of attention heads in each position of layer 1.
-First, assume there is some $\rho$-free input that has $>\frac{1}{\eta}k_nc_nH/C$ many $k_n$-depending layer-1 heads.
+First, assume there is some input that has $>\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads.
 %We now show that the number of such inputs is small, and that we can remove those WLOG.
 Assume the number of such inputs is larger than $\eta Cn$ for some $n$.
-Then, the number of pairs of inputs and depending level-2 heads would be more than $> \eta C n \cdot \frac{1}{\eta} H k_n c_n/C = Hc_nk_nn$ for this $n$.
-On the other hand, there are only $\leq Hc_nk_nn$ many pairs of $\rho$-free inputs and depending layer-1 heads -- contradiction.
+Then, the number of pairs of inputs and depending level-2 heads would be more than $> \eta C n \cdot \frac{1}{\eta} H k c/C = Hckn$ for this $n$.
+On the other hand, there are only $\leq Hckn$ many pairs of inputs and depending layer-1 heads -- contradiction.
 Thus, the number of such inputs is at most $\leq \eta Cn$ for all $n$.
-We can therefore modify the restriction $\rho_n$ so that they are set to some fixed value (doesn't matter which one) for these $<\eta Cn$ $\rho$-free inputs, and unchanged for the others.
-After this manipulation, every $\rho$-free input has at most $\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads, independent of $n$.
+We can therefore modify the restriction $\rho_n$ so that they are set to some fixed value (doesn't matter which one) for these $<\eta Cn$ inputs, and unchanged for the others.
+After this manipulation, every input has at most $\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads, independent of $n$.
 
-Furthermore, assume the number of inputs with $> \frac{1}{\eta} c_n/C$ depending layer-0 activations is $\geq \eta Cn$.
-Then the number of pairs of inputs and layer-0 activations is $>\eta Cn \cdot \frac{1}{\eta} c_n/C = nc_n$.
+Furthermore, assume the number of inputs with $> \frac{1}{\eta} c/C$ depending layer-0 activations is $\geq \eta Cn$.
+Then the number of pairs of inputs and layer-0 activations is $>\eta Cn \cdot \frac{1}{\eta} c/C = nc$.
 But there are at most $nc$ such pairs, contradiction.
-So the number of inputs with $> \frac{1}{\eta} c_n/C$ depending layer-0 heads is $\leq \eta Cn$.
+So the number of inputs with $> \frac{1}{\eta} c/C$ depending layer-0 heads is $\leq \eta Cn$.
 We can again restrict these inputs to some fixed value (again, it doesn't matter which one).
 
 After these preparations, 
@@ -661,7 +561,7 @@ for all sufficiently large $n$.
 %The number of heads that have to be satisfied is now $\leq Cn$, for some $C$ that was determined by the manipulations we made above. (this means that the restriction to one head per $n$ was unnecessary)
 
 \paragraph{Part 2: Constructing Restrictions}
-After the previous part, we are in the setting where every input has $\leq \frac{1}{\eta}k_nc_nH/C$ many depending layer-1 heads, and consequently every layer-1 head has at most $f \leq \frac{1}{\eta}c_n^2k_n^2H/C$ many $k_n$-neighbors (for any $k_n$).
+After the previous part, we are in the setting where every input has $\leq \frac{1}{\eta}kcH/C$ many depending layer-1 heads, and consequently every layer-1 head has at most $f \leq \frac{1}{\eta}c^2k^2H/C$ many $k$-neighbors (for any $k$).
 %(Note that the transformations carried out above could at most have increased the value of $H$).
 Also, every input has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 
@@ -670,7 +570,7 @@ Also, every input has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 
 In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': we define a probability distribution over restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 
-For each input length $n$, define the distribution that independently assigns to each $\rho$-free input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q \in (0,1)$ (to be chosen later), and $1$ or $0$ with equal probability else.
+For each input length $n$, define the distribution that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q \in (0,1)$ (to be chosen later), and $1$ or $0$ with equal probability else.
 On those inputs where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
 For the $i$-th layer-1 attention head (there are at most $Hn$ many such), define $X_i$ to be the event that, for the $i$-th head, none of $j_{i_1}, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight (each of these is assigned either the other value, or $*$).
 Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set to $0/1$.
@@ -679,12 +579,12 @@ We first show that the probability of $X_i$ decays exponentially in $k$.
 Let $Y_i^t$ ($t=1,\dots,k$) be the event that the layer-0 activation $j_{i_t}$ is not assigned the value that produces the highest attention weight, for the given attention head $i$.
 Note that $X_i = \bigcap_t Y_i^t$.
 We have $P(Y_i^s) = 1-(q/2)^c \in (0,1)$. % (where $q = 1-p$).
-Any $Y_i^s$ can be statistically dependent on at most $c_n \cdot \frac{1}{\eta}c_n/C = \frac{1}{\eta}c_n^2/C$ other events $Y_i^{s'}$.
-Therefore, there is a set of $\geq \frac{k}{\frac{1}{\eta}c_n^2/C}$ independent events among these.
-Call these $Y_i^{t_1}, \dots, Y_i^{\frac{k}{\frac{1}{\eta}c_n^2/C}}$.
-Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c_n^2/C}} Y_i^{t_s}$, and thus
+Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}c/C = \frac{1}{\eta}c^2/C$ other events $Y_i^{s'}$.
+Therefore, there is a set of $\geq \frac{k}{\frac{1}{\eta}c^2/C}$ independent events among these.
+Call these $Y_i^{t_1}, \dots, Y_i^{\frac{k}{\frac{1}{\eta}c^2/C}}$.
+Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} Y_i^{t_s}$, and thus
 \begin{equation}
-    P(X_i) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c_n^2/C}} P(Y_i^{t_s}) = \left(1-(q/2)^{c_n}\right)^{\frac{k}{\frac{1}{\eta}c_n^2/C}}
+    P(X_i) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} P(Y_i^{t_s}) = \left(1-(q/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2/C}}
 \end{equation}
 %We use induction over $t \in \{1, \dots, k\}$ to compute the probability that none of $j_{i_1}, \dots, j_{i_t}$ are assigned to value achieving the maximal attention weight.
 %At $t=1$, the failure probability for $j_{i_1}$ is $\leq (1-(q/2)^c)$.
@@ -692,46 +592,42 @@ Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c_n^2/C}} Y_i^{t_s}$, 
 %Failure probability is $\leq F_t \cdot (1-(q/2)^w)$.
 %TODO maybe this isn't actually strict enough
 %\end{proof}
-We want to show that we can find $q \in (0,1)$, $A_n \in (0,1)$ such that the following holds: %, assuming $f \leq $:
-\begin{align}
- P(X_i) &\leq  D^k \leq A_n(1-A_n)^{\frac{1}{\eta}c_n^2k^2H/C}
-\end{align}
-where $D =  \left(1-(q/2)^{c_n}\right)^{\frac{1}{\frac{1}{\eta}c_n^2/C}} \in (0,1)$. % is a constant in $(0,1)$, depending on $c$, $q$, $C$, $\eta$, but \emph{not} on $k$.
-Once we have shown this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, X_2, \dots$.
-
-Choose %$q=0.5$, $\delta=0.5$, 
-$A_n=\frac{1}{k^{L+1}}$.
-We need to satisfy
-\begin{align}
-    D &\leq A^{1/k}(1-A)^{\frac{1}{\eta}kc^2H/C} 
-\end{align}
-For the RHS, 
-\begin{equation}
-\lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \exp\left(-\frac{\log k^{L+1} }{k}\right) = 1
-\end{equation}
-Also, $\lim_{k\rightarrow \infty} (1-A)^{\frac{1}{\eta}kc^2H/C}$ equals
-\begin{equation}
-\lim_{k_n\rightarrow \infty} \left(1-\frac{1}{k_n^{L+1}}\right)^{Ek_n} = \lim_{k_n\rightarrow \infty} \left(1-\frac{E^{L+1}}{k_n^{L+1}}\right)^{k_n} = 1
-\end{equation}
-where we choose $E = ...$. So, if we choose $k_n$ large enough, the RHS can be made arbitrarily close to $1$, in particular, greater than the LHS.
-
-In conclusion, there exists, for each sufficiently-large $n$, a restriction $\rho'_n$ that avoids all events $X_0, X_1, X_2, \dots$.
-
-Set $k_n := u n^\frac{1}{L+1}$, where $u \in (0,\infty)$.
-
-The probability mass of these $\rho'_n$ is at least
-$\geq (1-A_n)^n = (1-\frac{1/u^{L+1}}{n})^n$, which converges to $\exp(-1/u^{L+1})$ as $n \rightarrow \infty$.
-Note that, by making $u$ larger, this limit can be brought arbitrarily close to $1$, at the price of increasing $k_n$.
-
-
 Furthermore, a Chernoff bound gives~\cite{mitzenmacherprobability}
 %\footnote{See \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 \begin{equation}
 P(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)
 \end{equation}
 since the number of independent multinomial samples in the sampling of $\rho'$ is at least $Cn$.
-Thus, only an exponentially small fraction of these good restrictions restricts too many inputs.
+We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds: %, assuming $f \leq $:
+\begin{align}
+ P(X_i) &\leq  D^k \leq A(1-B)(1-A)^{\frac{1}{\eta}c^2k^2H/C} \\
+P(X_0) &\leq \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
+\end{align}
+where $D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}} \in (0,1)$. % is a constant in $(0,1)$, depending on $c$, $q$, $C$, $\eta$, but \emph{not} on $k$.
+Once we have shown this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, X_2, \dots$.
 
+Choose %$q=0.5$, $\delta=0.5$, 
+$A=\frac{1}{\frac{1}{\eta}Hk^2c^2/C}$, $B=0.5$.
+First, we need to satisfy
+\begin{align}
+    D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{\frac{1}{\eta}kc^2H/C} 
+\end{align}
+For the RHS, 
+\begin{equation}
+\lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \exp\left(-\frac{\log\left(\frac{1}{\eta} H k^2 c^2/C\right)}{k}\right) = 1
+\end{equation}
+Also, $\lim_{k\rightarrow \infty} (1-A)^{\frac{1}{\eta}kc^2H/C}$ equals
+\begin{equation}
+\lim_{k\rightarrow \infty} \left(1-\frac{1}{Ek^2}\right)^{Ek} = \lim_{k\rightarrow \infty} \left(1-\frac{E}{k^2}\right)^{k} = 1
+\end{equation}
+where we choose $E = \frac{1}{\eta}c^2H/C$. So, if we choose $k$ large enough (independently of $n$), the RHS can be made arbitrarily close to $1$, in particular, greater than the LHS.
+
+In order to also satisfy
+\begin{equation}
+\exp\left(-\frac{\delta^2qC}{(2+\delta)}\right)  \leq B^{1/n} (1-A)^H
+\end{equation}
+make $n$, $k$ large enough to satisfy the inequality (again, choosing $k$ independent of $n$). %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
+In conclusion, there exists, for each sufficiently-large $n$, a restriction $\rho'_n$ that avoids all events $X_0, X_1, X_2, \dots$.
 
 With such a $\rho'$, $|\{i \leq n: \rho_n'(i) = *\}|$ is at least
 \begin{equation}
@@ -746,58 +642,12 @@ Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such t
 %So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
 %\end{proof}
 
-We now note that, since every layer-1 head depends only on $\leq c_n k_n$ many inputs after applying $\rho'$, each layer-1 activation $y_j^{(1)}$ only depends on $\leq Hc_nk_n$ many inputs.
-We can thus collapse layers 0 and 1, converting layer-1 activations into layer-0 activations $y_j^{(0)}$, and obtain a $(Hc_nk_n)$-transformer performing the same computation as before when $\rho'$ is applied.
+We now note that, since every layer-1 head depends only on $\leq ck$ many inputs after applying $\rho'$, each layer-1 activation $y_j^{(1)}$ only depends on $\leq Hck$ many inputs.
+We can thus collapse layers 0 and 1, converting layer-1 activations into layer-0 activations $y_j^{(0)}$, and obtain a $(Hck)$-transformer performing the same computation as before when $\rho'$ is applied.
 This concludes the proof of the Depth Reduction Lemma.
 
 
 %Can the same proof work for Dyck? Fix the first $0.2n$ to `(', and can we force the random restrictions to only restrict $0.3n$ (replace $2$ by $10$)?
-
-
-
-\section{Alternative Proof for Soft Attention}\label{sec:soft-alternate}
-
-We now extend the previous proof to the soft attention setting.
-
-The proof will be slightly more general than softmax attention, by also covering models with mixed hard and soft attention.
-
-\begin{thm}\label{thm:softmax-main-adapt}
-Let any transformer be given, and let $C \in (0,1)$, $\epsilon > 0$.
-Then there is a restriction $\rho$ and a sequence of integers $c_n = o(n)$ such that 
-$$|\{i \leq n: \rho_n(i) = *\}| \geq Cn$$
-(for all sufficiently large $n$) and such that, for each $i$, there is a set of $\leq c_n$ inputs such that flipping any other individual input would change $y_i^{(L)}$ by at most $\leq \epsilon$.
-\end{thm}
-
-\begin{lemma}[Depth Reduction Lemma]
-Given a $(c_n)$-transformer with $d$ layers, and some restriction $\rho$ such that
-\begin{equation}
-|\{i \leq n: \rho_n(i) = *\}| \geq Cn
-\end{equation}
-($C \in (0,1]$)
-for all sufficiently large $n$.
-%with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
-Choose any $C' < C$.
-Then there is a restriction $\rho'$ 
-such that
-\begin{equation}
-|\{i \leq n: \rho'_n(i) = *\}| \geq C'n
-\end{equation}
-for all sufficiently large $n$, 
-and such that the resulting function is computed by a $(H\cdot c_n\cdot n^\frac{1}{L+1})$-transformer with $d-1$ layers, where $H \geq 1$ is the number of attention heads at each layer and position.
-\end{lemma}
-
-The proof is almost identical to the hard attention setup.
-The Preliminaries are identical.
-In the construction of restrictions, we 
-
-Fix $\epsilon > 0$.
-
-We find a restriction $\rho'$ such that, for any given attention head, except for $ck$ inputs, each input can contribute only $C\epsilon$.
-
-Let $X_i$ be the event that no subset of size $\geq \frac{1}{\epsilon}$ of $j_1, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight.
-TODO redo equation (9) -- it'll still be exponential in $k$, though dampened by $1/\epsilon$.
-
-After this, the attention weight of any input outside of these $ck$ many ones is $\leq \epsilon$.
 
 
 
@@ -818,35 +668,31 @@ In the previous section, we showed that transformers using hard attention are no
 In this section, we study soft attention. %, where we will similarly show limitations of transformers in recognizing formal languages. %computing \textsc{Parity}, \textsc{Dyck}, and \textsc{LogicalFormulas}.
 Here, we will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
 The idea behind the proof is that the impact of any single input on the output of the transformer is small if the input is long:
-\begin{lemma}\label{lemma:diff-1n}
+\begin{lemma}
 If we exchange one input symbol, %a single input bit $x_i$ with the bit $x_i'$
-%then the change in the resulting activations at the decoder layers is bounded as $\mathcal{O}(\frac{1}{n})$ with constants depending on the parameter matrices, where $n$ is the input length. %, $k$ is the number of layers, and $C$ is the summed norm of the parameter matrices.
-then the change in the resulting activations $y_i^{(L)}$ is $\mathcal{O}(\frac{1}{i})$ in the autoregressive case and  $\mathcal{O}(\frac{1}{n})$ in the non-autoregressive case, for all $i = 1, \dots, n$ except the one at which the change was made, with constants depending on the parameter matrices (independently of $i$ or the input length).
+then the change in the resulting activations at the decoder layers is bounded as $\mathcal{O}(\frac{1}{n})$ with constants depending on the parameter matrices, where $n$ is the input length. %, $k$ is the number of layers, and $C$ is the summed norm of the parameter matrices.
 \end{lemma}
 This contrasts with recurrent networks:
 Changing a single input can have nonnegligible impact on the final state even for very long input.
-E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes parity of the current prefix will flip its hidden state in all future time steps if a single input bit is flipped.
+E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes parity of the current prefix will flip its hidden state if a single input bit is flipped.
 
 
-This result entails that, as inputs become longer, soft attention transformers cannot robustly model the two formal languages:
-%To make this precise, we take a more quantitative angle and assign probability distributions over inputs for each input length $n$, and consider the behavior of cross-entropy as $n\rightarrow\infty$.
-%For \textsc{Parity}, we simply consider the distribution over i.i.d. bitstrings of length $n$, and consider the task of predicting whether the next symbol can be the \textsc{EndOfSequence} symbol -- which is true if and only if the prefix has an even number of ones. % the label (odd or even) from the string.
+This result entails that, as inputs become longer, soft attention transformers cannot robustly model many formal languages, and cannot even achieve good cross-entropies on a large class of prediction problems.
+To make this precise, we take a more quantitative angle and assign probability distributions over inputs for each input length $n$, and consider the behavior of cross-entropy as $n\rightarrow\infty$.
+For \textsc{Parity}, we simply consider the distribution over i.i.d. bitstrings of length $n$, and consider the task of predicting whether the next symbol can be the \textsc{EndOfSequence} symbol -- which is true if and only if the prefix has an even number of ones. % the label (odd or even) from the string.
 %For \textsc{LogicalFormulas}, we consider the uniform distribution over formulas of length $n$, again considering the task of predicting the label (TRUE or FALSE).
-%For \textsc{2Dyck}, we take the uniform distribution of well-bracketed prefixes of length $n$, and ask the model to classify the set of valid next characters, which is a subset of $\{(,),[, ]\}$.\footnote{Only an exponentially small subset of the strings over $n$ symbols are well-labeled; thus, cross-entropy on the classification task is less meaningful for this language. Considering prediction of the next symbol sidesteps this issue.}
-%We consider the problem of predicting the label from the input separately for each input length $n$, and consider cross-entropy as $n\rightarrow \infty$.
+For \textsc{2Dyck}, we take the uniform distribution of well-bracketed prefixes of length $n$, and ask the model to classify the set of valid next characters, which is a subset of $\{(,),[, ]\}$.\footnote{Only an exponentially small subset of the strings over $n$ symbols are well-labeled; thus, cross-entropy on the classification task is less meaningful for this language. Considering prediction of the next symbol sidesteps this issue.}
+We consider the problem of predicting the label from the input separately for each input length $n$, and consider cross-entropy as $n\rightarrow \infty$.
 
 \begin{thm}
 Let a soft attention transformer be given for one of the languages \textsc{Parity} and \textsc{2Dyck}. %, \textsc{BooleanFormula}.
-
-In the prediction task, as $n\rightarrow\infty$, cross-entropy on the second half of the input sequence ${\bf x}$ converges to unigram chance level.
-
-Consequently, the transformer cannot achieve perfect cross-entropy on either the prediction or recognition tasks.
+As $n\rightarrow\infty$, cross-entropy converges to chance level.
 \end{thm}
 
 \begin{proof}
 For \textsc{Parity}, exchanging a single bit flips membership.
 Thus, for any member of the language, there is an equally likely non-member such that the output activations differ by
-only $\mathcal{O}(\frac{1}{i})$.
+only $\mathcal{O}(\frac{1}{n})$.
 
 For \textsc{2Dyck}, the probability that a well-bracketed prefix of length $n$ is exactly balanced is $o(1)$.
 In all other cases, the correct label includes one of the two closing parentheses, which depends on one single previous symbol, and both possibilities are equally likely if that symbol is unknown.
@@ -854,11 +700,8 @@ In all other cases, the correct label includes one of the two closing parenthese
 \end{proof}
 
 \subsection{Proof of the Lemma}
-Having established the main theorem, we proceed to proving the technical Lemma~\ref{lemma:diff-1n}:
+Having established the main theorem, we proceed to proving the technical lemma:
 \begin{proof}[Proof of Lemma]
-We only need to prove the lemma in the non-autoregressive case.
-The autoregressive case follows by considering the prefix $x_1, ..., x_i$ up to the given position $i$ as the input.
-
 Let us compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
 Let $D = \|x_i-x_i'\|_2$ the norm of the difference of the input embeddings at this position.
 
@@ -930,21 +773,22 @@ We have shown that, even with infinite precision, transformers cannot robustly m
 
 How do our results compare to what is known about LSTMs?
 Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model any finite state language with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
-In particular, \textsc{Parity} of i.i.d. bitstrings can be classified with zero cross-entropy, independent of the input length.
+In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with zero cross-entropy, independent of the input length.
 
-Infinite-precision RNNs and LSTMs can model stacks \cite{tabor2000fractal,gruning2006stack,kirov2012processing,korsky2019computational} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages at optimal cross-entropy and perfect classification accuracy. % and \textsc{LogicalFormulas} perfectly.
+Infinite-precision RNNs and LSTMs can model stacks \cite{tabor2000fractal,gruning2006stack,kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages perfectly. % and \textsc{LogicalFormulas} perfectly.
 This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers may provide a theoretical explanation for the empirical finding that LSTMs seem to outperform transformers in modeling hierarchical structure \citep{tran2018importance}.
 %On the other hand, the theoretical results of \cite{merrill2019sequential} show that finite-precision LSTMs cannot model these languages perfectly at long lengths.
 %Experimental evidence on the ability of LSTMs to learn \textsc{2Dyck} and \textsc{LogicalFormulas} from data is mixed, but clearly falls short of perfect accuracy or cross-entropy.
 
 
-%In the setting of RNNs and LSTMs, some prior studies have considered the impact of finite numerical precision~\cite{weiss2018practical, merrill2019sequential, korsky2019computational}.
+
 
 %It is important to remark that all our impossibility results require taking large inputs:
 %Certainly, for any bound on the input length, we can construct a transformer that does anything we want.
 %However, we are interested in the extent to which a transformer is able to handle arbitrarily long inputs -- similar to analogous work on RNNs/LSTMs/GRUs.
 
 %Our results are consistent with the fact that transformer-based models tend to have far more layers than comparable LSTMs (CITE).
+
 
 Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
 Our results entail that self-attention is strongly limited in their ability to model context-free languages or evaluate logical formulas.
@@ -955,18 +799,15 @@ Another possibility is that humans also have limited capacity to solve such prob
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
 Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
-We intend to study these connections in future work.
 
 
 
 While our hard attention results hold under extremely general assumptions, the analysis of soft attention builds on regularity properties of the operations that existing transformer models are composed of.
 It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations, or infinite attention logits -- are allowed.
-One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model certain context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
+One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
 %  and \textsc{LogicalFormulas}
 
-%We have considered the ability of Transformers to model probability distributions over elements of formal languages.
-%Formal languages, arguably unlike many problems in NLP, involve a clear-cut partitioning into words inside and outside of the language.
-%In future work, we intend to characterize the ability of self-attention to model 
+
 
 
 
@@ -1021,161 +862,4 @@ Our results theoretically confirm the idea that self-attention, by avoiding recu
 
 
 
-
-
-
-
-
-
-
-
-\section{Settings}
-
-Theoretical investigation of the computational power of neural architectures can examine either the idealized case of infinite numerical precision, or the setting of finite precision.
-%RNNs, LSTMs
-In practice, computers are finite and algorithms relying on unbounded precision might be infeasible to approximate with finite precision.
-On the other hand, the theoretical idealization of infinite resources is often argued to be useful in the construction of mathematical theories.
-For instance, asymptotic complexity theory relies on the limit of arbitrarily long inputs, and yet makes predictions that are largely highly relevant to practical computing.
-Similarly, the finiteness of precision does not preclude recurrent neural networks  from behaving as if they could encode unbounded numerical information for all practical purposes~\cite{weiss2018practical}.
-We focus on infinite precision transformers, showing that the capabilities of self-attention are limited even in the setting of infinite precision.
-We discuss finite the precision setting in the Discussion, Section REF.
-%Our theoretical results will confirm that the idealization of infinite precision can result in more realistic asymptotic characterizations of practically relevant behavior, and that the capabilities of self-attention are limited even in the setting of infinite precision.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\paragraph{What input size do we have to take to get failure}
-
-$L$ layers, $H$ heads
-
-
-
-$(1-\eta)^2 (1-(1+\delta)q) = C^{1/L}$
-
-$\eta = 1-C^{1/4L}$
-
-$(1+\delta)q = 1-C^{1/2L}$
-
-e.g.
-$q = (1-C^{1/2L}) \cdot \frac{10}{11}$
-
-$C=0.5$
-
-$q = (1-2^{-1/2L}) \cdot \frac{10}{11}$
-
-
-$\delta = \frac{1}{10}$
-
-Failure requires
-$Hk^L < Cn$
-so
-$n > \frac{Hk^L}{C}$
-
-How to choose $k$? Target for each of the terms: $1-\epsilon$.
-
-
-$(\frac{1}{\frac{1}{\eta}Hk^2c^2/C})^{1/k} = (\frac{C\eta}{Hc^2})^{1/k} \frac{1}{k^{2/k}}$
-
-$k^{-2/k} = \exp(-2\log k/k) \geq \exp(-2/\sqrt{k})$ so $k \geq \frac{4}{(\log(1-\epsilon))^2}$
-
-\begin{align*}
-&\left(1-\frac{1}{Ek^2}\right)^{Ek} \\
-= &\sum_{i=0}^{Ek} (-1)^i (\frac{1}{Ek^2})^i { Ek \choose i } \\
-= & 1 - \frac{Ek}{Ek^2}  + \sum_{i=2}^{Ek} (-1)^i (\frac{1}{Ek^2})^i { Ek \choose i } \\
-\geq & 1 - \frac{Ek}{Ek^2}  - \sum_{i=2}^{Ek} (\frac{1}{Ek^2})^i { Ek \choose i } \\
-\geq & 1 - \frac{Ek}{Ek^2}  - \sum_{i=2}^{Ek} (\frac{1}{Ek^2})^i \frac{(Ek)^i}{i!} \\
-= & 1 - \frac{Ek}{Ek^2}  - \sum_{i=2}^{Ek} (\frac{1}{k^{i}}) \frac{1}{i!} \\
-\geq & 1 - \frac{Ek}{Ek^2}  - \sum_{i=2}^{Ek} (\frac{1}{k^{2}}) \frac{1}{2!} \\
-= & 1 - \frac{1}{k}  -  \frac{E}{k} \frac{1}{2} = 1-\frac{1+E/2}{k} \\
-= & 1-\frac{1+\frac{1}{2\eta}c^2H/C}{k}
-\end{align*}
-so $k \geq \frac{1+\frac{1}{2\eta}c^2H/C}{\epsilon}$
-
-$(1-B)^{1/k} = 1/2^{1/k} \geq 1-\epsilon$ so $k \geq \frac{1}{\log_2 \frac{1}{1-\epsilon}}$
-
-TOGETHER:
-
-Let $D = (1-\epsilon)^3$. Then
-$k \geq \max(\frac{4}{(\log(1-\epsilon))^2}, \frac{1+\frac{1}{2\eta}c^2H/C}{\epsilon}, \frac{1}{\log_2 \frac{1}{1-\epsilon}})$
-
-
-
-$D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}}$
-
-$D_1 =  \left(1-(q/2)\right)^{C\eta}$
-
-$D_1 =  \left(1-\frac{10}{22}+\frac{10}{11} 2^{-1/2L-1}\right)^{C\eta} \approx (1/2 + 2^{-1/2L-1})^{2^{-L}(1-2^{-1/4})} \approx ((1/2)( 1 + \frac{1}{2^{\frac{1}{2L}}}))^{\frac{1}{2^{L}} \cdot 0.15}$
-
-
-
-
-
-
-\section{getting greater probability mass for good restrictions}
-
-Here we show that we can make the probability mass of good restrictions be lower-bounded by a \emph{constant} $>0$ independent of $n$, at the price of making $c$ increase with $n$ (still $c = o(n)$).
-
-Note: in the preparations, we already fix a constant fraction of the input. BUT importantly there it didn't matter what value we put in. SO not a problem.
-
-Choose %$q=0.5$, $\delta=0.5$, 
-$A=\frac{1}{\frac{1}{\eta}Hk^{L+1}c^2/C}$, $B=0.5$.
-First, we need to satisfy
-\begin{align}
-    D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{\frac{1}{\eta}kc^2H/C} 
-\end{align}
-For the RHS, 
-\begin{equation}
-\lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \exp\left(-\frac{\log\left(\frac{1}{\eta} H k^{L+1} c^2/C\right)}{k}\right) = 1
-\end{equation}
-Also, $\lim_{k\rightarrow \infty} (1-A)^{\frac{1}{\eta}kc^2H/C}$ equals
-\begin{equation}
-\lim_{k\rightarrow \infty} \left(1-\frac{1}{Ek^{L+1}}\right)^{Ek} = \lim_{k\rightarrow \infty} \left(1-\frac{E}{k^{L+1}}\right)^{k} = 1
-\end{equation}
-where we choose $E = \frac{1}{\eta}c^2H/C$. So, if we choose $k$ large enough (independently of $n$), the RHS can be made arbitrarily close to $1$, in particular, greater than the LHS.
-
-
-
-Prob: $F \geq (1-B) (1-A)^n$. So $F^{1/n} \geq 0.5^{1/n} (1-A)$.
-We have $(1-A) = 1-1/k^(L+1)$, and $(1-F^{1/n}) \sim 1/n$, so $k \sim n^{1/(L+1)}$.
-
-So in the end, every output depends on $(n^{1/(L+1)})^L = o(n)$ many inputs (the number of inputs fixed is still a constant fraction).
-
-Consequences:
-
-- we can show that approximation is hard: cross-entropy and accuracy are separated from the optimum by a constant across all $n$
-
-- we can 
-
-
-
-\begin{lemma}[Depth Reduction Lemma]
-Given a $(c_n)$-transformer with $d$ layers, and some restriction $\rho$ such that
-\begin{equation}
-|\{i \leq n: \rho_n(i) = *\}| \geq Cn
-\end{equation}
-($C \in (0,1]$)
-for all sufficiently large $n$.
-Choose any $C' < C$.
-Then there is a restriction $\rho'$ 
-such that
-\begin{equation}
-|\{i \leq n: \rho'_n(i) = *\}| \geq C'n
-\end{equation}
-for all sufficiently large $n$, 
-and such that the resulting function is computed by a $(H\cdot c_n\cdot n^{1/(L+1)})$-transformer with $d-1$ layers, where $H \geq 1$ is the number of attention heads at each layer and position.
-
-Furthermore, the probability mass of these restrictions $\rho'$, among all those that extend $\rho$, is bounded away from $0$ by a constant independent of $n$.
-\end{lemma}
 
