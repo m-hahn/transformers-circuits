@@ -104,7 +104,7 @@
 \newcommand{\thetap}[0]{{\theta_{P}}}
 
 
-\title{Theoretical Limitations of Self-Attention in Neural Sequence Models, VERSION3 with alternative hard attention proof}
+\title{Theoretical Limitations of Self-Attention in Neural Sequence Models, VERSION3 with alternative soft attention proof}
 \author{Michael Hahn \\ Stanford University \\ mhahn2@stanford.edu}
 \date{\today}
 \begin{document}
@@ -139,7 +139,7 @@ Our results therefore also yield more generally strong limitations on the abilit
 %Our results entail show strong theoretical limitations of self-attention:
 %Transformers essentially cannot model non-counter-free regular languages or languages containing unbounded recursion.
 
-While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential,korsky2019computational}), the theoretical study of self-attention has begun only recently \citep{perez2019turing}.
+While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential,korsky2019computational}), the theoretical study of self-attention has begun only recently \citep{perez2019turing,hsieh2019robustness}.
 %While computational limitations of transformers have been conjectured to exist~\cite{dehghani2018universal}, 
 Our study provides the first theoretical results about limitations in the power of transformers.
 
@@ -167,6 +167,9 @@ Based on their experimental results, they suggested that LSTMs are better at lea
 Theoretical study of transformers was initiated by \citet{perez2019turing}, who theoretically studied the ability of Seq2Seq transformers to emulate the computation of Turing machines.
 %There is no contrast between their results and ours:
 While we consider incremental modeling of sequences, where the number of computation steps is bounded by the input length $n$, they study the setting in which the transformer computes an unbounded number of autoregressive decoding steps, not bounded in the input length $n$.
+Even more recently, and more closely related to our interest here, \citet{hsieh2019robustness} studied the adversarial robustness of transformers.
+While they focused on experiments with several NLP tasks, they also provide a theoretical analysis, showing that a single self-attention layer with a single head will be robust against input perturbations, assuming that input embeddings are drawn uniformly from the unit sphere.
+One of our results, Theorem~\ref{thm:softmax-main-adapt}, can be seen as considerably widening the scope of their result, both by avoiding distributional assumptions, and by applying to transformers with arbitrary numbers of heads and layers.
 
 
 \paragraph{Investigating the Power of Sequence Modeling Architectures}
@@ -388,7 +391,9 @@ We first show how this entails that transformers cannot correctly model the two 
 \begin{corollary}
 No classifier built from $y_n^{(L)}$ can have perfect accuracy on classifying strings as belonging to \textsc{Parity}, or classifying as belonging to \textsc{2Dyck}.
 
-Therefore, transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck} with perfect cross-entropy, for \emph{any} probability distribution that assigns some nonzero probability to every string (classification setting) or to every string in the language (prediction setting). %, or \textsc{BooleanFormula}.
+%Therefore, transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck} with perfect cross-entropy, for \emph{any} probability distribution that assigns some nonzero probability to every string (classification setting) or to every string in the language (prediction setting). %, or \textsc{BooleanFormula}.
+
+
 %with cross-entropy asymptotically better than chance.
 %, or \textsc{BooleanFormula} (i.e., asymptotic cross-entropy is at chance level).
 \end{corollary}
@@ -657,28 +662,53 @@ This concludes the proof of the Depth Reduction Lemma.
 
 
 
-\section{Alternative Proof for Soft Attention}\label{sec:soft}
+\section{Results for Soft Attention}\label{sec:soft}
 
 
 In the previous section, we showed that transformers using hard attention are not able to recognize a range of core formal languages.
-In this section, we study soft attention. %, where we will similarly show limitations of transformers in recognizing formal languages. %computing \textsc{Parity}, \textsc{Dyck}, and \textsc{LogicalFormulas}.
-Here, we will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
-The idea behind the proof is that the impact of any single input on the output of the transformer is small if the input is long:
-
-
 We now extend the previous proof to the soft attention setting.
+We will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
+The proof will be slightly more general than softmax attention, by also covering models that have both hard and soft attention heads.
 
-The proof will be slightly more general than softmax attention, by also covering models with mixed hard and soft attention.
+%, and models that allow the attention logits $a_{i,j}^{(k,h)}$ to be infinite.
+
+%In this section, we study soft attention. %, where we will similarly show limitations of transformers in recognizing formal languages. %computing \textsc{Parity}, \textsc{Dyck}, and \textsc{LogicalFormulas}.
+%Here, 
+%The idea behind the proof is that the impact of any single input on the output of the transformer is small if the input is long:
+
+We say a function $R(x_{1,\dots,n})$ mapping to values in $\mathbb{R}^d$ is \key{$\epsilon$-stable for $x_j$} if flipping the value of $x_j$ and keeping the other inputs fixed can only change $R(x_{1,\dots,n})$ by a difference of norm $\leq \epsilon$.
+
 
 \begin{thm}\label{thm:softmax-main-adapt}
 Let any transformer be given, and let $C \in (0,1)$, $\epsilon > 0$.
-Then there is a restriction $\rho$ and a sequence of integers $c_n = o(n)$ such that 
+Then there is a restriction $\rho$ and a constant $c \in \mathbb{N}$ % sequence of integers $c_n = o(n)$
+such that 
 $$|\{i \leq n: \rho_n(i) = *\}| \geq Cn$$
-(for all sufficiently large $n$) and such that, for each $i$, there is a set of $\leq c_n$ inputs such that flipping any other individual input would change $y_i^{(L)}$ by at most $\leq \epsilon$.
+(for all sufficiently large $n$) and such that, for each $i$, there is a set of $\leq c$ inputs such that flipping any other individual input would change $y_i^{(L)}$ by at most $\leq \epsilon$.
 \end{thm}
 
+We first show how this entails that transformers cannot correctly model the two formal languages:
+\begin{corollary}
+No continuous classifier built from $y_n^{(L)}$ can have perfect cross-entropy on classifying strings as belonging to \textsc{Parity}, or classifying as belonging to \textsc{2Dyck}.
+\end{corollary}
+\begin{proof}
+The proof is as before, TODO
+\end{proof}
+
+
+
+\begin{defin}[$c$-Transformer]
+Let $c$ a positive integer. A $c$-transformer of depth $d$ is one in which the layer-0 activations $y_j^0$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions:
+\begin{equation}
+    y_j^0 = f^{inp}_{n,j}((x_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (x_{i_c^{j},n}, p_{i_c^{j,n}} )) + R_j(x_{1,\dots,n})
+\end{equation}
+where $R_j$ is $\epsilon$-stable. %with $\|R\| \leq \epsilon$.
+Here, the indices $x_{i_s^{j,n}}$ depend on the input length $n$.
+\end{defin}
+
+In the soft attention setting, the Depth Reduction Lemma takes the following form:
 \begin{lemma}[Depth Reduction Lemma]
-Given a $(c_n)$-transformer with $d$ layers, and some restriction $\rho$ such that
+Given a $(c,\epsilon)$-transformer with $d$ layers, and some restriction $\rho$ such that
 \begin{equation}
 |\{i \leq n: \rho_n(i) = *\}| \geq Cn
 \end{equation}
@@ -692,23 +722,66 @@ such that
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
 for all sufficiently large $n$, 
-and such that the resulting function is computed by a $(H\cdot c_n\cdot n^\frac{1}{L+1})$-transformer with $d-1$ layers, where $H \geq 1$ is the number of attention heads at each layer and position.
+and such that the resulting function is computed by a $(H\cdot c\cdot k, \epsilon')$-transformer with $d-1$ layers, where $H \geq 1$ is the number of attention heads at each layer and position, for some integer $k \in \mathbb{N}$, and for some $\epsilon' = O(\epsilon)$ (with constants depending on the parameters of the transformer, but independently of $n, k$).
 \end{lemma}
 
 The proof is almost identical to the hard attention setup.
-The Preliminaries are identical.
-In the construction of restrictions, we 
+Rather than repeating the entire proof, we will explain those points where it differs from the preceding proof.
 
-Fix $\epsilon > 0$.
+The Preliminaries are \textit{verbatim} identical.
+In the construction of restrictions, we make the following changes.
+
+
+TODO cannot exactly set any layer-0 activation. can only get it up to $\delta$ of the real intended attention value.
 
 We find a restriction $\rho'$ such that, for any given attention head, except for $ck$ inputs, each input can contribute only $C\epsilon$.
 
-Let $X_i$ be the event that no subset of size $\geq \frac{1}{\epsilon}$ of $j_1, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight.
-TODO redo equation (9) -- it'll still be exponential in $k$, though dampened by $1/\epsilon$.
+We keep $X_0$ as before.
+Let $X_i$ be the event that, for the $i$-th head, no size $ceil(1/\epsilon)$ subset of $j_{i_1}, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight.
 
-After this, the attention weight of any input outside of these $ck$ many ones is $\leq \epsilon$.
+Then $\Prob(X_i) \leq E_1 \exp(-E_2k)$ where the constants $E_1, E_2$ depend on $\eta, c, C, \epsilon$.
+
+The proof that all events $X_0, X_1, \dots$ can be avoided by some restriction $\rho'_n$ is exactly as in the hard attention case.
+
+%We now want to show that each layer-1 activation only depends on $\leq ckH$ inputs, up to a remainder of norm $\leq \epsilon$.
+
+Now recall that every layer-1 activation $y_j^{(1)}$ is computed as
+\begin{equation}
+    y_i^{(1)} := f^{act}(y_i^{(0)}, b_{i,1,1}, \dots, b_{i,1,H})
+\end{equation}
+where 
+\begin{equation}
+    b_{i,1,h} = \sum_{j=1}^n \hat{a}_{i,j}^{(1,h)} y_j^{(0)}
+\end{equation}
 
 
+We know that for $j$ except for those in the size-$k$ relevant set, we have $\hat{a}_{i,j}^{(1,h)} \leq \epsilon$.
+Thus
+\begin{equation}
+    b_{i,1,h} = \sum_{i_1, \dots i_k} \hat{a}_{i,j}^{(1,h)} y_j^{(0)} + \sum_{other j} O(\epsilon) y_j^{(0)}
+\end{equation}
+Every input except for those that $c$-feed into some of the $y_j^{(0)}$ ($j$ in the good set) will have impact $\leq \epsilon$ on any of these terms in the left sum.
+If we choose $E$ such that $\|y_j^{(0)}\| \leq E$ (this will be a function of the parameter matrices of the transformer), then any input has impact $\leq \epsilon E$ on any summand on the right, and $\leq E$ on the right sum.
+So it will also have impact $O(\epsilon)$ on the entire term (where the constants do not depend on $n, i, h, k$).
+
+As a consequence every layer-1 activation $y_j^{(1)}$
+\begin{equation}
+    y_j^{(0)} = f^{inp}_{n,j}((x_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (x_{i_c^{j},n}, p_{i_c^{j,n}} )) + R
+\end{equation}
+where the dependence of $R$ on any input is $O(\epsilon)$ (with constants independent of $n, j, k$).
+This concludes the proof of the Soft Attention version of the Depth Reduction Lemma.
+
+
+%We note that \citet{hsieh2019robustness} already considered stability of a single self-attention head against input perturbations, assuming that input embeddings $v_i$ are drawn i.i.d. from the unit sphere.
+%Our results can be seen as generalizing that result to transformers with arbitrary numbers of heads and layers, while avoiding any distributional assumptions on the embedding vectors.
+
+%\paragraph{Comparison with \citet{hsieh2019robustness}}
+%Make distributional assumption.
+%Our work can be seen as extending their argument.
+
+%Fix $\epsilon > 0$.
+%TODO redo equation (9) -- it'll still be exponential in $k$, though dampened by $1/\epsilon$.
+%After this, the attention weight of any input outside of these $ck$ many ones is $\leq \epsilon$.
 
 
 \section{Discussion}\label{sec:discussion}
@@ -747,8 +820,12 @@ We intend to study these connections in future work.
 
 
 While our hard attention results hold under extremely general assumptions, the analysis of soft attention builds on regularity properties of the operations that existing transformer models are composed of.
-It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations, or infinite attention logits -- are allowed.
+It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations -- are allowed.
 One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model certain context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
+
+Our application of the Lov{\'a}sz Local Lemma leaves room for tightening, and it would be possible to bring the probability mass of the restrictions $\rho'$ avoiding $X_0, X_1, ...$  arbitrarily close to $1$ by choosing $k$ dependent on $n$, at the cost of a more complicated proof.
+As a consequence, it would be possible to show that Theorem~\ref{thm:softmax-main-adapt} holds for `almost all' restrictions $\rho$, and to derive stronger gaps between the optimal cross-entropy and the cross-entropy achievable by transformers for problems such as \textsc{2Dyck} and \textsc{Parity}.
+We leave such improvements to future work.
 
 %In the theory of Boolean circuits, the method of reducing depth has led to further results such as lower bounds on the difficulty of even approximately modeling languages such as \textsc{Parity}, 
 
