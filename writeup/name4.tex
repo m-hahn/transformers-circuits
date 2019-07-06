@@ -819,9 +819,9 @@ Intriguingly, self-attention bears some resemblance to psycholinguistic models o
 Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
 We intend to study these connections in future work.
 
-Indeed, transformers are not the only neural architecture in NLP to avoid or limit recurrence: Models such as feedforward language models (e.g., \citet{sundermeyer2013comparison}), convolutional networks (e.g.,~\citet{yin2017comparative}), and gated networks with reduced recurrence
-\cite{lei2015semi,bradbury2016quasi,dauphin2017language,lei2017deriving,levy2018long,ostmeyer2019machine} all have shown good performance on tasks such as language modeling.
-In future work, we intend to extend our theoretical analysis to such models, and investigate whether the success of recurrence-free models points to deeper statistical and formal properties of natural language.
+Indeed, transformers are not the only neural architecture in NLP to avoid or limit recurrence: Models such as feedforward language models (e.g., \citet{sundermeyer2013comparison}), convolutional networks (e.g.,~\citet{yin2017comparative}), and gated networks with restricted recurrence
+\cite{lei2015semi,bradbury2016quasi,balduzzi2016strongly,dauphin2017language,levy2018long,ostmeyer2019machine} all have shown good performance on tasks such as language modeling.
+In future work, we intend to extend our theoretical analysis to such models, and investigate whether the success of models avoiding or limiting recurrence points to deeper statistical and formal properties of natural language.
 %extend our theoretical study to such architectures.
 
 While our hard attention results hold under extremely general assumptions, the analysis of soft attention builds on regularity properties of the operations that existing transformer models are composed of.
