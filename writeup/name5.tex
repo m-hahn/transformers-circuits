@@ -140,9 +140,7 @@ Our results therefore also yield more generally limitations on the ability of se
 %Our results entail show strong theoretical limitations of self-attention:
 %Transformers essentially cannot model non-counter-free regular languages or languages containing unbounded recursion.
 
-%Given the practical success of transformers, these theoretical limitations suggest that natural language can be modeled 
-
-While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential,korsky2019computational}), the theoretical study of self-attention has begun only recently \citep{perez2019turing}.
+While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential,korsky2019computational}), the theoretical study of self-attention has begun only recently \citep{perez2019turing,hsieh2019robustness}.
 %While computational limitations of transformers have been conjectured to exist~\cite{dehghani2018universal}, 
 Our study provides the first theoretical results about limitations in the power of transformers.
 
@@ -170,6 +168,9 @@ Based on their experimental results, they suggested that LSTMs are better at lea
 Theoretical study of transformers was initiated by \citet{perez2019turing}, who theoretically studied the ability of Seq2Seq transformers to emulate the computation of Turing machines.
 %There is no contrast between their results and ours:
 While we consider incremental modeling of sequences, where the number of computation steps is bounded by the input length $n$, they study the setting in which the transformer computes an unbounded number of autoregressive decoding steps, not bounded in the input length $n$.
+Even more recently, and more closely related to our interest here, \citet{hsieh2019robustness} studied the adversarial robustness of transformers.
+While they focused on experiments on NLP tasks, they also provided a theoretical analysis, showing that a single self-attention layer with a single head will be robust against input perturbations, assuming that input embeddings are drawn uniformly from the unit sphere.
+One of our results, Lemma~\ref{lemma-stable-soft}, can be seen as considerably widening the scope of their result, both by avoiding distributional assumptions, and by applying to transformers with arbitrary numbers of heads and layers.
 
 
 \paragraph{Investigating the Power of Sequence Modeling Architectures}
