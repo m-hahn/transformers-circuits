@@ -431,7 +431,20 @@ We intend to investigate these connections in future work.
 Our approach for proving Theorem~\ref{thm:hardmax-main} will be to iteratively remove the lowest layer of a given transformer by constructing input restrictions.
 
 
-In order for this to go through, we need to first show the following result.
+
+\begin{figure}[ht]
+    \centering
+    \begin{tabular}{cccc}
+    (a) & (b) \\
+    \includegraphics[width=0.21\textwidth]{writeup/figures/restr-0.png} &
+        \includegraphics[width=0.21\textwidth]{writeup/figures/restr-2.png}&
+        \end{tabular}
+	\caption{Finding a good restriction: (a) Every attention head in the first layer could potentially attend to any input bit. (b) Surprisingly, it is possible to fix a small number of input bits in such a way that each layer-1 attention head can only possibly attend to $c$ (here, $c=1$) inputs, and ignores all other inputs.}
+	\label{fig:restr}
+\end{figure}
+
+In order for this to go through, the main challenge is to show that suitable input restrictions exist.
+This is illustrated in Figure~\ref{fig:restr}.
 TODO
 
 This process is illustrated in Figure~\ref{fig:depth-reduction}.
@@ -689,7 +702,7 @@ Changing a single input can have nonnegligible impact on the final state even fo
 E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes parity of the current prefix will flip its hidden state if a single input bit is flipped.
 
 
-This result entails that, as inputs become longer, soft attention transformers cannot robustly model many formal languages, and cannot even achieve good cross-entropies on a large class of prediction problems.
+This result entails that, as inputs become longer, soft attention transformers cannot achieve good cross-entropies on a large class of prediction problems.
 
 To make this precise, we %take a more quantitative angle and assign probability distributions over inputs for each input length $n$, and 
 consider the behavior of cross-entropy as the input length $n$ grows.
@@ -819,13 +832,13 @@ Such processing models predict difficulty with center embedding because they can
 
 
 Our results are asymptotic in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is sufficiently long.
-Given any bound on the input length, it is certainly possible to construct a transformer .
+A transformer may nonetheless be able to perform well on on short inputs; indeed, given any bound $N$ on the input length, it is certainly possible to construct a transformer that will achieve perfect performance on all examples of length $n \leq N$; our results show that the number of heads and layers, or the parameter norms, will have to increase with $N$.
 (TODO)
 
 
-While our hard attention results hold under extremely general assumptions, the analysis of soft attention builds on regularity properties of the operations that existing transformer models are composed of.
-It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations, or infinite attention logits -- are allowed.
-One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
+%While our hard attention results hold under extremely general assumptions, the analysis of soft attention builds on regularity properties of the operations that existing transformer models are composed of.
+%It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations, or infinite attention logits -- are allowed.
+%One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
 %  and \textsc{LogicalFormulas}
 
 
