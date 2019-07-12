@@ -35,6 +35,9 @@
 \newcommand{\cmark}{\ding{51}}%
 \newcommand{\xmark}{\ding{55}}%
 
+
+\newcommand{\Prob}{\mathbb{P}}%
+
 %\usepackage{pslatex}
 %\usepackage{latexsym}
 \usepackage[english]{babel}
@@ -112,18 +115,19 @@ Unlike LSTMs, transformers process input sequences entirely through self-attenti
 Previous work has suggested that the computational capabilities of self-attention to process hierarchical structures are limited.
 In this work, we mathematically investigate the computational power of self-attention to model formal languages.
 Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention, finding that it cannot model periodic finite-state languages, nor hierarchical structure, unless the number of layers or heads increases with input length.
-Our results precisely describe theoretical limitations of the techniques underlying recent advances in NLP.
+These limitations seem surprising given the practical success of self-attention and the prominent role assigned to hierarchical structure in linguistics, suggesting that natural language can be approximated well with models that are too weak for the formal languages typically assumed in theoretical linguistics. %limited modeling the formal languages typically assumed in theoretical linguistics.
+%Our results precisely describe theoretical limitations of the techniques underlying recent advances in NLP.
 \end{abstract}
 
 
-Transformers are emerging as the new workhorse of NLP; achieving the state-of-the art in tasks such as language modeling, machine translation, and creating pretrained contextualized word embeddings.
+Transformers are emerging as the new workhorse of NLP; achieving the state-of-the-art in tasks such as language modeling, machine translation, and creating pretrained contextualized word embeddings.
 %This poses the question of what kinds of structures they are capable of expressing, and what kinds of computations they are able to perform.
-Eschewing recurrent computations, transformers are entirely based on self-attention, performing their computations in a largely parallel fashion.
+Eschewing recurrent computations, transformers are entirely based on self-attention, performing their computations largely in parallel.
 This enables them to scale to very long sequences \cite{vaswani2017attention,dai2019transformer,child2019generating}.
 On the other hand, it has been suggested that this limits their expressiveness, as they cannot process input sequentially \cite{tran2018importance,dehghani2018universal,shen2018disan,chen2018best,hao2019modeling}.
 One aspect thought to be challenging for sequence models is hierarchical structure and recursion.
 Hierarchical structure is widely thought to be essential to modeling natural language, in particular its syntax~\cite{everaert2015structures}.
-Consequently, many researchers have studied the capability of recurrent neural network models to capture context-free languages (e.g., \citet{kalinke1998computation,gers2001lstm,gruning2006stack,weiss2018practical,sennhauser2018evaluating}) and linguistic phenomena involving hierarchical structure (e.g., \citet{linzen2016assessing,gulordava2018colorless}).
+Consequently, many researchers have studied the capability of recurrent neural network models to capture context-free languages (e.g., \citet{kalinke1998computation,gers2001lstm,gruning2006stack,weiss2018practical,sennhauser2018evaluating,korsky2019computational}) and linguistic phenomena involving hierarchical structure (e.g., \citet{linzen2016assessing,gulordava2018colorless}).
 Some experimental evidence suggests that transformers might not be as strong as LSTMs at modeling hierarchical structure~\cite{tran2018importance}, though analysis studies have shown that transformer-based models encode a good amount of syntactic knowledge (e.g., \citet{clark2019bert,lin2019open,tenney2019bert}).
 
 In this work, we examine these questions from a theoretical perspective, asking whether models entirely based on self-attention are theoretically capable of modeling hierarchical structures involving unbounded recursion.
@@ -132,16 +136,18 @@ First, their ability to correctly \key{close brackets}, a basic problem underlyi
 Second, their ability to \key{evaluate iterated negation}, which is a basic component of the task of evaluating logical formulas, and which amounts to evaluating the \key{\textsc{Parity}} of bitstrings.
 We show that neither of these problems can be solved by transformers and similar models relying entirely on self-attention, unless the number of layers or parameters increases with the input length.
 Besides representing basic building blocks of hierarchical structure, these languages also represent large classes of regular and context-free languages, meaning that our results will carry over to wide classes of other formal languages.
-Our results therefore also yield more generally strong limitations on the ability of self-attention to model large classes of finite-state languages and context-free languages.
+Our results therefore also yield more generally limitations on the ability of self-attention to model finite-state languages and context-free languages.
 %Our results entail show strong theoretical limitations of self-attention:
 %Transformers essentially cannot model non-counter-free regular languages or languages containing unbounded recursion.
 
-While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential}), the theoretical study of self-attention has begun only recently \citep{perez2019turing}.
+%Given the practical success of transformers, these theoretical limitations suggest that natural language can be modeled 
+
+While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential,korsky2019computational}), the theoretical study of self-attention has begun only recently \citep{perez2019turing}.
 %While computational limitations of transformers have been conjectured to exist~\cite{dehghani2018universal}, 
 Our study provides the first theoretical results about limitations in the power of transformers.
 
 After discussing related work (Section~\ref{sec:related}), we first introduce self-attention (Section~\ref{sec:def-selfatt}) and two fundamental formal languages representing regular and context-free languages (Section~\ref{sec:langs}).
-We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:soft}) attention.
+We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) or soft (Section~\ref{sec:soft}) attention.
 Finally, we discuss our results (Section~\ref{sec:discussion}).
 
 \section{Related Work}\label{sec:related}
@@ -152,7 +158,7 @@ It has been a recurrent suggestion in the literature that transformers, relying 
 %They argued that
 transformers cannot compute functions that require sequential processing of input, without providing further details or proofs.
 Similarly, \citet{shen2018disan,chen2018best,hao2019modeling} have introduced extensions of transformers with recurrence, citing similar intuitions about limitations of transformers.
-Our results provide an explicit formalization of these limitations.
+Our results provide the first explicit formalization of these limitations.
 
 Other studies have experimentally tested the abilities of transformers to learn structures.
 Most related to our work, \citet{tran2018importance} compared the ability of transformers and LSTMs to learn hierarchical structure, specifically English subject-verb agreeement and evaluating logical formulas.
@@ -174,7 +180,8 @@ A range of studies has experimentally examined the ability of recurrent networks
 Other work has experimentally studied the performance of reccurent architectures on learning to recognize well-bracketed strings, a similar but more challenging problem \cite{sennhauser2018evaluating,skachkova2018closing,bernardy2018can}.
 Beyond modeling formal languages, another line of work has studied the ability of LSTMs to model hierarchical structure as occurring in realistic natural language data \cite{linzen2016assessing,gulordava2018colorless}.
 
-Recently, \citet{merrill2019sequential} theoretically studied several types of recurrent networks, showing that -- in the finite precision setting -- LSTMs recognize a subset of the counter languages, whereas GRUs and simple RNNs recognize regular languages.
+Recently, \citet{merrill2019sequential} and \citet{korsky2019computational} theoretically studied several types of recurrent networks. \citet{merrill2019sequential} showed that -- in the finite precision setting -- LSTMs recognize a subset of the counter languages, whereas GRUs and simple RNNs recognize regular languages.
+\citet{korsky2019computational} showed, among other results, that arbitrary-precision RNNs can emulate pushdown automata, and can therefore recognize all deterministic context-free languages.
 %Inter alia, their results entail that LSTMs cannot model the multi-symbol Dyck language in the finite precision setting.
 
 
@@ -185,9 +192,10 @@ The crucial difference between these studies and studies of language recognition
 
 \section{Self-Attention}\label{sec:def-selfatt}
 Here we define self-attention as used in Transformers, following \citet{vaswani2017attention}.
-We have an input $x_1,\dots,x_n$, where $x_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
-We furthermore have a sequence $p_1, p_2, \dots$ of positional embeddings $p_i \in \mathbb{R}^k$. These are independent of the input, and can be computed through some predefined scheme, or could be learned for each position occurring in the training data \citep{vaswani2017attention}.
-Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(x_i, p_i)$ ($i=1, \dots, n$), which we will refer to as Layer 0.
+We have an input ${\bf x} = x_1 \dots x_n$, where all $x_i$ come from some finite alphabet $\mathcal{V}$, and $x_n$ is an end-of-sequence symbol.
+This input is then encoded into a sequence of input embeddings $v_1,\dots,v_n$ using some embedding map $\mathcal{V} \rightarrow \mathbb{R}^k$. %, where $v_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
+We furthermore have a sequence $p_1, p_2, \dots$ of positional embeddings $p_i \in \mathbb{R}^k$. These are independent of the input ${\bf x}$, and can be computed through some predefined scheme, or could be learned for each position occurring in the training data \citep{vaswani2017attention}.
+Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(v_i, p_i)$ ($i=1, \dots, n$), which we will refer to as Layer 0.
 
 A transformer has a fixed number $L$ of \key{layers}; the \key{activations} $y_i^{(k)}$ at position $i$ of the $k$-th layer ($k=1, \dots, L$) are defined as follows.
 Each layer has a set of $H$ \key{attention heads}; we first compute attention scores for the $h$-th head:
@@ -213,7 +221,7 @@ where $f^{act}$ is implemented as a fully-connected feedforward network with a s
 \paragraph{Hard and Soft Attention}
 There is a choice between soft attention and hard attention \cite{shen2018reinforced,perez2019turing}.
 The one prior theoretical study of transformers~\cite{perez2019turing} assumes hard attention.
-In practice, soft attention is easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
+In practice, soft attention is easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions in trained transformer models \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
 We will  examine both hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:soft}) attention settings.
 %We will see that, if arbitrary activation functions are allowed, soft attention is significantly more powerful than hard attention.
 %On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, \dots), hard and soft attention result in similar limitations.
@@ -600,13 +608,13 @@ Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set 
 We first show that the probability of $X_i$ decays exponentially in $k$.
 Let $Y_i^t$ ($t=1,\dots,k$) be the event that the layer-0 activation $j_{i_t}$ is not assigned the value that produces the highest attention weight, for the given attention head $i$.
 Note that $X_i = \bigcap_t Y_i^t$.
-We have $P(Y_i^s) = 1-(q/2)^c \in (0,1)$. % (where $q = 1-p$).
+We have $\Prob(Y_i^s) = 1-(q/2)^c \in (0,1)$. % (where $q = 1-p$).
 Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}c/C = \frac{1}{\eta}c^2/C$ other events $Y_i^{s'}$.
 Therefore, there is a set of $\geq \frac{k}{\frac{1}{\eta}c^2/C}$ independent events among these.
 Call these $Y_i^{t_1}, \dots, Y_i^{\frac{k}{\frac{1}{\eta}c^2/C}}$.
 Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} Y_i^{t_s}$, and thus
 \begin{equation}
-    P(X_i) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} P(Y_i^{t_s}) = \left(1-(q/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2/C}}
+\Prob(X_i) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} \Prob(Y_i^{t_s}) = \left(1-(q/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2/C}}
 \end{equation}
 %We use induction over $t \in \{1, \dots, k\}$ to compute the probability that none of $j_{i_1}, \dots, j_{i_t}$ are assigned to value achieving the maximal attention weight.
 %At $t=1$, the failure probability for $j_{i_1}$ is $\leq (1-(q/2)^c)$.
@@ -617,13 +625,13 @@ Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} Y_i^{t_s}$, an
 Furthermore, a Chernoff bound gives~\cite{mitzenmacherprobability}
 %\footnote{See \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 \begin{equation}
-P(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)
+\Prob(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)
 \end{equation}
 since the number of independent multinomial samples in the sampling of $\rho'$ is at least $Cn$.
 We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds: %, assuming $f \leq $:
 \begin{align}
- P(X_i) &\leq  D^k \leq A(1-B)(1-A)^{\frac{1}{\eta}c^2k^2H/C} \\
-P(X_0) &\leq \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
+\Prob(X_i) &\leq  D^k \leq A(1-B)(1-A)^{\frac{1}{\eta}c^2k^2H/C} \\
+\Prob(X_0) &\leq \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
 \end{align}
 where $D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}} \in (0,1)$. % is a constant in $(0,1)$, depending on $c$, $q$, $C$, $\eta$, but \emph{not} on $k$.
 Once we have shown this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, X_2, \dots$.
