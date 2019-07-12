@@ -170,7 +170,7 @@ Theoretical study of transformers was initiated by \citet{perez2019turing}, who 
 While we consider incremental modeling of sequences, where the number of computation steps is bounded by the input length $n$, they study the setting in which the transformer computes an unbounded number of autoregressive decoding steps, not bounded in the input length $n$.
 Even more recently, and more closely related to our interest here, \citet{hsieh2019robustness} studied the adversarial robustness of transformers.
 While they focused on experiments on NLP tasks, they also provided a theoretical analysis, showing that a single self-attention layer with a single head will be robust against input perturbations, assuming that input embeddings are drawn uniformly from the unit sphere.
-One of our results, Lemma~\ref{lemma-stable-soft}, can be seen as considerably widening the scope of their result, both by avoiding distributional assumptions, and by applying to transformers with arbitrary numbers of heads and layers.
+One of our results, Lemma~\ref{lem:soft-tech}, can be seen as considerably widening the scope of their result, both by avoiding distributional assumptions, and by applying to transformers with arbitrary numbers of heads and layers.
 
 
 \paragraph{Investigating the Power of Sequence Modeling Architectures}
@@ -196,7 +196,7 @@ Here we define self-attention as used in Transformers, following \citet{vaswani2
 We have an input ${\bf x} = x_1 \dots x_n$, where all $x_i$ come from some finite alphabet $\mathcal{V}$, and $x_n$ is an end-of-sequence symbol.
 This input is then encoded into a sequence of input embeddings $v_1,\dots,v_n$ using some embedding map $\mathcal{V} \rightarrow \mathbb{R}^k$. %, where $v_i \in \mathbb{R}^k$ are input embeddings, and we assume that $x_n$ encodes an end-of-sequence symbol.
 We furthermore have a sequence $p_1, p_2, \dots$ of positional embeddings $p_i \in \mathbb{R}^k$. These are independent of the input ${\bf x}$, and can be computed through some predefined scheme, or could be learned for each position occurring in the training data \citep{vaswani2017attention}.
-Input and positional embeddings are combined (e.g., addition or concatenation) to vectors $y_i^{(0)} = f(v_i, p_i)$ ($i=1, \dots, n$), which we will refer to as Layer 0.
+Input and positional embeddings are combined (e.g., via addition or concatenation) to vectors $y_i^{(0)} = f(v_i, p_i)$ ($i=1, \dots, n$), which we will refer to as Layer 0.
 
 A transformer has a fixed number $L$ of \key{layers}; the \key{activations} $y_i^{(k)}$ at position $i$ of the $k$-th layer ($k=1, \dots, L$) are defined as follows.
 Each layer has a set of $H$ \key{attention heads}; we first compute attention scores for the $h$-th head:
@@ -352,11 +352,11 @@ In fact, we do not even assume that the internal position-wise representations $
     \includegraphics[width=0.22\textwidth]{figures/sa3.png} &
         \includegraphics[width=0.23\textwidth]{figures/sa4.png}
         \end{tabular}
-	\caption{Iteratively reducing the layers of a transformer by fixing a few input symbols. (a) We fix a small number of input symbols, `attracting' attention from the first layer to a few inputs. (b) After this step, each activation in the first layer only depends on a small number of input symbols. (c) We again fix a few input symbols in such a way as to `attract' attention of layer-1 heads to some layer-0 activations. As a result, each layer-1 activation only depends on a small number of layer-0 activations. (d) After this step, each layer-1 activation only depends on a few inputs, and we can remove layer 1. In this example, input $X_5$ ends up being ignored by the transformer after applying the restriction.}
+	\caption{Iteratively reducing the layers of a transformer by fixing a few input symbols. (a) We fix a small number of input symbols, `attracting' attention from the first layer to a few inputs. (b) After this step, Lemma~\ref{lemma:depth-red} ensures that each activation in the first layer only depends on a small number of input symbols. (c) We again fix a few input symbols in such a way as to `attract' attention of layer-1 heads to some layer-0 activations. As a result, each layer-1 activation only depends on a small number of layer-0 activations, again by Lemma~\ref{lemma:depth-red}. (d) After this step, each layer-1 activation only depends on a few inputs, and we can remove layer 1. In this example, input $X_5$ ends up being ignored by the transformer after applying the restriction.}
 	\label{fig:depth-reduction}
 \end{figure*}
 
-We aim to prove that no transformer is capable of representing \textsc{Parity} or \textsc{Dyck}, by constructing -- for any given transformer model -- a set of input words that this model will have to misclassify.
+We aim to prove that no transformer is capable of representing \textsc{Parity} or \textsc{Dyck}, by constructing -- for any given transformer -- a set of input words that this model will have to misclassify.
 The basic idea (see Figure~\ref{fig:depth-reduction}) behind the proof is that, through fixing a small fraction of the input symbols in a particular way, we can `capture the attention' of the transformer in such a way that it ends up ignoring almost all remaining input symbols.
 %More specifically, we will use the following approach.
 %We take a transformer, and for each $n$, we consider what happens if we apply this transformer to inputs of that length.
@@ -437,8 +437,10 @@ We intend to investigate these connections in future work.
 %As a corollary, we can show that: (1) Among regular languages, hard-attention transformers can at most model counter-free languages. (2) Among context-free languages that explicitly mark their hierarchical structure through bracketing (such as $a^nb^n$ and \textsc{2Dyck})
 
 \paragraph{Proof Idea of the Theorem}
-Our approach for proving Theorem~\ref{thm:hardmax-main} will be to iteratively remove the lowest layer of a given transformer by constructing input restrictions.
-
+Our approach for proving Theorem~\ref{thm:hardmax-main} will be to iteratively remove the lowest layer of a given transformer by applying input restrictions, until only the final prediction $y_n^{(L)}$ remains. %by constructing input restrictions.
+In order for this to go through, the main challenge is to construct suitable restrictions:
+As illustrated in Figure~\ref{fig:restr}, these should only affect a few input bits (namely, $Cn$ many input bits), while forcing each attention head in the first layer to ignore all but $c$ input bits.
+Perhaps surprisingly, this is possible; the idea is to fix input bits that achieve particularly high attention scores for several heads, so that input bits that cannot achieve as high attention scores will be ignored.
 
 
 \begin{figure}[ht]
@@ -452,33 +454,30 @@ Our approach for proving Theorem~\ref{thm:hardmax-main} will be to iteratively r
 	\label{fig:restr}
 \end{figure}
 
-In order for this to go through, the main challenge is to show that suitable input restrictions exist.
-This is illustrated in Figure~\ref{fig:restr}.
-TODO
-
-This process is illustrated in Figure~\ref{fig:depth-reduction}.
-After the first step, each of the heads in the first layer will only depend on a bounded number $c$ of input positions.
+Once we have shown that such a restriction always exists, we can use this technique to iteratively remove layers, as illustrated in Figure~\ref{fig:depth-reduction}.
+After we have applied the first such restriction, each of the heads in the first layer will only depend on a bounded number $c$ of input positions.
 In the second step, we apply the same argument to the heads in the second layer, so that each head in the second layer only depends on a bounded number $c'$ of heads in the first layer.
 After this step, we can collapse the first layer into a collection of feedforward networks that transform a bounded number $\leq cc'$ of input positions into an activation $y_i^{(0)}$ of the lowest layer.
 After this step, the first layer has been entirely removed.
 Iterating this argument, we remove all layers until the prediction output only depends on a bounded number of input positions, bounded independently of input length.
 
-After the removal of a layer, the resulting structure is not a transformer any more, as each head in the lowest layer now depends on a \emph{combination} of input positions.
+We now make these ideas formal.
+After the removal of the first layer of a transformer, the resulting structure is not a transformer any more, as each head in the lowest layer now depends on a \emph{combination} of input positions.
 We introduce a technical definition to make this concept precise:
 
 \begin{defin}[$c$-Transformer]
 Let $c$ a positive integer. A $c$-transformer of depth $d$ is one in which the layer-0 activations $y_j^0$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions:
 \begin{equation}
-    y_j^0 = f^{inp}_{n,j}((x_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (x_{i_c^{j},n}, p_{i_c^{j,n}} ))
+    y_j^0 = f^{inp}_{n,j}((v_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (v_{i_c^{j},n}, p_{i_c^{j,n}} ))
 \end{equation}
-Here, the indices $x_{i_s^{j,n}}$ depend on the input length $n$.
+Here, the indices ${i_s^{j,n}}$ depend on the input length $n$.
 \end{defin}
 
 Note that an ordinary transformer  of depth $d$ is also a $1$-transformer of depth $d$.
 
 
 With this technical notion, we show that we can reduce layers, iteratively removing the lowest layer until no self-attention layer is left:
-\begin{lemma}[Depth Reduction Lemma]
+\begin{lemma}[Depth Reduction Lemma]\label{lemma:depth-red}
 Given a $c$-transformer with $d$ layers, and some restriction $\rho$ such that
 \begin{equation}
 |\{i \leq n: \rho_n(i) = *\}| \geq Cn
@@ -512,8 +511,8 @@ Then, after applying the resulting restriction, the final activation $y_{n}^{(L)
 %\begin{proof}
 \subsection{Proving the Depth Reduction Lemma}
 The rest of this section will be devoted to proving the Depth Reduction Lemma.
-We will do the first part of the argument for any integer $k \in \mathbb{N}$.
-In the second part, we will select a sufficiently large $k$.
+We will do the first part of the argument for all possible values of the integer $k \in \mathbb{N}$.
+In the second part, we will select a sufficiently large $k$. % that will work for all input lengths $n$.
 %The aim is that $c' := ck$.
 
 \paragraph{Part 1: Preliminaries}
@@ -525,15 +524,16 @@ In the second part, we will select a sufficiently large $k$.
 We construct the restrictions $\rho'_n$ separately for each $n$.
 For each layer-1 attention head $h$ at position $i$ and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
 \begin{equation}
-\max_{x_1\dots x_n} f^{att}_{k,h}(y_i^{1}, y^{1}_j)
+\max_{x_1\dots x_n} f^{att}_{k,h}(y^{1}_i, y^{1}_j)
 \end{equation}
-We order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1, \dots, j_n$ for each layer-1 attention head $h$ at a position $i$ (In the case of ties, we order by  position).
+We order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1, \dots, j_n$ for each layer-1 attention head $h$ at a position $i$ (In the case of ties, we order by  position, by Footnote 1).
 
-For each layer-1 attention head, we then select a sequence $1 \leq i_1 < i_2 < \dots < i_k \leq n$ such that (1) for each $i_s$, there is at least one input that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
+For each layer-1 attention head, we then select a sequence $1 \leq i_1 < i_2 < \dots < i_k \leq n$ such that (1) for each $i_s$, there is at least one input $x_q$ that only feeds into the element $j_{i_s}$ and no other $j_{i_s'}$, (2) $i_k$ is minimal, i.e. there is no subsequence with smaller $i_k$ that also satisfies (1).
 There is only one case in which we cannot find such a subsequence, which is if all $j_1, \dots, j_n$ together depend only on $< ck$ inputs, in which case this head already satisfies the condition we're aiming for.
 
 A layer-1 head $k$-\textbf{depends} on some input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r$ for $r \leq i_k$.
 A layer-1 head $k$-depends on an input if and only if that input appears as an input to some $j_{i_s}$ ($s \leq k$). (This is since $i_k$ is minimal).
+In particular, a layer-1 head $k$-depends only on $\leq ck$ input variables.
 
 Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s}$ for one and $j_{i_s'}$ for the other both $k$-depend on some input $x_l$.
 
@@ -543,18 +543,16 @@ Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s}$ for one and $j_{i_
 %So let's assume there are heads with $f > 2c^2k^2H$ many neighbors (we do this argument for all values of $n$).
 %Any head only depends on $\leq ck$ many inputs; by the Pigeonhole principle, this means,
 
-We will construct input restrictions using probabilistic arguments over i.i.d. random restrictions.
+We will construct input restrictions $\rho'_n$ using probabilistic arguments over i.i.d. random restrictions.
 For this approach to succeed, we require a  sufficient amount of independence between the activations of different heads in layer 1.
 We thus need to ensure that the number of neighbors of each head is bounded.
 
 Fix some $\eta \in (0,1)$ (to be chosen later).
-
 Let $H$ be the number of attention heads in each position of layer 1.
 First, assume there is some input that has $>\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads.
-%We now show that the number of such inputs is small, and that we can remove those WLOG.
 Assume the number of such inputs is larger than $\eta Cn$ for some $n$.
-Then, the number of pairs of inputs and depending level-2 heads would be more than $> \eta C n \cdot \frac{1}{\eta} H k c/C = Hckn$ for this $n$.
-On the other hand, there are only $\leq Hckn$ many pairs of inputs and depending layer-1 heads -- contradiction.
+Then, the number of pairs of inputs and $k$-depending level-1 heads would be more than $> \eta C n \cdot \frac{1}{\eta} H k c/C = Hckn$ for this $n$.
+On the other hand, there are only $\leq Hckn$ many pairs of inputs and $k$-depending layer-1 heads -- contradiction.
 Thus, the number of such inputs is at most $\leq \eta Cn$ for all $n$.
 We can therefore modify the restriction $\rho_n$ so that they are set to some fixed value (doesn't matter which one) for these $<\eta Cn$ inputs, and unchanged for the others.
 After this manipulation, every input has at most $\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads, independent of $n$.
@@ -603,39 +601,49 @@ In order to prove the existence of suitable input restrictions, we apply the ``p
 
 For each input length $n$, define the distribution that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q \in (0,1)$ (to be chosen later), and $1$ or $0$ with equal probability else.
 On those inputs where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
-For the $i$-th layer-1 attention head (there are at most $Hn$ many such), define $X_i$ to be the event that, for the $i$-th head, none of $j_{i_1}, \dots, j_{i_k}$ are assigned the value that produces the highest attention weight (each of these is assigned either the other value, or $*$).
-Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set to $0/1$.
+For the $i$-th layer-1 attention head (there are at most $Hn$ many such), define $X_i$ to be the event that, for the $i$-th head, none of $j_{i_1}, \dots, j_{i_k}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
+Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set to $0/1$ (where $\delta \in (0,1)$, to be fixed later).
+Our goal will be to show that a nonzero amount of probability mass is assigned to restrictions $\rho_n'$ avoiding all events $X_0, X_1, X_2, \dots, X_{Hn}$.
 
-We first show that the probability of $X_i$ decays exponentially in $k$.
+First, a Chernoff bound gives~\cite[Theorem 4.4]{mitzenmacherprobability}
+%\footnote{See \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
+\begin{equation}
+\Prob(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{3}\right)
+\end{equation}
+since the number of independent multinomial samples in the sampling of $\rho'$ is at least $Cn$.
+
+Second, we show that the probability of $X_i$ ($i=1,2,\dots, Hn$) decays exponentially in $k$.
 Let $Y_i^t$ ($t=1,\dots,k$) be the event that the layer-0 activation $j_{i_t}$ is not assigned the value that produces the highest attention weight, for the given attention head $i$.
 Note that $X_i = \bigcap_t Y_i^t$.
 We have $\Prob(Y_i^s) = 1-(q/2)^c \in (0,1)$. % (where $q = 1-p$).
-Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}c/C = \frac{1}{\eta}c^2/C$ other events $Y_i^{s'}$.
+Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}c/C = \frac{1}{\eta}c^2/C$ other events $Y_i^{s'}$, because each input has at most $\frac{1}{\eta} c/C$ depending layer-0 heads.
 Therefore, there is a set of $\geq \frac{k}{\frac{1}{\eta}c^2/C}$ independent events among these.
 Call these $Y_i^{t_1}, \dots, Y_i^{\frac{k}{\frac{1}{\eta}c^2/C}}$.
 Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} Y_i^{t_s}$, and thus
 \begin{equation}
 \Prob(X_i) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} \Prob(Y_i^{t_s}) = \left(1-(q/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2/C}}
 \end{equation}
+for each $i=1, 2, \dots, Hn$.
 %We use induction over $t \in \{1, \dots, k\}$ to compute the probability that none of $j_{i_1}, \dots, j_{i_t}$ are assigned to value achieving the maximal attention weight.
 %At $t=1$, the failure probability for $j_{i_1}$ is $\leq (1-(q/2)^c)$.
 %For $t+1$: Assume that $j_{i_{t+1}}$ introduces $w > 0$ new input variables not occurring in $j_{i_1}, \dots, j_{i_1}$.
 %Failure probability is $\leq F_t \cdot (1-(q/2)^w)$.
 %TODO maybe this isn't actually strict enough
 %\end{proof}
-Furthermore, a Chernoff bound gives~\cite{mitzenmacherprobability}
-%\footnote{See \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
-\begin{equation}
-\Prob(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)
-\end{equation}
-since the number of independent multinomial samples in the sampling of $\rho'$ is at least $Cn$.
-We want to show that we can find $q \in (0,1)$, $A, B \in (0,1)$ such that the following holds: %, assuming $f \leq $:
+
+
+In order to conclude that there is a restriction $\rho'_n$ avoiding all events $X_0, X_1, X_2, \dots, X_{Hn}$, we will apply the Lov{\'a}sz Local Lemma \cite[Theorem 6.17]{mitzenmacherprobability}.
+This lemma requires that the amount of statistical dependencies between these events be sufficiently `limited'.
+Indeed, each event $X_i$ ($i=1,2,\dots, Hn$) is statistically independent of the set $\{X_j : \text{heads } j \text{ and } i \text{ are not $k$-neighbors}\}$.
+The complement of this set has cardinality $\leq f= \frac{1}{\eta}c^2k^2H/C$.
+By the Lov{\'a}sz Local Lemma, it is therefore sufficient to find  $A, B \in (0,1)$ such that the following inuequalities hold: %, assuming $f \leq $:
 \begin{align}
-\Prob(X_i) &\leq  D^k \leq A(1-B)(1-A)^{\frac{1}{\eta}c^2k^2H/C} \\
-\Prob(X_0) &\leq \exp\left(-\frac{\delta^2qCn}{(2+\delta)}\right)  \leq B (1-A)^{Hn}
+\Prob(X_i) &\leq  D^k \leq A(1-B)(1-A)^{f} \\
+\Prob(X_0) &\leq \exp\left(-\frac{\delta^2qCn}{3}\right)  \leq B (1-A)^{Hn}
 \end{align}
 where $D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}} \in (0,1)$. % is a constant in $(0,1)$, depending on $c$, $q$, $C$, $\eta$, but \emph{not} on $k$.
-Once we have shown this, then by the asymmetric Lov{\'a}sz Local Lemma \cite{mitzenmacherprobability}, there is some input restriction that avoids all events $X_0, X_1, X_2, \dots$.
+Once we have shown this, then the Lov{\'a}sz Local Lemma guarantees that there is some input restriction that avoids all events $X_0, X_1, X_2, \dots$:
+
 
 Choose %$q=0.5$, $\delta=0.5$, 
 $A=\frac{1}{\frac{1}{\eta}Hk^2c^2/C}$, $B=0.5$.
@@ -651,11 +659,11 @@ Also, $\lim_{k\rightarrow \infty} (1-A)^{\frac{1}{\eta}kc^2H/C}$ equals
 \begin{equation}
 \lim_{k\rightarrow \infty} \left(1-\frac{1}{Ek^2}\right)^{Ek} = \lim_{k\rightarrow \infty} \left(1-\frac{E}{k^2}\right)^{k} = 1
 \end{equation}
-where we choose $E = \frac{1}{\eta}c^2H/C$. So, if we choose $k$ large enough (independently of $n$), the RHS of (\ref{eq:x1-ineq}) can be made arbitrarily close to $1$, in particular, greater than the LHS.
+where we choose $E = \frac{1}{\eta}c^2H/C$. So, if we choose $k$ large enough (independently of $n$), the RHS of (\ref{eq:x1-ineq}) can be made arbitrarily close to $1$, in particular, greater than the LHS $D$.
 
 In order to also satisfy
 \begin{equation}
-\exp\left(-\frac{\delta^2qC}{(2+\delta)}\right)  \leq B^{1/n} (1-A)^H
+\exp\left(-\frac{\delta^2qC}{3}\right)  \leq B^{1/n} (1-A)^H
 \end{equation}
 make $n$, $k$ large enough to satisfy the inequality (again, choosing $k$ independent of $n$). %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
 In conclusion, there exists, for each sufficiently-large $n$, a restriction $\rho'_n$ that avoids all events $X_0, X_1, X_2, \dots$.
@@ -698,20 +706,22 @@ This concludes the proof of the Depth Reduction Lemma.
 
 In the previous section, we showed that transformers using hard attention are not able to recognize a range of core formal languages.
 In this section, we study soft attention.
-It turns out that proving limitations as strong as what we found in the hard attention setting would settle a major open problem in computational complexity, and may therefore be extremely hard to obtain with currently available mathematical methods.\footnote{Showing that soft attention transformers cannot achieve perfect accuracy on evaluating Boolean formulas would separate the complexity classes $LTC^0$ and $NC^1$, a widely conjectured but long-open problem in computational complexity.}
-Nonetheless, we will be able to prove similar limitations in this setting, by showing limitations on the  achievable \emph{perplexity} in predicting the next symbol in an input.
+It turns out that proving limitations as strong as what we found in the hard attention setting would settle a major open problem in computational complexity, and would therefore probably be very hard to attain with currently available mathematical methods.\footnote{Showing that soft attention transformers cannot achieve perfect accuracy on evaluating Boolean formulas would separate the complexity classes $LTC^0$ and $NC^1$, a widely conjectured but long-open problem in computational complexity.}
+Nonetheless, we will be able to prove limitations in this setting, by considering the  achievable \emph{perplexity} in predicting the next symbol in an input.
 We will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
 The idea behind the proof is that the impact of any single input on the output of the transformer is small if the input is long:
 \begin{lemma}\label{lem:soft-tech}
-If we exchange one input symbol, %a single input bit $x_i$ with the bit $x_i'$
-then the change in the resulting activations at the decoder layers is bounded as $\mathcal{O}(\frac{1}{n})$ with constants depending on the parameter matrices, where $n$ is the input length. %, $k$ is the number of layers, and $C$ is the summed norm of the parameter matrices.
+Let a soft attention transformer be given, and let $n$ be the input length.
+If we exchange one input symbol $x_i$ ($i < n$), %a single input bit $x_i$ with the bit $x_i'$
+then the change in the resulting activation $y_n^{(L)}$ at the decoder layer is bounded as $\mathcal{O}(\frac{1}{n})$ with constants depending on the parameter matrices. %, where $n$ is the input length. %, $k$ is the number of layers, and $C$ is the summed norm of the parameter matrices.
 \end{lemma}
 This contrasts with recurrent networks:
 Changing a single input can have nonnegligible impact on the final state even for very long input.
 E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes parity of the current prefix will flip its hidden state if a single input bit is flipped.
 
 
-This result entails that, as inputs become longer, soft attention transformers cannot achieve good cross-entropies on a large class of prediction problems.
+This result entails that, as inputs become longer, soft attention transformers cannot achieve good cross-entropies on a large class of prediction problems:
+A Lipschitz-continuous prediction function, such as a ReLU MLP followed by a softmax operation, will not be able to make very different predictions for inputs that are encoded into very similar activation vectors $y_n^{(L)}$.
 
 To make this precise, we %take a more quantitative angle and assign probability distributions over inputs for each input length $n$, and 
 consider the behavior of cross-entropy as the input length $n$ grows.
@@ -742,7 +752,7 @@ In all other cases, the correct label includes one of the two closing parenthese
 Having established the main theorem, we proceed to proving the technical Lemma~\ref{lem:soft-tech}:
 \begin{proof}[Proof of Lemma~\ref{lem:soft-tech}]
 Let us compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
-Let $D = \|x_i-x_i'\|_2$ the norm of the difference of the input embeddings at this position.
+Let $D = \|v_i-v_i'\|_2$ the norm of the difference of the input embeddings at this position.
 
 	We show by induction over $k$ that, for some some $C > 0$ (depending on the parameter matrices) the difference between the activations $y_j^k$, ${y_j^k}'$ are bounded as: %at this position are bounded independently of input length $n$:
 \begin{equation}
@@ -758,7 +768,7 @@ For $k=0$, $\|y_i^0 - {y_i^0}'\| \leq D$,\footnote{We are assuming that $f$ is a
 and %, where $L_f$ is the Lipschitz constant of the operation $f$ combining position and input embeddings.
 $\|y_j^0 - {y_j^0}'\| = 0$ for $j \neq i$.
 
-For $k>0$, we first note that for activations $\|y_i^k\|_2 \leq 2 \left(L_{f^{act}}\right)^{L}  (\|p_i\| + \|x_i\|) =: F$, where
+For $k>0$, we first note that for activations $\|y_i^k\|_2 \leq 2 \left(L_{f^{act}}\right)^{L}  (\|p_i\| + \|v_i\|) =: F$, where
 $L_{f^{act}}$ is the Lipschitz constant of $f^{act}$.
 As $f^{act}$ is implemented as a ReLU MLP \cite{vaswani2017attention}, $L_{f^{act}}$ depends on the norms of the parameter matrices.
 Attention logits are bounded by $A := F^2 L_{f^{att}}$ in the case of multiplicative/bilinear attention, and $A := 2 F L_{f^{att}}$ in the case of additive attention.
@@ -810,6 +820,12 @@ This proves the inductive step for $k>0$.
 
 We have shown that, even with infinite precision, transformers cannot robustly model non-counter-free regular languages, nor basic hierarchical structure.
 
+
+
+Our results are asymptotic in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is sufficiently long.
+A transformer may nonetheless be able to perform well on on short inputs; indeed, given any bound $N$ on the input length, it is certainly possible to construct a transformer that will achieve perfect performance on all examples of length $n \leq N$; our results show that the number of heads and layers, or the parameter norms, will have to increase with $N$.
+
+
 How do our results compare to what is known about LSTMs?
 Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model any finite state language with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with perfect accuracy and cross-entropy, independent of the input length.
@@ -839,10 +855,6 @@ For instance, it has long been noted that center embeddings, syntactic structure
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
 Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
 
-
-Our results are asymptotic in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is sufficiently long.
-A transformer may nonetheless be able to perform well on on short inputs; indeed, given any bound $N$ on the input length, it is certainly possible to construct a transformer that will achieve perfect performance on all examples of length $n \leq N$; our results show that the number of heads and layers, or the parameter norms, will have to increase with $N$.
-(TODO)
 
 
 %While our hard attention results hold under extremely general assumptions, the analysis of soft attention builds on regularity properties of the operations that existing transformer models are composed of.
