@@ -115,11 +115,12 @@ Unlike LSTMs, transformers process input sequences entirely through self-attenti
 Previous work has suggested that the computational capabilities of self-attention to process hierarchical structures are limited.
 In this work, we mathematically investigate the computational power of self-attention to model formal languages.
 Across both soft and hard attention, we show strong theoretical limitations of the computational abilities of self-attention, finding that it cannot model periodic finite-state languages, nor hierarchical structure, unless the number of layers or heads increases with input length.
-Our results precisely describe theoretical limitations of the techniques underlying recent advances in NLP.
+These limitations seem surprising given the practical success of self-attention and the prominent role assigned to hierarchical structure in linguistics, suggesting that natural language can be approximated well with models that are too weak for the formal languages typically assumed in theoretical linguistics. %limited modeling the formal languages typically assumed in theoretical linguistics.
+%Our results precisely describe theoretical limitations of the techniques underlying recent advances in NLP.
 \end{abstract}
 
 
-Transformers are emerging as the new workhorse of NLP; achieving the state-of-the art in tasks such as language modeling, machine translation, and creating pretrained contextualized word embeddings.
+Transformers are emerging as the new workhorse of NLP; achieving the state-of-the-art in tasks such as language modeling, machine translation, and creating pretrained contextualized word embeddings.
 %This poses the question of what kinds of structures they are capable of expressing, and what kinds of computations they are able to perform.
 Eschewing recurrent computations, transformers are entirely based on self-attention, performing their computations largely in parallel.
 This enables them to scale to very long sequences \cite{vaswani2017attention,dai2019transformer,child2019generating}.
@@ -135,9 +136,11 @@ First, their ability to correctly \key{close brackets}, a basic problem underlyi
 Second, their ability to \key{evaluate iterated negation}, which is a basic component of the task of evaluating logical formulas, and which amounts to evaluating the \key{\textsc{Parity}} of bitstrings.
 We show that neither of these problems can be solved by transformers and similar models relying entirely on self-attention, unless the number of layers or parameters increases with the input length.
 Besides representing basic building blocks of hierarchical structure, these languages also represent large classes of regular and context-free languages, meaning that our results will carry over to wide classes of other formal languages.
-Our results therefore also yield more generally strong limitations on the ability of self-attention to model large classes of finite-state languages and context-free languages.
+Our results therefore also yield more generally limitations on the ability of self-attention to model finite-state languages and context-free languages.
 %Our results entail show strong theoretical limitations of self-attention:
 %Transformers essentially cannot model non-counter-free regular languages or languages containing unbounded recursion.
+
+%Given the practical success of transformers, these theoretical limitations suggest that natural language can be modeled 
 
 While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential,korsky2019computational}), the theoretical study of self-attention has begun only recently \citep{perez2019turing}.
 %While computational limitations of transformers have been conjectured to exist~\cite{dehghani2018universal}, 
