@@ -145,7 +145,7 @@ Our results therefore also yield more generally limitations on the ability of se
 
 While theoretical work has investigated the power of recurrent neural networks in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential}), the theoretical study of self-attention has begun only recently \citep{perez2019turing,hsieh2019robustness}.
 %While computational limitations of transformers have been conjectured to exist~\cite{dehghani2018universal}, 
-Our study provides the first theoretical results on limitations in the power of transformers.
+Our study provides the first theoretical results on limitations in the power of self-attention.
 
 After discussing related work (Section~\ref{sec:related}), we first introduce self-attention (Section~\ref{sec:def-selfatt}) and two fundamental formal languages representing regular and context-free languages (Section~\ref{sec:langs}).
 We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) or soft (Section~\ref{sec:soft}) attention.
@@ -356,7 +356,7 @@ In fact, we do not even assume that the internal position-wise representations $
 	\label{fig:depth-reduction}
 \end{figure*}
 
-We aim to prove that no transformer is capable of representing \textsc{Parity} or \textsc{Dyck}, by constructing -- for any given transformer -- a set of input words that this model will have to misclassify.
+We aim to prove that no transformer is capable of representing \textsc{Parity} or \textsc{2Dyck}, by constructing -- for any given transformer model -- a set of input words that this model will have to misclassify.
 The basic idea (see Figure~\ref{fig:depth-reduction}) behind the proof is that, through fixing a small fraction of the input symbols in a particular way, we can `capture the attention' of the transformer in such a way that it ends up ignoring almost all remaining input symbols.
 %More specifically, we will use the following approach.
 %We take a transformer, and for each $n$, we consider what happens if we apply this transformer to inputs of that length.
@@ -437,10 +437,11 @@ We intend to investigate these connections in future work.
 %As a corollary, we can show that: (1) Among regular languages, hard-attention transformers can at most model counter-free languages. (2) Among context-free languages that explicitly mark their hierarchical structure through bracketing (such as $a^nb^n$ and \textsc{2Dyck})
 
 \paragraph{Proof Idea of the Theorem}
-Our approach for proving Theorem~\ref{thm:hardmax-main} will be to iteratively remove the lowest layer of a given transformer by applying input restrictions, until only the final prediction $y_n^{(L)}$ remains. %by constructing input restrictions.
-In order for this to go through, the main challenge is to construct suitable restrictions:
-As illustrated in Figure~\ref{fig:restr}, these should only affect a few input bits (namely, $Cn$ many input bits), while forcing each attention head in the first layer to ignore all but $c$ input bits.
+Our approach for proving Theorem~\ref{thm:hardmax-main} will be to construct input restrictions in a layerwise manner, starting from the first layer. %that make each attention head in the first layer ignore all but $c$ inputs, and then iterate this construction for higher layers. %iteratively remove the lowest layer of a given transformer by applying input restrictions, until only the final prediction $y_n^{(L)}$ remains. %by constructing input restrictions.
+In order for this to go through, the main challenge is to construct a suitable restriction at a given layer:
+As illustrated in Figure~\ref{fig:restr}, this restriction should only affect a few input bits (namely, $Cn$ many input bits), while forcing each attention head in the first layer to ignore all but $c$ input bits.
 Perhaps surprisingly, this is possible; the idea is to fix input bits that achieve particularly high attention scores for several heads, so that input bits that cannot achieve as high attention scores will be ignored.
+
 
 
 \begin{figure}[ht]
@@ -454,7 +455,7 @@ Perhaps surprisingly, this is possible; the idea is to fix input bits that achie
 	\label{fig:restr}
 \end{figure}
 
-Once we have shown that such a restriction always exists, we can use this technique to iteratively remove layers, as illustrated in Figure~\ref{fig:depth-reduction}.
+Once we have shown that such a restriction always exists, we can use this technique to iteratively remove layers, as illustrated in Figure~\ref{fig:depth-reduction}:
 After we have applied the first such restriction, each of the heads in the first layer will only depend on a bounded number $c$ of input positions.
 In the second step, we apply the same argument to the heads in the second layer, so that each head in the second layer only depends on a bounded number $c'$ of heads in the first layer.
 After this step, we can collapse the first layer into a collection of feedforward networks that transform a bounded number $\leq cc'$ of input positions into an activation $y_i^{(0)}$ of the lowest layer.
@@ -510,7 +511,7 @@ Then, after applying the resulting restriction, the final activation $y_{n}^{(L)
 
 %\begin{proof}
 \subsection{Proving the Depth Reduction Lemma}
-The rest of this section will be devoted to proving the Depth Reduction Lemma.
+This section will be devoted to proving the Depth Reduction Lemma.
 We will do the first part of the argument for all possible values of the integer $k \in \mathbb{N}$.
 In the second part, we will select a sufficiently large $k$. % that will work for all input lengths $n$.
 %The aim is that $c' := ck$.
