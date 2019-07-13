@@ -480,9 +480,9 @@ After the removal of the first layer of a transformer, the resulting structure i
 We introduce a technical definition to make this concept precise:
 
 \begin{defin}[$c$-Transformer]
-Let $c$ a positive integer. A $c$-transformer of depth $d$ is one in which the layer-0 activations $y_j^0$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions:
+Let $c$ a positive integer. A $c$-transformer of depth $d$ is one in which the layer-0 activations $y_j^{(0)}$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions:
 \begin{equation}
-    y_j^0 = f^{inp}_{n,j}((v_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (v_{i_c^{j},n}, p_{i_c^{j,n}} ))
+    y_j^{(0)} = f^{inp}_{n,j}((v_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (v_{i_c^{j},n}, p_{i_c^{j,n}} ))
 \end{equation}
 Here, the indices ${i_s^{j,n}}$ depend on the input length $n$.
 \end{defin}
@@ -537,7 +537,7 @@ In the second part, we will select a sufficiently large $k$. % that will work fo
 We construct the restrictions $\rho'_n$ separately for each $n$.
 For each layer-1 attention head $h$ at position $i$ and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
 \begin{equation}
-\max_{x_1\dots x_n} f^{att}_{k,h}(y^{1}_i, y^{1}_j)
+\max_{x_1\dots x_n} f^{att}_{k,h}(y^{(0)}_i, y^{(0)}_j)
 \end{equation}
 We order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1, \dots, j_n$ for each layer-1 attention head $h$ at a position $i$ (In the case of ties, we order by  position, by Footnote 1).
 
@@ -561,58 +561,38 @@ We thus need to ensure that the number of $k$-neighbors of each head is bounded.
 
 Fix some $\eta \in (0,1)$ (to be chosen later).
 Let $H$ be the number of attention heads in each position of layer 1.
-First, assume there is some input that has $>\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads.
-Assume the number of such inputs is larger than $\eta Cn$ for some $n$.
-Then, the number of pairs of inputs and $k$-depending level-1 heads would be more than $> \eta C n \cdot \frac{1}{\eta} H k c/C = Hckn$ for this $n$.
-But there are only $\leq Hckn$ many pairs of inputs and $k$-depending layer-1 heads -- contradiction.
-Thus, the number of such inputs is at most $\leq \eta Cn$ for all $n$.
-We can therefore modify the restriction $\rho_n$ so that they are set to some fixed value (doesn't matter which one) for these $<\eta Cn$ inputs, and unchanged for the others.
-After this manipulation, every input has at most $\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads, independent of $n$.
+First, assume there is some input bit that has $>\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads.
+Assume the number of such input bits is larger than $\eta Cn$ for some $n$.
+Then, the number of pairs of input bits and $k$-depending level-1 heads would be more than $> \eta C n \cdot \frac{1}{\eta} H k c/C = Hckn$ for this $n$.
+But there are only $\leq Hckn$ many pairs of input bits and $k$-depending layer-1 heads -- contradiction.
+Thus, the number of such input bits is at most $\leq \eta Cn$ for all $n$.
+We can therefore modify the restriction $\rho_n$ so that they are set to some fixed value (doesn't matter which one) for these $<\eta Cn$ input bits, and unchanged for the others.
+After this manipulation, every input bit has at most $\frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads, independent of $n$.
 
-Furthermore, assume the number of inputs with $> \frac{1}{\eta} c/C$ depending layer-0 activations is $\geq \eta Cn$.
-Then the number of pairs of inputs and layer-0 activations is $>\eta Cn \cdot \frac{1}{\eta} c/C = nc$.
+Furthermore, assume the number of input bits with $> \frac{1}{\eta} c/C$ depending layer-0 activations is $\geq \eta Cn$.
+Then the number of pairs of input bits and layer-0 activations is $>\eta Cn \cdot \frac{1}{\eta} c/C = nc$.
 But there are at most $nc$ such pairs, contradiction.
-So the number of inputs with $> \frac{1}{\eta} c/C$ depending layer-0 heads is $\leq \eta Cn$.
-We can again restrict these inputs to some fixed value (again, it doesn't matter which one).
+So the number of input bits with $> \frac{1}{\eta} c/C$ depending layer-0 heads is $\leq \eta Cn$.
+We can again restrict these input bits to some fixed value (again, it doesn't matter which one).
 
 After these preparations, for $n$ large enough,
 \begin{equation}
 |\{i \leq n: \rho_n(i) = *\}| \geq (1-\eta)^2 C n
 \end{equation}
 
-%Now consider those layer-1 heads that have $f > 2c^2k^2$ many $k$-neighbors.
-
-%If there are $\leq n/(1.1c)$ many such heads (for some infinite subsequence of $n$'s -- we can throw away the other $n$'s -- for bad $n$'s, we just fix every input, and they'll drop out of the $\limsup$), then we can fix them manually, fixing only $\leq n/1.1$ many inputs. [I don't think we need this case -- the Case A below subsumes this, and doesn't presuppose the existence of many bad elements]
-
-%So there are $> n/(1.1c)$ many such elements with $f > 2c^2k^2$ many neighbors (for all but finitely many $n$ -- we can throw away the other $n$'s).
-%By the Pigeonhole principle, this means, there is some input that has $> 2kc$ many $k$-depending layer-1 heads.
-
-%\begin{enumerate}
-%\item Case A: the number of inputs with $\leq 2Hkc$ many $k$-depending layer-1-heads is $o(n)$ as $n\rightarrow\infty$, so the number of inputs with $> 2Hkc$ attached layer-1-heads dominates any linear fraction. Then, the number of pairs of inputs and depending level-2 heads would be at least $0.99 \cdot n 2 H k c > Hckn$ for $n$ sufficiently large. On the other hand, there are only $Hckn$ many pairs of inputs and depending level-2 heads.
-
-%\item Case B: The number of inputs without $> 2kcH$ many $k$-depending layer-1-heads is $\Omega(n)$ as $n\rightarrow \infty$, in which case we can just fix these bad inputs (whose complement is asymptotically at least linearly large) to a fixed value. After this manipulation, $f \leq 2k^2c^2H$. We have hit only a linear fraction of inputs; by Remark above, we can rewrite this into a $c$-transformer with a potentially larger number of heads.
-%\end{enumerate}
-
-%NOTE:
-%The number of pairs between input and level-2 heads is $\leq Hckn$.
-%So the number of heads where that have more than $100 Hck$ attached layer-1 heads is $\leq n/100$.
-%So we can make the fraction of replaced inputs very small.
-
-%The number of heads that have to be satisfied is now $\leq Cn$, for some $C$ that was determined by the manipulations we made above. (this means that the restriction to one head per $n$ was unnecessary)
-
 \paragraph{Part 2: Constructing Restrictions}
-After the previous part, every input has $\leq \frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads, and consequently every layer-1 head has at most $f \leq \frac{1}{\eta}c^2k^2H/C$ many $k$-neighbors (for any $k$).
+After the previous part, every input bit has $\leq \frac{1}{\eta}kcH/C$ many $k$-depending layer-1 heads, and consequently every layer-1 head has at most $f \leq \frac{1}{\eta}c^2k^2H/C$ many $k$-neighbors (for any $k$).
 %(Note that the transformations carried out above could at most have increased the value of $H$).
-Also, every input has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
+Also, every input bit has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 
 % after applying restrictions $\rho_n$ such that $\limsup_{n\rightarrow\infty} |\{i \leq n: \rho_n(i) = *\}| = +\infty$.
 %Note that the previous part works for any $k$; we will choose a suitable $k$ in this section.
 
 In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 For each input length $n$, define the distribution over restrictions $\rho_n'$ that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q \in (0,1)$ (to be chosen later), and $1$ or $0$ with equal probability else.
-On those inputs where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
+On those input bits where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
 For the $i$-th layer-1 attention head (there are at most $Hn$ many such), define $X_i$ to be the event that, for the $i$-th head, none of $j_{i_1}, \dots, j_{i_k}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
-Define $X_0$ to be the event that more than $(1+\delta)qCn$ many inputs are set to $0/1$ (where $\delta \in (0,1)$, to be fixed later).
+Define $X_0$ to be the event that more than $(1+\delta)qCn$ many input bits are set to $0/1$ (where $\delta \in (0,1)$, to be fixed later).
 Our goal will be to show that a nonzero amount of probability mass is assigned to restrictions $\rho_n'$ avoiding all events $X_0, X_1, X_2, \dots, X_{Hn}$.
 
 First, a Chernoff bound gives~\cite[Theorem 4.4]{mitzenmacherprobability}
@@ -626,7 +606,7 @@ Second, we show that the probability of $X_i$ ($i=1,2,\dots, Hn$) decays exponen
 Let $Y_i^t$ ($t=1,\dots,k$) be the event that the layer-0 activation $j_{i_t}$ is not assigned the value that produces the highest attention weight, for the given attention head $i$.
 Note that $X_i = \bigcap_t Y_i^t$.
 We have $\Prob(Y_i^s) = 1-(q/2)^c \in (0,1)$. % (where $q = 1-p$).
-Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}c/C = \frac{1}{\eta}c^2/C$ other events $Y_i^{s'}$, because each input has at most $\frac{1}{\eta} c/C$ depending layer-0 heads.
+Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}c/C = \frac{1}{\eta}c^2/C$ other events $Y_i^{s'}$, because each input bit has at most $\frac{1}{\eta} c/C$ depending layer-0 heads.
 Therefore, there is a set of $\geq \frac{k}{\frac{1}{\eta}c^2/C}$ independent events among these.
 Call these $Y_i^{t_1}, \dots, Y_i^{\frac{k}{\frac{1}{\eta}c^2/C}}$.
 Then $X_i \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} Y_i^{t_s}$, and thus
@@ -682,7 +662,7 @@ Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such t
 %So $2^{-a/k} (1-2^{-a})^{2kc^2} = 2^{-a/k} (\sum_{j=1}^a 2^{-j})^{2kc^2} = (\sum_{j=1}^a 2^{-j-a/{2k^2c^2}})^{2kc^2}$. After we have fixed $k$, we can adjust $a$ to make $a/{2k^2c^2}$ as small as desired to make the result be close to $1$.
 %\end{proof}
 
-We now note that, since every layer-1 head depends only on $\leq ck$ many inputs after applying $\rho'$, each layer-1 activation $y_j^{(1)}$ only depends on $\leq Hck$ many inputs.
+We now note that, since every layer-1 head depends only on $\leq ck$ many input bits after applying $\rho'$, each layer-1 activation $y_j^{(1)}$ only depends on $\leq Hck$ many input bits.
 We can thus collapse layers 0 and 1, converting layer-1 activations into layer-0 activations $y_j^{(0)}$, and obtain a $(Hck)$-transformer performing the same computation as before when $\rho'$ is applied.
 This concludes the proof of the Depth Reduction Lemma.
 
@@ -693,16 +673,6 @@ This concludes the proof of the Depth Reduction Lemma.
 
 \section{Results for Soft Attention}\label{sec:soft}
 
-%We first notice that, with arbitary activation functions, infinite precision softmax transformers:
-%For simplicity, we consider languages over alphabets with only two elements, though the argument generalizes.
-%Take positional embeddings $p_i = 2^{-i}$; and set $y_i^0$ to be $p_i$ if $x_i$ is $1$, and $0$ else.
-%Then, by using an attention head that attends to each position with equal weight, we can compute $\frac{1}{n} \sum_{i : x_i = 1} 2^{-i}$.
-%TODO
-
-%In an actual transformer, all operations are Lipschitz.
-%If we use additive attention, 
-%If the norm of positional and input embeddings is bounded as $\|p_i\|_2, \|x_i\|_2 \leq p$, 
-%The norm of activations in layer $k$ is bounded as $L^k p$.
 
 
 In the previous section, we showed that transformers using hard attention are not able to recognize a range of core formal languages.
@@ -758,17 +728,17 @@ We proceed to proving Lemma~\ref{lem:soft-tech}.
 We compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
 Let $D = \|v_i-v_i'\|_2$ the norm of the difference of the input embeddings at this position.
 
-	We show by induction over $k$ that, for some some $C > 0$ (to be chosen below) the differences between the resulting activations $y_j^k$, ${y_j^k}'$ are bounded as:
+	We show by induction over $k$ that, for some some $C > 0$ (to be chosen below) the differences between the resulting activations $y_j^{(k)}$, ${y_j^{(k)}}'$ are bounded as:
 \begin{align*}
 	\|y_i^{(k)}-{y_i^{(k)}}'\| &\leq C^{k}D = \mathcal{O}(1) \\
-	\|y_j^k-{y_j^k}'\| &\leq \frac{H^k C^{k}D}{n} = \mathcal{O}(1/n)\ \ \ (j \neq i)
+	\|y_j^{(k)}-{y_j^{(k)}}'\| &\leq \frac{H^k C^{k}D}{n} = \mathcal{O}(1/n)\ \ \ (j \neq i)
 	\end{align*}
 Once we have shown this, we know that the influence of any individual input on the final prediction is $\mathcal{O}(\frac{1}{n})$, with constants depending on the norms of parameter matrices and the number of layers.
 
 
-For $k=0$, $\|y_i^0 - {y_i^0}'\| \leq D$, %\footnote{We are assuming that $f$ is addition or concatenation \cite{vaswani2017attention}; for operations such as an MLP, there would be an additional Lipschitz constant depending on parameters and activation functions.}
+For $k=0$, $\|y_i^{(0)} - {y_i^{(0)}}'\| \leq D$, %\footnote{We are assuming that $f$ is addition or concatenation \cite{vaswani2017attention}; for operations such as an MLP, there would be an additional Lipschitz constant depending on parameters and activation functions.}
 and %, where $L_f$ is the Lipschitz constant of the operation $f$ combining position and input embeddings.
-$\|y_j^0 - {y_j^0}'\| = 0$ for $j \neq i$.
+$\|y_j^{(0)} - {y_j^{(0)}}'\| = 0$ for $j \neq i$.
 
 For $k>0$, we first note that for activations $\|y_i^{(k)}\|_2 \leq 2 \left(L_{f^{act}}\right)^{L}  (\|p_i\| + \|v_i\|) =: F$, where
 $L_{f^{act}}$ is the Lipschitz constant of $f^{act}$.
@@ -792,7 +762,7 @@ By induction hypothesis, this is bounded by:
 \begin{align*}
 \leq \frac{\exp(2A)}{n}  C^{(k-1)} D + \frac{H^{k-1}C^{(k-1)}D}{n} \leq \frac{H^{k-1} C^{k} D}{n}
 \end{align*}
-Plugging this into the definition of $y_i^{(k)}$, the difference $\|y_j^k - {y_j^k}\|$ is at most
+Plugging this into the definition of $y_i^{(k)}$, the difference $\|y_j^{(k)} - {y_j^{(k)}}\|$ is at most
 \begin{align*}
 	L_{f^{act}} \cdot \left(\|y_j^{(k-1)}-{y_j^{(k-1)}}'\| + \sum_{q=1}^H \|b_{i,k,q} - b_{i,k,q}'\|\right)
 \end{align*}
@@ -808,17 +778,6 @@ If $j\neq i$, this is bounded above by
 which is bounded by $\leq  \frac{H^{k} C^{k} D}{n}$.
 This proves the inductive step for $k>0$.
 %\end{proof}
-
-
-%This shows that, as inputs get arbitrarily long, a soft attention transformer cannot robustly respond to small changes in the input.
-%This result stands in marked contrast to recurrent networks, where the impact of individual inputs on the final activation does not in general decay with sequence length.
-%In practice, we predict that soft attention transformers will need more layers and larger parameter values to solve formal languages like \textsc{Parity} on longer and longer inputs.
-%show the perplexity thing:
-%If the attention activations are bounded in norm by $L$ (which comes from the norms of the parameter matrices), then attention will ultimately be swamped, and asymptotically no individual element can have nonnegligible impact.
-%Here should have some experimental things
-
-
-%\footnote{This result appears to contradict the claim in \cite{merrill2019sequential} that softmax asymptotically turns into the average of the attentions attended to most strongly. Our result shows that this would require }
 
 
 
