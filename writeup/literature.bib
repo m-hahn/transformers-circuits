@@ -11,10 +11,11 @@
 
 @book{mitzenmacherprobability,
   title={Probability and Computing},
-  year={2005},
+  year={2017},
   author={Mitzenmacher, Michael and Upfal, Eli},
   publisher={Cambridge University Press},
-  address={Cambridge}
+  address={Cambridge},
+  edition={2nd}
 }
 
 @inproceedings{weiss2018practical,
@@ -36,7 +37,7 @@
 
 
 @article{suzgun2019evaluating,
-  title={On Evaluating the Generalization of LSTM Models in Formal Languages},
+  title={On Evaluating the Generalization of {LSTM} Models in Formal Languages},
   author={Suzgun, Mirac and Belinkov, Yonatan and Shieber, Stuart M},
   journal={Proceedings of the Society for Computation in Linguistics (SCiL)},
   pages={277--286},
@@ -62,21 +63,31 @@
   year={2018}
 }
 
-
-@article{perez2019turing,
-  title={On the Turing Completeness of Modern Neural Network Architectures},
-  author={P{\'e}rez, Jorge and Marinkovi{\'c}, Javier and Barcel{\'o}, Pablo},
-  journal={arXiv preprint arXiv:1901.03429},
-  year={2019}
+@inproceedings{
+perez2019turing,
+title={On the Turing Completeness of Modern Neural Network Architectures},
+author={Jorge Pérez and Javier Marinković and Pablo Barceló},
+booktitle={International Conference on Learning Representations},
+year={2019}
 }
 
 
-
-@article{chen2017recurrent,
-  title={Recurrent neural networks as weighted language recognizers},
-  author={Chen, Yining and Gilroy, Sorcha and Maletti, Andreas and May, Jonathan and Knight, Kevin},
-  journal={arXiv preprint arXiv:1711.05408},
-  year={2017}
+@article{chen2017recurrent,@inproceedings{chen-etal-2018-recurrent,
+    title = "Recurrent Neural Networks as Weighted Language Recognizers",
+    author = "Chen, Yining  and
+      Gilroy, Sorcha  and
+      Maletti, Andreas  and
+      May, Jonathan  and
+      Knight, Kevin",
+    booktitle = "Proceedings of the 2018 Conference of the North {A}merican Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers)",
+    month = jun,
+    year = "2018",
+    address = "New Orleans, Louisiana",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/N18-1205",
+    doi = "10.18653/v1/N18-1205",
+    pages = "2261--2271",
+    abstract = "We investigate the computational complexity of various problems for simple recurrent neural networks (RNNs) as formal models for recognizing weighted languages. We focus on the single-layer, ReLU-activation, rational-weight RNNs with softmax, which are commonly used in natural language processing applications. We show that most problems for such RNNs are undecidable, including consistency, equivalence, minimization, and the determination of the highest-weighted string. However, for consistent RNNs the last problem becomes decidable, although the solution length can surpass all computable bounds. If additionally the string is limited to polynomial length, the problem becomes NP-complete. In summary, this shows that approximations and heuristic algorithms are necessary in practical applications of those RNNs.",
 }
 
 
@@ -96,49 +107,52 @@
 @inproceedings{vaswani2017attention,
   title={Attention is all you need},
   author={Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N and Kaiser, {\L}ukasz and Polosukhin, Illia},
-  booktitle={Advances in neural information processing systems},
+  booktitle={Advances in Neural Information Processing Systems},
   pages={5998--6008},
   year={2017}
 }
 
 
-@article{dehghani2018universal,
-  title={Universal transformers},
-  author={Dehghani, Mostafa and Gouws, Stephan and Vinyals, Oriol and Uszkoreit, Jakob and Kaiser, {\L}ukasz},
-  journal={arXiv preprint arXiv:1807.03819},
-  year={2018}
+@inproceedings{dehghani2018universal,
+title={Universal Transformers},
+author={Mostafa Dehghani and Stephan Gouws and Oriol Vinyals and Jakob Uszkoreit and Lukasz Kaiser},
+booktitle={International Conference on Learning Representations},
+year={2019}
 }
 
-@article{tran2018importance,
-  title={The importance of being recurrent for modeling hierarchical structure},
-  author={Tran, Ke and Bisazza, Arianna and Monz, Christof},
-  journal={arXiv preprint arXiv:1803.03585},
-  year={2018}
+@inproceedings{tran2018importance,
+    title = "The Importance of Being Recurrent for Modeling Hierarchical Structure",
+    author = "Tran, Ke  and
+      Bisazza, Arianna  and
+      Monz, Christof",
+    booktitle = "Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing",
+    month = oct # "-" # nov,
+    year = "2018",
+    address = "Brussels, Belgium",
+    publisher = "Association for Computational Linguistics",
+    pages = "4731--4736",
+    abstract = "Recent work has shown that recurrent neural networks (RNNs) can implicitly capture and exploit hierarchical information when trained to solve common natural language processing tasks (Blevins et al., 2018) such as language modeling (Linzen et al., 2016; Gulordava et al., 2018) and neural machine translation (Shi et al., 2016). In contrast, the ability to model structured data with non-recurrent neural networks has received little attention despite their success in many NLP tasks (Gehring et al., 2017; Vaswani et al., 2017). In this work, we compare the two architectures{---}recurrent versus non-recurrent{---}with respect to their ability to model hierarchical structure and find that recurrency is indeed important for this purpose. The code and data used in our experiments is available at \url{https://github.com/ ketranm/fan_vs_rnn}",
 }
 
-@article{yang2019assessing,
+@inproceedings{yang2019assessing,
   title={Assessing the Ability of Self-Attention Networks to Learn Word Order},
   author={Yang, Baosong and Wang, Longyue and Wong, Derek F and Chao, Lidia S and Tu, Zhaopeng},
-  journal={arXiv preprint arXiv:1906.00592},
+  booktitle={57th Annual Meeting of the Association for Computational Linguistics (ACL)},
   year={2019}
 }
 
 @inproceedings{yao1986separating,
 author={A. C. {Yao}},
-booktitle={26th Annual Symposium on Foundations of Computer Science (sfcs 1985)},
+booktitle={26th Annual Symposium on Foundations of Computer Science (SFCS 1985)},
 title={Separating the polynomial-time hierarchy by oracles},
 year={1985},
 volume={},
 number={},
-pages={1-10},
-keywords={Polynomials;Circuits;Erbium;Frequency selective surfaces;Computer science;Complexity theory;Computational complexity},
-doi={10.1109/SFCS.1985.49},
-ISSN={0272-5428},
-month={Oct},}
+pages={1-10}}
 
 
 @article{hastad1994optimal,
-  title={Optimal Depth, Very Small Size Circuits for Symmetrical Functions in AC0},
+  title={Optimal Depth, Very Small Size Circuits for Symmetrical Functions in {AC}0},
   author={Hastad, Johan and Wegener, Ingo and Wurm, Norbert and Yi, Sang-Zin},
   journal={Information and Computation},
   volume={108},
@@ -156,7 +170,7 @@ month={Oct},}
 }
 
 @article{kirov2012processing,
-  title={Processing of nested and cross-serial dependencies: an automaton perspective on SRN behaviour},
+  title={Processing of nested and cross-serial dependencies: an automaton perspective on {SRN} behaviour},
   author={Kirov, Christo and Frank, Robert},
   journal={Connection Science},
   volume={24},
@@ -187,11 +201,12 @@ month={Oct},}
 }
 
 
-@article{shen2018reinforced,
+@inproceedings{shen2018reinforced,
   title={Reinforced self-attention network: a hybrid of hard and soft attention for sequence modeling},
   author={Shen, Tao and Zhou, Tianyi and Long, Guodong and Jiang, Jing and Wang, Sen and Zhang, Chengqi},
-  journal={arXiv preprint arXiv:1801.10296},
-  year={2018}
+  booktitle={IJCAI'18 Proceedings of the 27th International Joint Conference on Artificial Intelligence},
+  year={2018},
+  pages={4345--4352}
 }
 
 
@@ -211,59 +226,102 @@ month={Oct},}
 }
 
 
-@article{chen2018best,
-  title={The best of both worlds: Combining recent advances in neural machine translation},
-  author={Chen, Mia Xu and Firat, Orhan and Bapna, Ankur and Johnson, Melvin and Macherey, Wolfgang and Foster, George and Jones, Llion and Parmar, Niki and Schuster, Mike and Chen, Zhifeng and others},
-  journal={arXiv preprint arXiv:1804.09849},
-  year={2018}
+@inproceedings{chen2018best,,
+    title = "The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation",
+    author = "Chen, Mia Xu  and
+      Firat, Orhan  and
+      Bapna, Ankur  and
+      Johnson, Melvin  and
+      Macherey, Wolfgang  and
+      Foster, George  and
+      Jones, Llion  and
+      Schuster, Mike  and
+      Shazeer, Noam  and
+      Parmar, Niki  and
+      Vaswani, Ashish  and
+      Uszkoreit, Jakob  and
+      Kaiser, Lukasz  and
+      Chen, Zhifeng  and
+      Wu, Yonghui  and
+      Hughes, Macduff",
+    booktitle = "Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2018",
+    address = "Melbourne, Australia",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/P18-1008",
+    pages = "76--86",
+    abstract = "The past year has witnessed rapid advances in sequence-to-sequence (seq2seq) modeling for Machine Translation (MT). The classic RNN-based approaches to MT were first out-performed by the convolutional seq2seq model, which was then out-performed by the more recent Transformer model. Each of these new approaches consists of a fundamental architecture accompanied by a set of modeling and training techniques that are in principle applicable to other seq2seq architectures. In this paper, we tease apart the new architectures and their accompanying techniques in two ways. First, we identify several key modeling and training techniques, and apply them to the RNN architecture, yielding a new RNMT+ model that outperforms all of the three fundamental architectures on the benchmark WMT{'}14 English to French and English to German tasks. Second, we analyze the properties of each fundamental seq2seq architecture and devise new hybrid architectures intended to combine their strengths. Our hybrid models obtain further improvements, outperforming the RNMT+ model on both benchmark datasets.",
 }
 
 
 
-@article{hao2019modeling,
-  title={Modeling Recurrence for Transformer},
-  author={Hao, Jie and Wang, Xing and Yang, Baosong and Wang, Longyue and Zhang, Jinfeng and Tu, Zhaopeng},
-  journal={arXiv preprint arXiv:1904.03092},
-  year={2019}
+@inproceedings{hao2019modeling,
+    title = "Modeling Recurrence for Transformer",
+    author = "Hao, Jie  and
+      Wang, Xing  and
+      Yang, Baosong  and
+      Wang, Longyue  and
+      Zhang, Jinfeng  and
+      Tu, Zhaopeng",
+    booktitle = "Proceedings of the 2019 Conference of the North {A}merican Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers)",
+    month = jun,
+    year = "2019",
+    address = "Minneapolis, Minnesota",
+    publisher = "Association for Computational Linguistics",
+    pages = "1198--1207",
+    abstract = "Recently, the Transformer model that is based solely on attention mechanisms, has advanced the state-of-the-art on various machine translation tasks. However, recent studies reveal that the lack of recurrence modeling hinders its further improvement of translation capacity. In response to this problem, we propose to directly model recurrence for Transformer with an additional recurrence encoder. In addition to the standard recurrent neural network, we introduce a novel attentive recurrent network to leverage the strengths of both attention models and recurrent networks. Experimental results on the widely-used WMT14 English⇒German and WMT17 Chinese⇒English translation tasks demonstrate the effectiveness of the proposed approach. Our studies also reveal that the proposed model benefits from a short-cut that bridges the source and target sequences with a single recurrent layer, which outperforms its deep counterpart.",
+}
+
+@inproceedings{
+paulus2017deep,
+title={A Deep Reinforced Model for Abstractive Summarization},
+author={Romain Paulus and Caiming Xiong and Richard Socher},
+booktitle={International Conference on Learning Representations},
+year={2018}
 }
 
 
-@article{paulus2017deep,
-  title={A deep reinforced model for abstractive summarization},
-  author={Paulus, Romain and Xiong, Caiming and Socher, Richard},
-  journal={arXiv preprint arXiv:1705.04304},
-  year={2017}
+@inproceedings{cheng2016long,
+    title = "Long Short-Term Memory-Networks for Machine Reading",
+    author = "Cheng, Jianpeng  and
+      Dong, Li  and
+      Lapata, Mirella",
+    booktitle = "Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing",
+    month = nov,
+    year = "2016",
+    address = "Austin, Texas",
+    publisher = "Association for Computational Linguistics",
+    pages = "551--561",
 }
 
 
-@article{cheng2016long,
-  title={Long short-term memory-networks for machine reading},
-  author={Cheng, Jianpeng and Dong, Li and Lapata, Mirella},
-  journal={arXiv preprint arXiv:1601.06733},
-  year={2016}
-}
-
-
-@article{lin2017structured,
+@inproceedings{lin2017structured,
   title={A structured self-attentive sentence embedding},
   author={Lin, Zhouhan and Feng, Minwei and Santos, Cicero Nogueira dos and Yu, Mo and Xiang, Bing and Zhou, Bowen and Bengio, Yoshua},
-  journal={arXiv preprint arXiv:1703.03130},
+  booktitle={International Conference on Learning Representations},
   year={2017}
 }
 
 
-@article{parikh2016decomposable,
-  title={A decomposable attention model for natural language inference},
-  author={Parikh, Ankur P and T{\"a}ckstr{\"o}m, Oscar and Das, Dipanjan and Uszkoreit, Jakob},
-  journal={arXiv preprint arXiv:1606.01933},
-  year={2016}
-}
+@inproceedings{parikh2016decomposable,
+	    title = "A Decomposable Attention Model for Natural Language Inference",
+	    author = {Parikh, Ankur  and
+	      T{\"a}ckstr{\"o}m, Oscar  and
+	      Das, Dipanjan  and
+	      Uszkoreit, Jakob},
+	    booktitle = "Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing",
+	    month = nov,
+	    year = "2016",
+	    address = "Austin, Texas",
+	    publisher = "Association for Computational Linguistics",
+	    pages = "2249--2255",
+	}
 
-
-@article{voita2019analyzing,
+@inproeedings{voita2019analyzing,
   title={Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned},
   author={Voita, Elena and Talbot, David and Moiseev, Fedor and Sennrich, Rico and Titov, Ivan},
-  journal={arXiv preprint arXiv:1905.09418},
+  booktitle={57th Annual Meeting of the Association for Computational Linguistics},
   year={2019}
 }
 
@@ -278,7 +336,7 @@ month={Oct},}
 
 
 @article{dai2019transformer,
-  title={Transformer-xl: Attentive language models beyond a fixed-length context},
+  title={Transformer-{XL}: Attentive language models beyond a fixed-length context},
   author={Dai, Zihang and Yang, Zhilin and Yang, Yiming and Cohen, William W and Carbonell, Jaime and Le, Quoc V and Salakhutdinov, Ruslan},
   journal={arXiv preprint arXiv:1901.02860},
   year={2019}
@@ -291,11 +349,19 @@ month={Oct},}
   year={2019}
 }
 
-@article{gulordava2018colorless,
-  title={Colorless green recurrent networks dream hierarchically},
-  author={Gulordava, Kristina and Bojanowski, Piotr and Grave, Edouard and Linzen, Tal and Baroni, Marco},
-  journal={arXiv preprint arXiv:1803.11138},
-  year={2018}
+@inproceedings{gulordava2018colorless,
+    title = "Colorless Green Recurrent Networks Dream Hierarchically",
+    author = "Gulordava, Kristina  and
+      Bojanowski, Piotr  and
+      Grave, Edouard  and
+      Linzen, Tal  and
+      Baroni, Marco",
+    booktitle = "Proceedings of the 2018 Conference of the North {A}merican Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers)",
+    month = jun,
+    year = "2018",
+    address = "New Orleans, Louisiana",
+    publisher = "Association for Computational Linguistics",
+    pages = "1195--1205"
 }
 
 @article{linzen2016assessing,
@@ -410,7 +476,7 @@ month={Oct},}
 }
 
 @incollection{montague1973proper,
-  title={The proper treatment of quantification in ordinary English},
+  title={The proper treatment of quantification in ordinary {E}nglish},
   author={Montague, Richard},
   booktitle={Approaches to natural language},
   pages={221--242},
@@ -418,11 +484,17 @@ month={Oct},}
   publisher={Springer}
 }
 
-@article{marvin2018targeted,
-  title={Targeted syntactic evaluation of language models},
-  author={Marvin, Rebecca and Linzen, Tal},
-  journal={arXiv preprint arXiv:1808.09031},
-  year={2018}
+@inproceedings{marvin2018targeted,
+    title = "Targeted Syntactic Evaluation of Language Models",
+    author = "Marvin, Rebecca  and
+      Linzen, Tal",
+    booktitle = "Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing",
+    month = oct # "-" # nov,
+    year = "2018",
+    address = "Brussels, Belgium",
+    publisher = "Association for Computational Linguistics",
+    pages = "1192--1202",
+    abstract = "We present a data set for evaluating the grammaticality of the predictions of a language model. We automatically construct a large number of minimally different pairs of English sentences, each consisting of a grammatical and an ungrammatical sentence. The sentence pairs represent different variations of structure-sensitive phenomena: subject-verb agreement, reflexive anaphora and negative polarity items. We expect a language model to assign a higher probability to the grammatical sentence than the ungrammatical one. In an experiment using this data set, an LSTM language model performed poorly on many of the constructions. Multi-task training with a syntactic objective (CCG supertagging) improved the LSTM{'}s accuracy, but a large gap remained between its performance and the accuracy of human participants recruited online. This suggests that there is considerable room for improvement over LSTMs in capturing syntax in a language model.",
 }
 
 @article{lewis2005activation,
@@ -438,23 +510,31 @@ month={Oct},}
 
 
 @article{lin2019open,
-  title={Open Sesame: Getting Inside BERT's Linguistic Knowledge},
+  title={Open {S}esame: Getting Inside {BERT}'s Linguistic Knowledge},
   author={Lin, Yongjie and Tan, Yi Chern and Frank, Robert},
   journal={arXiv preprint arXiv:1906.01698},
   year={2019}
 }
 
-@article{devlin2018bert,
-  title={Bert: Pre-training of deep bidirectional transformers for language understanding},
-  author={Devlin, Jacob and Chang, Ming-Wei and Lee, Kenton and Toutanova, Kristina},
-  journal={arXiv preprint arXiv:1810.04805},
-  year={2018}
+@inproceedings{devlin2018bert,
+    title = "{BERT}: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+    author = "Devlin, Jacob  and
+      Chang, Ming-Wei  and
+      Lee, Kenton  and
+      Toutanova, Kristina",
+    booktitle = "Proceedings of the 2019 Conference of the North {A}merican Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers)",
+    month = jun,
+    year = "2019",
+    address = "Minneapolis, Minnesota",
+    publisher = "Association for Computational Linguistics",
+    pages = "4171--4186",
+    abstract = "We introduce a new language representation model called BERT, which stands for Bidirectional Encoder Representations from Transformers. Unlike recent language representation models (Peters et al., 2018a; Radford et al., 2018), BERT is designed to pre-train deep bidirectional representations from unlabeled text by jointly conditioning on both left and right context in all layers. As a result, the pre-trained BERT model can be fine-tuned with just one additional output layer to create state-of-the-art models for a wide range of tasks, such as question answering and language inference, without substantial task-specific architecture modifications. BERT is conceptually simple and empirically powerful. It obtains new state-of-the-art results on eleven natural language processing tasks, including pushing the GLUE score to 80.5 (7.7 point absolute improvement), MultiNLI accuracy to 86.7{\%} (4.6{\%} absolute improvement), SQuAD v1.1 question answering Test F1 to 93.2 (1.5 point absolute improvement) and SQuAD v2.0 Test F1 to 83.1 (5.1 point absolute improvement).",
 }
 
-@article{tenney2019bert,
-  title={Bert rediscovers the classical nlp pipeline},
+@inproceedings{tenney2019bert,
+  title={{BERT} rediscovers the classical {NLP} pipeline},
   author={Tenney, Ian and Das, Dipanjan and Pavlick, Ellie},
-  journal={arXiv preprint arXiv:1905.05950},
+  booktitle={57th Annual Meeting of the Association for Computational Linguistics},
   year={2019}
 }
 
@@ -508,7 +588,7 @@ month={Oct},}
 @article{rossman2018average,
   title={The average sensitivity of bounded-depth formulas},
   author={Rossman, Benjamin},
-  journal={computational complexity},
+  journal={Computational Complexity},
   volume={27},
   number={2},
   pages={209--223},
@@ -529,13 +609,12 @@ month={Oct},}
   publisher={Elsevier}
 }
 
-
-
-@article{miller2018recurrent,
-  title={When Recurrent Models Don't Need To Be Recurrent},
-  author={Miller, John and Hardt, Moritz},
-  journal={arXiv preprint arXiv:1805.10369},
-  year={2018}
+@inproceedings{
+miller2018recurrent,
+title={Stable Recurrent Models},
+author={John Miller and Moritz Hardt},
+booktitle={International Conference on Learning Representations},
+year={2019}
 }
 
 @article{bengio1994learning,
@@ -580,7 +659,7 @@ month={Oct},}
 }
 
 @article{korsky2019computational,
-  title={On the Computational Power of RNNs},
+  title={On the Computational Power of {RNN}s},
   author={Samuel A. Korsky and Robert C. Berwick},
   journal={arXiv preprint arXiv:1906.06349},
   year={2019}

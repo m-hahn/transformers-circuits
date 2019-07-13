@@ -6,6 +6,9 @@
 \usepackage{url}
 
 
+\renewcommand{\baselinestretch}{0.99}
+%\addtolength{\textfloatsep}{-0.18in}
+%\setlength{\abovecaptionskip}{5pt plus 1pt minus 0pt} % Chosen fairly arbitrarily
 %  \usepackage{natbib}
  % \bibliographystyle{plainnat}
 
@@ -244,8 +247,7 @@ Following the construction of transformers in sequence-to-sequence tasks \cite{v
 
 \section{Regular and Context-Free Languages}\label{sec:langs} % : \textsc{Parity}
 
-We will analyze the ability of transformers to recognize regular and context-free languages, using two prominent representatives (\textsc{Parity} and \textsc{2Dyck}). %, which are basic representatives of wide classes of regular and context-free languages. %; the third (\textsc{LogicalFormulas}) is arguably directly relevant to modeling the meaning of natural language (CITE).
-%\textsc{Parity}.
+We will analyze the ability of transformers to recognize regular and context-free languages, using two prominent representatives (\textsc{Parity} and \textsc{2Dyck}).
 
 
 \paragraph{\textsc{Parity}} is the set of bit strings such that the number of $1$s is even.
@@ -254,14 +256,13 @@ The regular languages form the lowest layer of the Chomsky hierarchy, and even s
 Within the regular languages, a particularly basic class is formed by the \emph{counter-free} or \emph{star-free} languages \cite{mcnaughton1971counter}, which can be expressed by regular expressions using only union, complementation, and concatenation.
 In some sense, \textsc{Parity} is the simplest non-counter-free, or \emph{periodic}, regular language.
 %Any regular language that is not counter-free whose syntactic monoid contains a group are at least computationally as hard as \textsc{Parity}.
-This means, if transformers cannot compute \textsc{Parity}, they cannot recognize (almost)\footnote{More precisely, inability to compute \textsc{Parity} entails that they cannot recognize any regular language whose syntactic morphism is not quasi-aperiodic~\cite[p. 488]{barrington1992regular}.} any regular language that is not counter-free.
-
+This means, if transformers cannot compute \textsc{Parity}, they cannot recognize (almost)\footnote{Inability to compute \textsc{Parity} entails that they cannot recognize any regular language whose syntactic morphism is not quasi-aperiodic~\cite[p. 488]{barrington1992regular}.} any regular language that is not counter-free.
 In the context of natural language, \textsc{Parity} naturally arises in the context of evaluating logical formulas:
 %\paragraph{\textsc{LogicalFormulas}} is the set of Boolean formulas evaluating to True. Formally, we consider formulas using binary operators $\wedge, \vee$, negation $\neg$, atomic \textsc{true}, and brackets `(', `)'.
 %\cite{tran2018importance} experimentally studied the ability of transformers to learn this language, finding that they did not perform as well as LSTMs.
 %\textsc{LogicalFormulas} is also a natural linguistically-relevant setting in which \textsc{Parity} arises:
 Evaluating iterated negations is tantamount to counting whether the number of nested negations is even or odd.
-If we know that transformers cannot compute parity, this entails that they also cannot evaluate logical formulas accurately.
+If transformers cannot compute parity, they also cannot evaluate logical formulas accurately.
 
 
 
@@ -637,8 +638,8 @@ This lemma requires that the amount of statistical dependencies between these ev
 Indeed, each event $X_i$ ($i=1,2,\dots, Hn$) is statistically independent of the set $\{X_j : \text{heads } j \text{ and } i \text{ are not $k$-neighbors}\}$.
 The complement of this set has cardinality $\leq f= \frac{1}{\eta}c^2k^2H/C$.
 By the Lov{\'a}sz Local Lemma, it is therefore sufficient to find  $A, B \in (0,1)$ such that the following inuequalities hold: %, assuming $f \leq $:
-\begin{align}
-\Prob(X_i) &\leq  D^k \leq A(1-B)(1-A)^{f} \\
+\begin{align}\label{eq:lovasz-1}
+\Prob(X_i) &\leq  D^k \leq A(1-B)(1-A)^{f} \\ \label{eq:lovasz-2}
 \Prob(X_0) &\leq \exp\left(-\frac{\delta^2qCn}{3}\right)  \leq B (1-A)^{Hn}
 \end{align}
 where $D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}} \in (0,1)$. % is a constant in $(0,1)$, depending on $c$, $q$, $C$, $\eta$, but \emph{not} on $k$.
@@ -647,11 +648,11 @@ Once we have shown this, then the Lov{\'a}sz Local Lemma guarantees that there i
 
 Choose %$q=0.5$, $\delta=0.5$, 
 $A=\frac{1}{\frac{1}{\eta}Hk^2c^2/C}$, $B=0.5$.
-First, we need to satisfy
+For~(\ref{eq:lovasz-1}), we need to satisfy
 \begin{align}\label{eq:x1-ineq}
     D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{\frac{1}{\eta}kc^2H/C} 
 \end{align}
-For the RHS, 
+For the first term on the right, 
 \begin{equation}
 \lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \exp\left(-\frac{\log\left(\frac{1}{\eta} H k^2 c^2/C\right)}{k}\right) = 1
 \end{equation}
@@ -659,19 +660,17 @@ Also, $\lim_{k\rightarrow \infty} (1-A)^{\frac{1}{\eta}kc^2H/C}$ equals
 \begin{equation}
 \lim_{k\rightarrow \infty} \left(1-\frac{1}{Ek^2}\right)^{Ek} = \lim_{k\rightarrow \infty} \left(1-\frac{E}{k^2}\right)^{k} = 1
 \end{equation}
-where we choose $E = \frac{1}{\eta}c^2H/C$. So, if we choose $k$ large enough (independently of $n$), the RHS of (\ref{eq:x1-ineq}) can be made arbitrarily close to $1$, in particular, greater than the LHS $D$.
-
-In order to also satisfy
+where we choose $E = \frac{1}{\eta}c^2H/C$. So, if we choose $k$ large enough (independently of $n$), the RHS of (\ref{eq:x1-ineq}) can be made arbitrarily close to $1$, in particular, greater than $D$.
+In order to also satisfy~(\ref{eq:lovasz-2}), we need
 \begin{equation}
 \exp\left(-\frac{\delta^2qC}{3}\right)  \leq B^{1/n} (1-A)^H
 \end{equation}
-make $n$, $k$ large enough to satisfy the inequality (again, choosing $k$ independent of $n$). %so large that $B^{1/n} > 0.99$ and $(1-A)^H = (1-\frac{1}{2k^2c^2})^H > 0.99$.
-In conclusion, there exists, for each sufficiently-large $n$, a restriction $\rho'_n$ that avoids all events $X_0, X_1, X_2, \dots$.
-
-With such a $\rho'$, $|\{i \leq n: \rho_n'(i) = *\}|$ is at least
-\begin{equation}
-\geq (1-\eta)^2\cdot (1-(1+\delta)q) C n
-\end{equation}
+which holds for $n$, $k$ large enough (again, choosing $k$ independent of $n$). 
+In conclusion, there exists, for each sufficiently-large $n$, a restriction $\rho'_n$ that avoids all events $X_0, X_1, X_2, \dots$, for some $k$ independent of $n$.
+For such a $\rho'$, we have
+\begin{equation*}
+|\{i \leq n: \rho_n'(i) = *\}|\geq (1-\eta)^2\cdot (1-(1+\delta)q) C n
+\end{equation*}
 for all sufficiently large $n$.
 Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such that $(1+\delta)q \in (0,1)$) in such a way to achieve $(1-\eta)^2\cdot (1-(1+\delta)q) = C'/C$.
 
@@ -764,7 +763,7 @@ Let $D = \|v_i-v_i'\|_2$ the norm of the difference of the input embeddings at t
 Once we have shown this, we have found that the influence of any individual input on the final prediction is $\mathcal{O}(\frac{1}{n})$, with constants depending on the norms of parameter matrices and the number of layers.
 
 
-For $k=0$, $\|y_i^0 - {y_i^0}'\| \leq D$,\footnote{We are assuming that $f$ is addition or concatenation \cite{vaswani2017attention}; for operations such as an MLP, there would be an additional Lipschitz constant depending on parameters and activation functions.}
+For $k=0$, $\|y_i^0 - {y_i^0}'\| \leq D$, %\footnote{We are assuming that $f$ is addition or concatenation \cite{vaswani2017attention}; for operations such as an MLP, there would be an additional Lipschitz constant depending on parameters and activation functions.}
 and %, where $L_f$ is the Lipschitz constant of the operation $f$ combining position and input embeddings.
 $\|y_j^0 - {y_j^0}'\| = 0$ for $j \neq i$.
 
@@ -775,30 +774,33 @@ Attention logits are bounded by $A := F^2 L_{f^{att}}$ in the case of multiplica
 %If attention logits are bounded as $|a_i| \leq A$,
 Then any attention weight $\widehat{a}_{j,i} = \exp(a_i)/\sum_j \exp(a_j)$ is upper bounded by $\frac{\exp(A)}{\exp(A) + (n-1) \exp(-A)} \leq \frac{\exp(2A)}{n}$.
 
-Choose $C : = 2(1 + \exp(2A) + L_{f^{act}})$.
-
-Recall $y_i^k := f^{act}(y_i^{k-1}, b_{i,k,1}, \dots, b_{i,k,H})$, where $b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{k-1}$.
+Choose $C : = 2(1 + \exp(2A) + L_{f^{act}})$. 
+Recall that activations $y_i^k$ are defined as $f^{act}(y_i^{k-1}, b_{i,k,1}, \dots, b_{i,k,H})$, where $b_{i,k,h}$ equals $\sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{k-1}$.
 We first calculate
 \begin{align*}
-& \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y_w^{k-1}\| \\
+& \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y_w^{k-1}\|
+\end{align*}
+which is bounded as follows:
+\begin{align*}
 & \leq + \hat{a}_{j,i}^{k,h} \|y_i^{k-1} - y_i^{k-1}\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y_w^{k-1}\|  \\
 & \leq \frac{\exp(2A)}{n}  (2C)^{2(k-1)} D + \frac{H^{k-1}(2C)^{2(k-1)}D}{n} \\
 %& \leq (2C)^{2(k-1)}D \frac{C/2   + H^{k-1} }{n} \\
 & \leq \frac{H^{k-1} (2C)^{2(k-1)+1} D}{n}
 \end{align*}
-Then, $\|y_j^k - {y_j^k}\|$ is at most
-\begin{equation}
+Plugging this into the definition of $y_i^k$, the difference $\|y_j^k - {y_j^k}\|$ is at most
+\begin{align*}
 	L_{f^{act}} \cdot \left(\|y_j^{k-1}-{y_j^{k-1}}'\| + \sum_{q=1}^H \|b_{i,k,q} - b_{i,k,q}'\|\right)
-\end{equation}
-If $j= i$, this is bounded (as $n \rightarrow \infty$)
-\begin{equation}
+\end{align*}
+If $j= i$, this is bounded by (as $n \rightarrow \infty$)
+\begin{align*}
 \leq L_{f^{act}} \cdot ((2C)^{2(k-1)}D + o(1)) \leq (2C)^{2k}D
-\end{equation}
+\end{align*}
 If $j\neq i$, this is bounded above by
 \begin{align*}
-  &  L_{f^{act}} \cdot \frac{H^{k-1} (2C)^{2(k-1)}D + H^{k} (2C)^{2(k-1)+1} D)}{n} \\
-  &  \leq  \frac{H^{k} (2C)^{2k} D}{n} \\
+  &  L_{f^{act}} \cdot \frac{H^{k-1} (2C)^{2(k-1)}D + H^{k} (2C)^{2(k-1)+1} D}{n}
+  %&   \\
 \end{align*} 
+which is bounded by $\leq  \frac{H^{k} (2C)^{2k} D}{n}$.
 This proves the inductive step for $k>0$.
 \end{proof}
 
