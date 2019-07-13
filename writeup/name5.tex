@@ -453,7 +453,7 @@ We intend to investigate these connections in future work.
 Our approach for proving Theorem~\ref{thm:hardmax-main} will be to construct input restrictions in a layerwise manner, starting from layer 1. 
 In order for this to go through, the main challenge is to construct a suitable restriction at a given layer:
 As shown in Figure~\ref{fig:restr}, this restriction should only affect a few input bits (namely, $Cn$ many input bits), while forcing each attention head in the first layer to ignore all but $c$ input bits.
-Perhaps surprisingly, this is possible; the idea is to fix input bits that achieve high attention scores for several heads, so that input bits that cannot achieve as high attention scores will be ignored.
+Perhaps surprisingly, this is possible; the idea is to fix input bits that achieve high attention scores for several heads, so that input bits that cannot achieve such high attention scores will be ignored.
 
 
 
@@ -464,7 +464,7 @@ Perhaps surprisingly, this is possible; the idea is to fix input bits that achie
     \includegraphics[width=0.21\textwidth]{writeup/figures/restr-0.png} &
         \includegraphics[width=0.21\textwidth]{writeup/figures/restr-2.png}&
         \end{tabular}
-	\caption{Finding a good restriction: (a) Every attention head in the first layer could potentially attend to any input bit. (b) Surprisingly, it is possible to fix a small number of input bits in such a way that each layer-1 attention head can only possibly attend to $c$ (here, $c=1$) inputs, and ignores all other inputs.}
+	\caption{Finding a good restriction: (a) Every attention head in the first layer could potentially attend to any input bit. (b) Perhaps surprisingly, one can fix a small number of input bits in such a way that each layer-1 attention head can only possibly attend to $c$ (here, $c=1$) inputs, and ignores all other inputs.}
 	\label{fig:restr}
 \end{figure}
 
