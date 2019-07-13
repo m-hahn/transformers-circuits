@@ -369,7 +369,7 @@ In fact, we do not even assume that the internal position-wise representations $
 	\label{fig:depth-reduction}
 \end{figure*}
 
-We aim to prove that no hard-attention transformer is capable of representing \textsc{Parity} or \textsc{2Dyck}, by constructing -- for any given transformer model -- a set of input words that this model will have to misclassify.
+We aim to prove that no hard-attention transformer is capable of representing \textsc{Parity} or \textsc{2Dyck}, by constructing -- for any given candidate transformer model -- a set of input words that this model will have to misclassify.
 The basic idea (see Figure~\ref{fig:depth-reduction}) behind the proof is that, by fixing a small fraction of the input symbols in a particular way, we can `capture the attention' of the transformer in such a way that it ends up ignoring almost all remaining input symbols.
 %More specifically, we will use the following approach.
 %We take a transformer, and for each $n$, we consider what happens if we apply this transformer to inputs of that length.
@@ -390,7 +390,7 @@ This shows that the transformer could not have solved a problem such as \textsc{
 
 In order to formalize the idea of `fixing'  a few input bits, we introduce the notion of restrictions:
 A \key{restriction} $\rho$ is a family of maps $\rho_n : \{1, \dots, n\} \rightarrow \{*, 0, 1\}$ for $n \in \mathbb{N}$.
-A restriction $\rho$ is applied to a transformer by restricting, when the input size is $n$, inputs $x_i$ to the value $\rho_n(i)$ if it is $0$ or $1$.
+A restriction $\rho$ is applied to a transformer by restricting, when the input size is $n$, the input symbol $x_i$ to the value $\rho_n(i)$ whenever $\rho_n(i) \in \{0, 1\}$.
 The output value of the resulting transformer only depends on those inputs $x_i$ such that $\rho_n(i) = *$.
 
 
@@ -412,7 +412,7 @@ Transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck}.
 %, or \textsc{BooleanFormula} (i.e., asymptotic cross-entropy is at chance level).
 \end{corollary}
 \begin{proof}
-Take $C=0.1$.
+Take $C=0.9$.
 For \textsc{Parity}, after applying a restriction, the output of the transformer depends on $c$ inputs.
 An input of sufficiently large size $n$ thus has unrestricted inputs that do not influence the output.
 But flipping a single input bit changes the value, so the transformer's output cannot match membership in \textsc{Parity} beyond chance as soon as $n$ is sufficiently large.
@@ -420,8 +420,8 @@ But flipping a single input bit changes the value, so the transformer's output c
 %As a corollary, transformers also cannot model \textsc{BooleanFormula}, as they cannot model iterated negation.
 
 For \textsc{2Dyck}, we show that hard attention transformers cannot even solve the simpler variant \textsc{1Dyck} with a single bracket type (`(', `)').
-We first restrict the first $0.2n$ input positions to `('.
-After applying the restriction provided by the theorem, the resulting restricted input will still be compatible with both well-bracketed and non-well-bracketed inputs, but the prediction will depend only on a bounded number of positions.
+We first restrict the first $0.2n$ input positions to `(' and the last $0.2n$ positions to `)'.
+After then applying the restriction provided by the theorem, the resulting restricted input will still be compatible with both well-bracketed and non-well-bracketed inputs, but the prediction will depend only on a bounded number of positions.
 As the prediction depends on only a bounded number of positions, this shows the transformer could not recognize \textsc{1Dyck}, and thus also not \textsc{2Dyck}.
 %The probability that 
 %for BooleanFormula, maybe the reduction to PARITY is okay, if there is a constant fraction of chance that parity will be relevant
@@ -656,7 +656,7 @@ By the Lov{\'a}sz Local Lemma, it is therefore sufficient to find  $A, B \in (0,
 \Prob(X_0) &\leq \exp\left(-\delta^2qCn/3\right)  \leq B (1-A)^{Hn}
 \end{align}
 where $D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}} \in (0,1)$.
-Once we have shown this, then the Lov{\'a}sz Local Lemma guarantees that there is some input restriction that avoids all events $X_0, X_1, X_2, \dots$:
+Once we have shown this, then the Lov{\'a}sz Local Lemma guarantees that there is some input restriction $\rho_n'$ that avoids all events $X_0, X_1, X_2, \dots$.
 
 
 Choose %$q=0.5$, $\delta=0.5$, 
@@ -685,7 +685,7 @@ For such a $\rho'$, we have
 |\{i \leq n: \rho_n'(i) = *\}|\geq (1-\eta)^2\cdot (1-(1+\delta)q) C n
 \end{equation*}
 for all sufficiently large $n$.
-Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such that $(1+\delta)q \in (0,1)$) in such a way to achieve $(1-\eta)^2\cdot (1-(1+\delta)q) = C'/C$.
+Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such that $(1+\delta)q \in (0,1)$) in such a way as to achieve $(1-\eta)^2\cdot (1-(1+\delta)q) = C'/C$.
 
 
 
@@ -719,9 +719,9 @@ This concludes the proof of the Depth Reduction Lemma.
 In the previous section, we showed that transformers using hard attention are not able to recognize a range of core formal languages.
 In this section, we study soft attention.
 It turns out that proving limitations as strong as what we found in the hard attention setting would settle a major open problem in computational complexity, and  may therefore be extremely hard to attain with currently available mathematical methods.\footnote{Showing that soft attention transformers cannot achieve perfect accuracy on evaluating Boolean formulas would separate the complexity classes $LTC^0$ and $NC^1$, a widely conjectured but long-open problem in computational complexity.}
-This barrier prevents us from proving bounds on the \emph{accuracy} that soft attention transformers can achieve; nevertheless, we will be able to prove limitations on the achievable \emph{perplexity} in predicting the next symbol in an input.
+This barrier prevents us from proving bounds on the \emph{accuracy} that soft attention transformers can achieve; nevertheless, we will be able to prove limitations on the achievable \emph{cross-entropy} in predicting the next symbol in an input.
 We will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
-The idea behind the proof is that the impact of any single input on the output of the transformer is small if the input is long:
+The idea behind the proof is that the impact of any single input symbol on the output of the transformer is small if the input is long:
 \begin{lemma}\label{lem:soft-tech}
 Let a soft attention transformer be given, and let $n$ be the input length.
 If we exchange one input symbol $x_i$ ($i < n$), %a single input bit $x_i$ with the bit $x_i'$
@@ -768,10 +768,10 @@ We proceed to proving the technical Lemma~\ref{lem:soft-tech}:
 Let us compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
 Let $D = \|v_i-v_i'\|_2$ the norm of the difference of the input embeddings at this position.
 
-	We show by induction over $k$ that, for some some $C > 0$ (depending on the parameter matrices) the differences between the activations $y_j^k$, ${y_j^k}'$ are bounded as: %at this position are bounded independently of input length $n$:
+	We show by induction over $k$ that, for some some $C > 0$ (to be chosen below) the differences between the resulting activations $y_j^k$, ${y_j^k}'$ are bounded as:
 \begin{align*}
-	\|y_i^k-{y_i^k}'\| &\leq (2C)^{2k}D = \mathcal{O}(1) \\
-	\|y_j^k-{y_j^k}'\| &\leq \frac{H^k (2C)^{2k}D}{n} = \mathcal{O}(1/n)\ \ \ (j \neq i)
+	\|y_i^{(k)}-{y_i^{(k)}}'\| &\leq C^{k}D = \mathcal{O}(1) \\
+	\|y_j^k-{y_j^k}'\| &\leq \frac{H^k C^{k}D}{n} = \mathcal{O}(1/n)\ \ \ (j \neq i)
 	\end{align*}
 Once we have shown this, we know that the influence of any individual input on the final prediction is $\mathcal{O}(\frac{1}{n})$, with constants depending on the norms of parameter matrices and the number of layers.
 
@@ -780,43 +780,42 @@ For $k=0$, $\|y_i^0 - {y_i^0}'\| \leq D$, %\footnote{We are assuming that $f$ is
 and %, where $L_f$ is the Lipschitz constant of the operation $f$ combining position and input embeddings.
 $\|y_j^0 - {y_j^0}'\| = 0$ for $j \neq i$.
 
-For $k>0$, we first note that for activations $\|y_i^k\|_2 \leq 2 \left(L_{f^{act}}\right)^{L}  (\|p_i\| + \|v_i\|) =: F$, where
+For $k>0$, we first note that for activations $\|y_i^{(k)}\|_2 \leq 2 \left(L_{f^{act}}\right)^{L}  (\|p_i\| + \|v_i\|) =: F$, where
 $L_{f^{act}}$ is the Lipschitz constant of $f^{act}$.
 As $f^{act}$ is implemented as a ReLU MLP \cite{vaswani2017attention}, $L_{f^{act}}$ depends on the norms of the parameter matrices.
 Attention logits are bounded by $A := F^2 L_{f^{att}}$ in the case of multiplicative/bilinear attention, and $A := 2 F L_{f^{att}}$ in the case of additive attention.
 %If attention logits are bounded as $|a_i| \leq A$,
 Then any attention weight $\widehat{a}_{j,i} = \exp(a_i)/\sum_j \exp(a_j)$ is upper bounded by $\frac{\exp(A)}{\exp(A) + (n-1) \exp(-A)} \leq \frac{\exp(2A)}{n}$.
 
-Choose $C : = 2(1 + \exp(2A) + L_{f^{act}})$. 
-Recall that activations $y_i^k$ are defined as $f^{act}(y_i^{k-1}, b_{i,k,1}, \dots, b_{i,k,H})$, where $b_{i,k,h}$ equals $\sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{k-1}$.
+Choose $C : = 4(1 + \exp(2A) + L_{f^{act}})$. 
+Recall that activations $y_i^{(k)}$ are defined as $f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})$, where $b_{i,k,h}$ equals $\sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{(k-1)}$.
 We first calculate
 \begin{align*}
 & \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y'_w^{k-1}\|
-\end{align*}
-which is bounded as follows:
-\begin{align*}
-& \leq + \hat{a}_{j,i}^{k,h} \|y_i^{k-1} - y'_i^{k-1}\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y'_w^{k-1}\| 
+\\
+%\end{align*}
+%which is bounded as follows:
+%\begin{align*}
+& \leq + \hat{a}_{j,i}^{k,h} \|y_i^{(k-1)} - y'_i^{k-1}\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y'_w^{k-1}\| 
 \end{align*}
 By induction hypothesis, this is bounded by:
 \begin{align*}
-& \leq \frac{\exp(2A)}{n}  (2C)^{2(k-1)} D + \frac{H^{k-1}(2C)^{2(k-1)}D}{n} \\
-%& \leq (2C)^{2(k-1)}D \frac{C/2   + H^{k-1} }{n} \\
-& \leq \frac{H^{k-1} (2C)^{2(k-1)+1} D}{n}
+\leq \frac{\exp(2A)}{n}  C^{(k-1)} D + \frac{H^{k-1}C^{(k-1)}D}{n} \leq \frac{H^{k-1} C^{k} D}{n}
 \end{align*}
-Plugging this into the definition of $y_i^k$, the difference $\|y_j^k - {y_j^k}\|$ is at most
+Plugging this into the definition of $y_i^{(k)}$, the difference $\|y_j^k - {y_j^k}\|$ is at most
 \begin{align*}
-	L_{f^{act}} \cdot \left(\|y_j^{k-1}-{y_j^{k-1}}'\| + \sum_{q=1}^H \|b_{i,k,q} - b_{i,k,q}'\|\right)
+	L_{f^{act}} \cdot \left(\|y_j^{(k-1)}-{y_j^{(k-1)}}'\| + \sum_{q=1}^H \|b_{i,k,q} - b_{i,k,q}'\|\right)
 \end{align*}
 If $j= i$, this is bounded by (as $n \rightarrow \infty$)
 \begin{align*}
-\leq L_{f^{act}} \cdot \left((2C)^{2(k-1)}D + o(1)\right) \leq (2C)^{2k}D
+\leq L_{f^{act}} \cdot \left(C^{(k-1)}D + o(1)\right) \leq C^{k}D
 \end{align*}
 If $j\neq i$, this is bounded above by
 \begin{align*}
-  &  L_{f^{act}} \cdot \frac{H^{k-1} (2C)^{2(k-1)}D + H^{k} (2C)^{2(k-1)+1} D}{n}
+  &  L_{f^{act}} \cdot \frac{H^{k-1} C^{(k-1)}D + H^{k} C^{k} D}{n}
   %&   \\
 \end{align*} 
-which is bounded by $\leq  \frac{H^{k} (2C)^{2k} D}{n}$.
+which is bounded by $\leq  \frac{H^{k} C^{k} D}{n}$.
 This proves the inductive step for $k>0$.
 \end{proof}
 
