@@ -1,19 +1,29 @@
 \documentclass[11pt,a4paper]{article}
-\usepackage[hyperref]{emnlp-ijcnlp-2019}
-\usepackage{times}
-\usepackage{latexsym}
-
+\usepackage{times,latexsym}
 \usepackage{url}
+\usepackage[T1]{fontenc}
+
+%% Package options:
+%% Short version: "hyperref" and "submission" are the defaults.
+%% More verbose version:
+%% Most compact command to produce a submission version with hyperref enabled
+%%    \usepackage[]{tacl2018v2}
+%% Most compact command to produce a "camera-ready" version
+%%    \usepackage[acceptedWithA]{tacl2018v2}
+%% Most compact command to produce a double-spaced copy-editor's version
+%%    \usepackage[acceptedWithA,copyedit]{tacl2018v2}
+%
+%% If you need to disable hyperref in any of the above settings (see Section
+%% "LaTeX files") in the TACL instructions), add ",nohyperref" in the square
+%% brackets. (The comma is a delimiter in case there are multiple options specified.)
+
+\usepackage[]{tacl2018v2}
+
 
 
 \renewcommand{\baselinestretch}{0.99}
-%\addtolength{\textfloatsep}{-0.18in}
-%\setlength{\abovecaptionskip}{5pt plus 1pt minus 0pt} % Chosen fairly arbitrarily
-%  \usepackage{natbib}
- % \bibliographystyle{plainnat}
 
-\aclfinalcopy % Uncomment this line for the final submission
-\pagestyle{plain}
+
 
 %\setlength\titlebox{5cm}
 % You can expand the titlebox if you need extra space
@@ -107,8 +117,8 @@
 \newcommand{\thetap}[0]{{\theta_{P}}}
 
 
-\title{Theoretical Limitations of Self-Attention in Neural Sequence Models, VERSION 5 (after meeting with Dan)}
-\author{Michael Hahn \\ Stanford University \\ mhahn2@stanford.edu}
+\title{Theoretical Limitations of Self-Attention in Neural Sequence Models}
+%\author{Michael Hahn \\ Stanford University \\ mhahn2@stanford.edu}
 \date{\today}
 \begin{document}
 \maketitle
@@ -211,9 +221,8 @@ The final activation of the head is computed by weighting according to attention
 \begin{equation}
     b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{(k,h)} y_j^{(k-1)}
 \end{equation}
-In the soft attention version,
-$$ \hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot}) $$
-In the hard attention variant \cite{perez2019turing} , we take the actual maximum of attention values instead of softmax:
+In the soft attention version, the normalized weights $\hat{a}_{i,\cdot}$ are obtained by the softmax operation: $\hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot})$.
+In the hard attention variant \cite{perez2019turing}, one takes the actual maximum of attention values instead of softmax:
 $\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{This requires an arbitrary choice when there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis would also work under other schemes of resolving ties, such as random selection.}
 The final activation at each position is then computed as
 \begin{equation}
@@ -722,6 +731,8 @@ E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes par
 This result entails that, as inputs become longer, soft attention transformers cannot achieve good cross-entropies on a large class of prediction problems:
 A Lipschitz-continuous prediction function, such as a ReLU MLP followed by a softmax operation, will not be able to make very different predictions for inputs that are encoded into very similar activation vectors $y_n^{(L)}$.
 
+{\textcolor{red}{TODO}}
+
 To make this precise, we %take a more quantitative angle and assign probability distributions over inputs for each input length $n$, and 
 consider the behavior of cross-entropy as the input length $n$ grows.
 To make all our assumptions explicit, we will assume the following setting, though the results do not depend on the specific details.
@@ -753,13 +764,11 @@ Having established the main theorem, we proceed to proving the technical Lemma~\
 Let us compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
 Let $D = \|v_i-v_i'\|_2$ the norm of the difference of the input embeddings at this position.
 
-	We show by induction over $k$ that, for some some $C > 0$ (depending on the parameter matrices) the difference between the activations $y_j^k$, ${y_j^k}'$ are bounded as: %at this position are bounded independently of input length $n$:
-\begin{equation}
-\begin{aligned}
+	We show by induction over $k$ that, for some some $C > 0$ (depending on the parameter matrices) the differences between the activations $y_j^k$, ${y_j^k}'$ are bounded as: %at this position are bounded independently of input length $n$:
+\begin{align*}
 	\|y_i^k-{y_i^k}'\| &\leq (2C)^{2k}D = \mathcal{O}(1) \\
 	\|y_j^k-{y_j^k}'\| &\leq \frac{H^k (2C)^{2k}D}{n} = \mathcal{O}(1/n)\ \ \ (j \neq i)
-	\end{aligned}
-\end{equation}
+	\end{align*}
 Once we have shown this, we know that the influence of any individual input on the final prediction is $\mathcal{O}(\frac{1}{n})$, with constants depending on the norms of parameter matrices and the number of layers.
 
 
@@ -907,7 +916,8 @@ Such processing models predict difficulty with center embedding because they can
 \section{Conclusion}
 We formally investigated the capabilities of self-attention in modeling regular languages and hierarchical structure.
 We showed that transformers cannot model periodic regular languages or basic recursion, either with hard or soft attention, and even if infinite precision is allowed. %, or Boolean formula evaluation
-Our results theoretically confirm the idea that self-attention, by avoiding recurrence, has quite limited computational power. %is not capable of modeling hierarchical structure.
+Our results theoretically confirm the idea that self-attention, by avoiding recurrence, has quite limited computational power.
+%is not capable of modeling hierarchical structure.
 
 %\section*{Acknowledgments}
 %I thank Dan Jurafsky and the members of the Stanford NLP Group for helpful comments.
