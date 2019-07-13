@@ -752,8 +752,8 @@ Thus, again, cross-entropy of a Lipschitz-continuous prediction function will co
 %In all other cases, the correct label includes one of the two closing parentheses, which depends on one single previous symbol, and both possibilities are equally likely if that symbol is unknown.
 \end{proof}
 
-\subsection{Proof of the Lemma}
-We proceed to proving the technical Lemma~\ref{lem:soft-tech}.
+\subsection{Proof of Lemma~\ref{lem:soft-tech}}
+We proceed to proving Lemma~\ref{lem:soft-tech}.
 %\begin{proof}[Proof of Lemma~\ref{lem:soft-tech}]
 We compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
 Let $D = \|v_i-v_i'\|_2$ the norm of the difference of the input embeddings at this position.
@@ -831,7 +831,7 @@ In the soft attention setting, our results are slightly less general, but still 
 
 
 Our results are asymptotic in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is sufficiently long.
-A transformer may nonetheless be able to perform well on on short inputs; indeed, given any bound $N$ on the input length, it is certainly possible to construct a transformer that will achieve perfect performance on all examples of length $n \leq N$; our results show that the number of heads and layers, or the parameter norms, will have to increase with $N$.
+A transformer may nonetheless be able to perform well on on short inputs; indeed, given any bound $N$ on the input length, it is certainly possible to construct a transformer that will achieve perfect accuracy on all examples of length $n \leq N$; our results show that the number of heads and layers, or the parameter norms, will have to increase with $N$.
 
 
 How do our results compare to what is known about LSTMs?
