@@ -159,7 +159,7 @@ While theoretical work has investigated the power of recurrent neural networks i
 Our study provides the first theoretical results on limitations in the power of self-attention.
 We will provide results both for hard and soft attention settings, using different proof methods.
 Our results are strongest in the hard attention setting, holding without further assumptions on activation functions and parameter norms.
-In the soft attention settings, we still obtain results assuming continuity of activation functions as used in practical implementations.
+In the soft attention settings, we still obtain results assuming smoothness of activation functions as used in practical implementations.
 
 After discussing related work (Section~\ref{sec:related}), we introduce self-attention (Section~\ref{sec:def-selfatt}) and two fundamental formal languages representing regular and context-free languages (Section~\ref{sec:langs}).
 We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) or soft (Section~\ref{sec:soft}) attention.
@@ -574,29 +574,29 @@ Also, every input bit has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 
 
 In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho'$, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
-For each input length $n$, define the distribution over restrictions $\rho_n'$ that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q \in (0,1)$ (to be chosen later), and $1$ or $0$ with equal probability else.
+For each input length $n$, define the distribution over restrictions $\rho_n'$ that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $1$ or $0$ with probability $q/2$ each ($q \in (0,1)$ to be chosen later), and $*$ with probability $1-q$.
 On those input bits where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
 For the $i$-th layer-1 attention head (there are at most $Hn$ many such) and for each value $z$ (there are at most $2^c$ such), define $X_i^{(z)}$ to be the event that, for this head, none of $j_{i_1^{(z)}}, \dots, j_{i_k^{(z)}}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
-Define $X_0$ to be the event that more than $(1+\delta)qCn$ many input bits are set to $0/1$ (where $\delta \in (0,1)$, to be fixed later).
+Define $X_0$ to be the event that a fraction greater than $(1+\delta)q$ of the input bits that $\rho_n$ maps to $*$ are set to $0/1$ by $\rho_n'$ (where $\delta \in (0,1)$, to be fixed later).
 Our goal will be to show that a nonzero amount of probability mass is assigned to restrictions $\rho_n'$ avoiding all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$.
 
 First, a Chernoff bound gives~\cite[Theorem 4.4]{mitzenmacherprobability}
 %\footnote{See \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 \begin{equation}
-\Prob(X_0) \leq    \exp\left(-\delta^2qCn / 3\right)
+\Prob(X_0) \leq    \exp\left(-\delta^2q(1-\eta)^2Cn / 3\right)
 \end{equation}
-since the number of independent multinomial samples in the sampling of $\rho'$ is at least $Cn$.
+since $\rho_n$ has $\geq (1-\eta)^2Cn$ unrestricted input bits.
 
 Second, we show that the probability of $X_i^{(z)}$ ($i=1,2,\dots, Hn$) decays exponentially in $k$.
 Fixing $z$, let $Y_i^t$ ($t=1,\dots,k$) be the event that the layer-0 activation $j_{i_t^{(z)}}$ is not assigned the value that produces the highest attention weight, for the given attention head $i$.
 Note that $X_i^{(z)} = \bigcap_t Y_i^t$.
-We have $\Prob(Y_i^s) = 1-((1-q)/2)^c \in (0,1)$. 
+We have $\Prob(Y_i^s) \leq 1-(q/2)^c \in (0,1)$. 
 Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}c/C = \frac{1}{\eta}c^2/C$ other events $Y_i^{s'}$, because each input bit has at most $\frac{1}{\eta} c/C$ depending layer-0 heads.
 Therefore, there is a set of $\geq \frac{k}{\frac{1}{\eta}c^2/C}$ independent events among these.
 Call these $Y_i^{t_1}, \dots, Y_i^{\frac{k}{\frac{1}{\eta}c^2/C}}$.
 Then $X_i^{(z)} \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} Y_i^{t_s}$, and thus
 \begin{equation}
-\Prob(X_i^{(z)}) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} \Prob(Y_i^{t_s}) = \left(1-((1-q)/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2/C}}
+\Prob(X_i^{(z)}) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} \Prob(Y_i^{t_s}) \leq \left(1-(q/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2/C}}
 \end{equation}
 for each $i=1, 2, \dots, Hn$.
 
@@ -606,10 +606,9 @@ Each event $X_i^{(z)}$ ($i=1,2,\dots, Hn$) is statistically independent of the s
 The complement of this set has cardinality $\leq f= \frac{2^{2c}}{\eta}c^2k^2H/C$.
 By the Lov{\'a}sz Local Lemma, it is therefore sufficient to find  $A, B \in (0,1)$ such that the following inequalities hold: %, assuming $f \leq $:
 \begin{align}\label{eq:lovasz-1}
-&\Prob(X_i^{(z)}) \leq  D^k \leq A(1-B)(1-A)^{f} \\ \label{eq:lovasz-2}
-&\Prob(X_0) \leq \exp\left(-\delta^2qCn/3\right)  \leq B (1-A)^{2^cHn}
+&\Prob(X_i^{(z)}) \leq A(1-B)(1-A)^{f} \\ \label{eq:lovasz-2}
+&\Prob(X_0)  \leq B (1-A)^{2^cHn}
 \end{align}
-where $D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}} \in (0,1)$.
 Once we have shown this, then the Lov{\'a}sz Local Lemma guarantees that there is some input restriction $\rho_n'$ that avoids all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$.
 
 
@@ -619,6 +618,7 @@ For~(\ref{eq:lovasz-1}), we need
 \begin{align}\label{eq:x1-ineq}
     D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{f/k} 
 \end{align}
+where $D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}} \in (0,1)$.
 For the first term on the right, 
 \begin{align*}
 \lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \exp\left(-\log(k^2) / k\right) = 1
@@ -630,7 +630,7 @@ Also, $\lim_{k\rightarrow \infty} (1-A)^{f/k}$ equals
 for $E := \frac{2^{2c}}{\eta}c^2H/C$. So, if we choose $k$ large enough (independently of $n$), the RHS of (\ref{eq:x1-ineq}) can be made arbitrarily close to $1$, in particular, greater than $D$.
 In order to also satisfy~(\ref{eq:lovasz-2}), we need
 \begin{align*}
-\exp\left(-\delta^2qC/3\right)  \leq B^{1/n} (1-A)^{2^c H}
+\exp\left(-\delta^2q(1-\eta)^2C/3\right)  \leq B^{1/n} (1-A)^{2^c H}
 \end{align*}
 which holds for $n$, $k$ large enough (again, choosing $k$ independent of $n$). 
 In conclusion, there exists, for each sufficiently-large $n$, a restriction $\rho'_n$ that avoids all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$, for some $k$ independent of $n$.
