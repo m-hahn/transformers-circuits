@@ -143,9 +143,9 @@ Our results therefore also yield more generally limitations on the ability of se
 %Our results entail show strong theoretical limitations of self-attention:
 %Transformers essentially cannot model non-counter-free regular languages or languages containing unbounded recursion.
 
-While theoretical studies have investigated the power of recurrent neural network models in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential,korsky2019computational}), the theoretical study of self-attention has begun only recently \citep{perez2019turing,hsieh2019robustness}.
+While theoretical work has investigated the power of recurrent neural networks in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential}), the theoretical study of self-attention has begun only recently \citep{perez2019turing,hsieh2019robustness}.
 %While computational limitations of transformers have been conjectured to exist~\cite{dehghani2018universal}, 
-Our study provides the first theoretical results about limitations in the power of transformers.
+Our study provides the first theoretical results on limitations in the power of transformers.
 
 After discussing related work (Section~\ref{sec:related}), we first introduce self-attention (Section~\ref{sec:def-selfatt}) and two fundamental formal languages representing regular and context-free languages (Section~\ref{sec:langs}).
 We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) or soft (Section~\ref{sec:soft}) attention.
@@ -161,10 +161,9 @@ transformers cannot compute functions that require sequential processing of inpu
 Similarly, \citet{shen2018disan,chen2018best,hao2019modeling} have introduced extensions of transformers with recurrence, citing similar intuitions about limitations of transformers.
 Our results provide the first explicit formalization of these limitations.
 
-Other studies have experimentally tested the abilities of transformers to learn structures.
+A few studies have experimentally tested the abilities of transformers to learn structures.
 Most related to our work, \citet{tran2018importance} compared the ability of transformers and LSTMs to learn hierarchical structure, specifically English subject-verb agreeement and evaluating logical formulas.
-Based on their experimental results, they suggested that LSTMs are better at learning hierarchical structure.
-
+Their experimental results suggested that LSTMs are better at learning hierarchical structure.
 \citet{yang2019assessing} experimentally investigated the power of self-attention to extract word order information, finding differences between recurrent and self-attention models; however, these were modulated by the training objective.
 \citet{lin2019open} and \citet{tenney2019bert} show that BERT \cite{devlin2018bert} encodes syntactic information.
 
@@ -178,7 +177,7 @@ One of our results, Lemma~\ref{lem:soft-tech}, can be seen as considerably widen
 
 \paragraph{Investigating the Power of Sequence Modeling Architectures}
 The computational power of recurrent neural networks has been a focus of study.
-A particular focus has been on their ability to learn non-regular context-free languages, often thought to provide simple models of recursion and hierarchical structure as found in natural language.
+A particular focus has been on their ability to learn non-regular context-free languages, thought to provide simple models of recursion and hierarchical structure as found in natural language.
 
 A range of studies has experimentally examined the ability of recurrent networks to model counter languages such as $a^nb^n$ \cite{kalinke1998computation,gers2001lstm,cartling2008implicit,weiss2018practical,suzgun2019evaluating}.
 Other work has experimentally studied the performance of reccurent architectures on learning to recognize well-bracketed strings, a similar but more challenging problem \cite{sennhauser2018evaluating,skachkova2018closing,bernardy2018can}.
@@ -232,8 +231,8 @@ We will  examine both hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:s
 
 
 \paragraph{Formalizing Language Recognition}
-We consider the problem of language recognition, the task of classifying input strings as either belonging to or not belonging to a formal language.
-Following~\citet{weiss2018practical}, we formalize this as the sequence-to-sequence task of transducing words to labels $1$ (`in the language') and $0$ (`not in the language').
+We consider the problem of language recognition, the task of classifying input strings as belonging to or not belonging to a formal language.
+Following~\citet{weiss2018practical}, we formalize this as the sequence-to-sequence task of mapping words to labels $1$ (`in the language') and $0$ (`not in the language').
 Following the construction of transformers in sequence-to-sequence tasks \cite{vaswani2017attention}, we compute a softmax probability vector for this label from the last activation $y_{n}^{(L)}$, obtained after reading the end-of-sequence symbol.
 
 %We consider the problem of language recognition as in Weiss et al: a Seq2Seq model is tasked with transducing words in the language to $1$, and other words to $0$.
@@ -384,7 +383,7 @@ The output value of the resulting transformer only depends on those inputs $x_i$
 
 The idea of using such input restrictions has been successful in the theory of Boolean circuits~\cite{furst1984parity,yao1986separating,hastad1994optimal}.
 In particular, \citet{furst1984parity}  famously used it to prove that polynomial-size bounded-depth Boolean circuits with $\wedge, \vee$, and $\neg$ gates cannot compute \textsc{Parity}.
-We describe a new method to prove existence of suitable restrictions appropriate to transformers, as the proof approaches from the Boolean circuit literature do not seem to carry over to networks with continuous real-valued activations.
+We describe a new method to prove existence of suitable restrictions appropriate to transformers, as the proof approaches from the Boolean circuit literature do not seem to generalize to networks with real-valued activations.
 
 The following result formalizes the claim that any transformer can be forced to ignore input bits by fixing some inputs in a particular way:
 \begin{thm}\label{thm:hardmax-main}
@@ -760,7 +759,7 @@ Let $D = \|v_i-v_i'\|_2$ the norm of the difference of the input embeddings at t
 	\|y_j^k-{y_j^k}'\| &\leq \frac{H^k (2C)^{2k}D}{n} = \mathcal{O}(1/n)\ \ \ (j \neq i)
 	\end{aligned}
 \end{equation}
-Once we have shown this, we have found that the influence of any individual input on the final prediction is $\mathcal{O}(\frac{1}{n})$, with constants depending on the norms of parameter matrices and the number of layers.
+Once we have shown this, we know that the influence of any individual input on the final prediction is $\mathcal{O}(\frac{1}{n})$, with constants depending on the norms of parameter matrices and the number of layers.
 
 
 For $k=0$, $\|y_i^0 - {y_i^0}'\| \leq D$, %\footnote{We are assuming that $f$ is addition or concatenation \cite{vaswani2017attention}; for operations such as an MLP, there would be an additional Lipschitz constant depending on parameters and activation functions.}
@@ -829,7 +828,7 @@ A transformer may nonetheless be able to perform well on on short inputs; indeed
 
 
 How do our results compare to what is known about LSTMs?
-Recurrent networks such as SRNNs and LSTMs can perfectly emulate finite-state automata, and therefore can model any finite state language with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
+Recurrent networks such as LSTMs can perfectly emulate finite-state automata, and therefore can model any finite state language with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with perfect accuracy and cross-entropy, independent of the input length.
 
 Infinite-precision RNNs and LSTMs can model stacks \cite{tabor2000fractal,gruning2006stack,kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages perfectly. % and \textsc{LogicalFormulas} perfectly.
