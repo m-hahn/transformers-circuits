@@ -89,6 +89,7 @@
 \usepackage{amsthm}
  
 
+\allowdisplaybreaks
 
 \newcounter{theorem}
 \newtheorem{proposition}[theorem]{Proposition}
@@ -133,7 +134,7 @@ These limitations seem surprising given the practical success of self-attention 
 \end{abstract}
 
 
-Transformers are emerging as the new workhorse of NLP; achieving the state-of-the-art in tasks such as language modeling, machine translation, and creating pretrained contextualized word embeddings.
+Transformers are emerging as the new workhorse of NLP, achieving the state-of-the-art in tasks such as language modeling, machine translation, and creating pretrained contextualized word embeddings.
 %This poses the question of what kinds of structures they are capable of expressing, and what kinds of computations they are able to perform.
 Eschewing recurrent computations, transformers are entirely based on self-attention, performing their computations largely in parallel.
 This enables them to scale to very long sequences \cite{vaswani2017attention,dai2019transformer,child2019generating}.
@@ -146,9 +147,9 @@ Some experimental evidence suggests that transformers might not be as strong as 
 In this work, we examine these questions from a theoretical perspective, asking whether models entirely based on self-attention are theoretically capable of modeling hierarchical structures involving unbounded recursion.
 Formally, we study their ability to perform two computations that are thought to be essential to hierarchical structure:
 First, their ability to correctly \key{close brackets}, a basic problem underlying all nonregular context-free languages and formalized by the \key{\textsc{Dyck}} language \cite{chomsky1963algebraic}.
-Second, their ability to \key{evaluate iterated negation}, which is a basic component of the task of evaluating logical formulas, and which amounts to evaluating the \key{\textsc{Parity}} of bitstrings.
-We show that neither of these problems can be solved by transformers and similar models relying entirely on self-attention, unless the number of layers or parameters increases with the input length.
-Besides representing basic building blocks of hierarchical structure, these languages also represent large classes of regular and context-free languages, meaning that our results will carry over to wide classes of other formal languages.
+Second, their ability to \key{evaluate iterated negation}, a basic component of the task of evaluating logical formulas, amounting to evaluating the \key{\textsc{Parity}} of bitstrings.
+We show that neither of these problems can be solved by transformers and similar models relying entirely on self-attention, unless the number or size of parameters increases with the input length.
+Besides representing basic building blocks of hierarchical structure, these languages also represent large classes of regular and context-free languages, meaning that our results carry over to classes of other formal languages.
 Our results therefore also yield more generally limitations on the ability of self-attention to model finite-state languages and context-free languages.
 %Our results entail show strong theoretical limitations of self-attention:
 %Transformers essentially cannot model non-counter-free regular languages or languages containing unbounded recursion.
@@ -156,6 +157,9 @@ Our results therefore also yield more generally limitations on the ability of se
 While theoretical work has investigated the power of recurrent neural networks in depth (e.g., \citet{siegelman1991neural, bengio1994learning, weiss2018practical, miller2018recurrent, merrill2019sequential}), the theoretical study of self-attention has begun only recently \citep{perez2019turing,hsieh2019robustness}.
 %While computational limitations of transformers have been conjectured to exist~\cite{dehghani2018universal}, 
 Our study provides the first theoretical results on limitations in the power of self-attention.
+We will provide results both for hard and soft attention settings, using different proof methods.
+Our results are strongest in the hard attention setting, holding without further assumptions on activation functions and parameter norms.
+In the soft attention settings, we still obtain results assuming continuity of activation functions as used in practical implementations.
 
 After discussing related work (Section~\ref{sec:related}), we first introduce self-attention (Section~\ref{sec:def-selfatt}) and two fundamental formal languages representing regular and context-free languages (Section~\ref{sec:langs}).
 We then prove that self-attention cannot model these languages using either hard (Section~\ref{sec:hard}) or soft (Section~\ref{sec:soft}) attention.
@@ -255,7 +259,7 @@ Following the construction of transformers in sequence-to-sequence tasks \cite{v
 
 \section{Regular and Context-Free Languages}\label{sec:langs} % : \textsc{Parity}
 
-We will analyze the ability of transformers to recognize regular and context-free languages, using two prominent representatives (\textsc{Parity} and \textsc{2Dyck}).
+We will analyze the ability of transformers to recognize regular and context-free languages, using two prominent representatives. % (\textsc{Parity} and \textsc{2Dyck}).
 
 
 \paragraph{\textsc{Parity}} is the set of bit strings such that the number of $1$s is even.
@@ -290,7 +294,7 @@ If transformers cannot compute parity, they also cannot evaluate logical formula
 %\cite{tran2018importance} experimentally studied the ability of transformers to learn this language, finding that they did not perform as well as LSTMs.
 
 
-\paragraph{\textsc{2Dyck}} is the language of correctly bracketed words consisting of `(', `[' and `)', `]'.
+\paragraph{\textsc{2Dyck}} is the language of correctly bracketed words consisting of two types of brackets (`(', `)' and `[', `]').
 This language is a very simple model of hierarchical structure.
 The Chomsky-Sch{\"u}tzenberger theorem \cite{chomsky1963algebraic} states that any context-free language arises from a variant of \textsc{2Dyck} with multiple types of parentheses through intersection with a regular language and homomorphisms.
 Consequently, the ability of LSTMs to model languages such as \textsc{2Dyck} has been an object of experimental study \cite{sennhauser2018evaluating,skachkova2018closing,bernardy2018can}.
@@ -365,8 +369,8 @@ In fact, we do not even assume that the internal position-wise representations $
 	\label{fig:depth-reduction}
 \end{figure*}
 
-We aim to prove that no transformer is capable of representing \textsc{Parity} or \textsc{2Dyck}, by constructing -- for any given transformer model -- a set of input words that this model will have to misclassify.
-The basic idea (see Figure~\ref{fig:depth-reduction}) behind the proof is that, through fixing a small fraction of the input symbols in a particular way, we can `capture the attention' of the transformer in such a way that it ends up ignoring almost all remaining input symbols.
+We aim to prove that no hard-attention transformer is capable of representing \textsc{Parity} or \textsc{2Dyck}, by constructing -- for any given transformer model -- a set of input words that this model will have to misclassify.
+The basic idea (see Figure~\ref{fig:depth-reduction}) behind the proof is that, by fixing a small fraction of the input symbols in a particular way, we can `capture the attention' of the transformer in such a way that it ends up ignoring almost all remaining input symbols.
 %More specifically, we will use the following approach.
 %We take a transformer, and for each $n$, we consider what happens if we apply this transformer to inputs of that length.
 %We show that, for large enough values of $n$, we can find a way to fix a small fraction of the inputs to 0 or 1, such that the prediction of the transformer depends only on a finitely bounded (independently of $n$) number of input positions.
@@ -618,7 +622,7 @@ Our goal will be to show that a nonzero amount of probability mass is assigned t
 First, a Chernoff bound gives~\cite[Theorem 4.4]{mitzenmacherprobability}
 %\footnote{See \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 \begin{equation}
-\Prob(X_0) \leq    \exp\left(-\frac{\delta^2qCn}{3}\right)
+\Prob(X_0) \leq    \exp\left(-\delta^2qCn / 3\right)
 \end{equation}
 since the number of independent multinomial samples in the sampling of $\rho'$ is at least $Cn$.
 
@@ -646,12 +650,12 @@ In order to conclude that there is a restriction $\rho'_n$ avoiding all events $
 This lemma requires that the amount of statistical dependencies between these events be sufficiently `limited'.
 Indeed, each event $X_i$ ($i=1,2,\dots, Hn$) is statistically independent of the set $\{X_j : \text{heads } j \text{ and } i \text{ are not $k$-neighbors}\}$.
 The complement of this set has cardinality $\leq f= \frac{1}{\eta}c^2k^2H/C$.
-By the Lov{\'a}sz Local Lemma, it is therefore sufficient to find  $A, B \in (0,1)$ such that the following inuequalities hold: %, assuming $f \leq $:
+By the Lov{\'a}sz Local Lemma, it is therefore sufficient to find  $A, B \in (0,1)$ such that the following inequalities hold: %, assuming $f \leq $:
 \begin{align}\label{eq:lovasz-1}
 \Prob(X_i) &\leq  D^k \leq A(1-B)(1-A)^{f} \\ \label{eq:lovasz-2}
-\Prob(X_0) &\leq \exp\left(-\frac{\delta^2qCn}{3}\right)  \leq B (1-A)^{Hn}
+\Prob(X_0) &\leq \exp\left(-\delta^2qCn/3\right)  \leq B (1-A)^{Hn}
 \end{align}
-where $D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}} \in (0,1)$. % is a constant in $(0,1)$, depending on $c$, $q$, $C$, $\eta$, but \emph{not} on $k$.
+where $D =  \left(1-(q/2)^c\right)^{\frac{1}{\frac{1}{\eta}c^2/C}} \in (0,1)$.
 Once we have shown this, then the Lov{\'a}sz Local Lemma guarantees that there is some input restriction that avoids all events $X_0, X_1, X_2, \dots$:
 
 
@@ -672,7 +676,7 @@ Also, $\lim_{k\rightarrow \infty} (1-A)^{\frac{1}{\eta}kc^2H/C}$ equals
 where we choose $E = \frac{1}{\eta}c^2H/C$. So, if we choose $k$ large enough (independently of $n$), the RHS of (\ref{eq:x1-ineq}) can be made arbitrarily close to $1$, in particular, greater than $D$.
 In order to also satisfy~(\ref{eq:lovasz-2}), we need
 \begin{equation}
-\exp\left(-\frac{\delta^2qC}{3}\right)  \leq B^{1/n} (1-A)^H
+\exp\left(-\delta^2qC/3\right)  \leq B^{1/n} (1-A)^H
 \end{equation}
 which holds for $n$, $k$ large enough (again, choosing $k$ independent of $n$). 
 In conclusion, there exists, for each sufficiently-large $n$, a restriction $\rho'_n$ that avoids all events $X_0, X_1, X_2, \dots$, for some $k$ independent of $n$.
@@ -714,8 +718,8 @@ This concludes the proof of the Depth Reduction Lemma.
 
 In the previous section, we showed that transformers using hard attention are not able to recognize a range of core formal languages.
 In this section, we study soft attention.
-It turns out that proving limitations as strong as what we found in the hard attention setting would settle a major open problem in computational complexity, and would therefore probably be very hard to attain with currently available mathematical methods.\footnote{Showing that soft attention transformers cannot achieve perfect accuracy on evaluating Boolean formulas would separate the complexity classes $LTC^0$ and $NC^1$, a widely conjectured but long-open problem in computational complexity.}
-Nonetheless, we will be able to prove limitations in this setting, by considering the  achievable \emph{perplexity} in predicting the next symbol in an input.
+It turns out that proving limitations as strong as what we found in the hard attention setting would settle a major open problem in computational complexity, and  may therefore be extremely hard to attain with currently available mathematical methods.\footnote{Showing that soft attention transformers cannot achieve perfect accuracy on evaluating Boolean formulas would separate the complexity classes $LTC^0$ and $NC^1$, a widely conjectured but long-open problem in computational complexity.}
+This barrier prevents us from proving bounds on the \emph{accuracy} that soft attention transformers can achieve; nevertheless, we will be able to prove limitations on the achievable \emph{perplexity} in predicting the next symbol in an input.
 We will use the smoothness of the operations used in transformers to show that any transformer, as inputs get longer, will not be able to robustly separate members of the languages from other inputs.
 The idea behind the proof is that the impact of any single input on the output of the transformer is small if the input is long:
 \begin{lemma}\label{lem:soft-tech}
@@ -731,17 +735,17 @@ E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes par
 This result entails that, as inputs become longer, soft attention transformers cannot achieve good cross-entropies on a large class of prediction problems:
 A Lipschitz-continuous prediction function, such as a ReLU MLP followed by a softmax operation, will not be able to make very different predictions for inputs that are encoded into very similar activation vectors $y_n^{(L)}$.
 
-{\textcolor{red}{TODO}}
+%{\textcolor{red}{TODO}}
 
-To make this precise, we %take a more quantitative angle and assign probability distributions over inputs for each input length $n$, and 
-consider the behavior of cross-entropy as the input length $n$ grows.
+%To make this precise, we %take a more quantitative angle and assign probability distributions over inputs for each input length $n$, and 
+%consider the behavior of cross-entropy as the input length $n$ grows.
 To make all our assumptions explicit, we will assume the following setting, though the results do not depend on the specific details.
-For \textsc{Parity}, we consider the distribution over i.i.d. bitstrings generated by a two-state automaton that emits a $1$ or $0$ with probability $p/2$ each, and terminates with probability $1-p$.
+For \textsc{Parity}, we consider the distribution over bitstrings generated by a two-state automaton that emits a $1$ or $0$ with probability $p/2$ each, and terminates with probability $1-p$.
 We consider the task of predicting the next symbol from $\Sigma = \{0, 1, \textsc{EndOfSequence}\}$.
-Note that the next symbol can be \textsc{EndOfSequence} if and only if the prefix has an even number of ones.
-For \textsc{2Dyck}, we follow the experimental study of \citet{skachkova2018closing} and take the distribution generated by a PCFG that expands $S \rightarrow SS | (S) | [S]$ with probability $p/3$ each, and $S \rightarrow \epsilon$ with probability $1-p$.
+Note that the next symbol can be \textsc{EndOfSequence} if and only if the prefix has an even number of $1$s.
+For \textsc{2Dyck}, we follow the experimental study of \citet{skachkova2018closing} and take the distribution generated by a PCFG that expands $S \rightarrow SS | \epsilon$ with probability $p/3$ each, and $S  \rightarrow (S) | [S]$ with probability $p/6$ each.
 We ask the model to predict the next character among $\Sigma = \{(,),[, ], \textsc{EndOfSequence}\}$. %\footnote{Only an exponentially small subset of the strings over $n$ symbols are well-labeled; thus, cross-entropy on the classification task is less meaningful for this language. Considering prediction of the next symbol sidesteps this issue.}
-We consider the problem of predicting the label from the input separately for each input length $n$, and consider cross-entropy as $n\rightarrow \infty$.
+%We consider the problem of predicting the label from the input separately for each input length $n$, and consider cross-entropy as $n\rightarrow \infty$.
 
 \begin{thm}
 Let a soft attention transformer be given for one of the languages \textsc{Parity} and \textsc{2Dyck}. %, \textsc{BooleanFormula}.
@@ -759,7 +763,7 @@ In all other cases, the correct label includes one of the two closing parenthese
 \end{proof}
 
 \subsection{Proof of the Lemma}
-Having established the main theorem, we proceed to proving the technical Lemma~\ref{lem:soft-tech}:
+We proceed to proving the technical Lemma~\ref{lem:soft-tech}:
 \begin{proof}[Proof of Lemma~\ref{lem:soft-tech}]
 Let us compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
 Let $D = \|v_i-v_i'\|_2$ the norm of the difference of the input embeddings at this position.
@@ -787,11 +791,14 @@ Choose $C : = 2(1 + \exp(2A) + L_{f^{act}})$.
 Recall that activations $y_i^k$ are defined as $f^{act}(y_i^{k-1}, b_{i,k,1}, \dots, b_{i,k,H})$, where $b_{i,k,h}$ equals $\sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{k-1}$.
 We first calculate
 \begin{align*}
-& \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y_w^{k-1}\|
+& \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y'_w^{k-1}\|
 \end{align*}
 which is bounded as follows:
 \begin{align*}
-& \leq + \hat{a}_{j,i}^{k,h} \|y_i^{k-1} - y_i^{k-1}\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y_w^{k-1}\|  \\
+& \leq + \hat{a}_{j,i}^{k,h} \|y_i^{k-1} - y'_i^{k-1}\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - y'_w^{k-1}\| 
+\end{align*}
+By induction hypothesis, this is bounded by:
+\begin{align*}
 & \leq \frac{\exp(2A)}{n}  (2C)^{2(k-1)} D + \frac{H^{k-1}(2C)^{2(k-1)}D}{n} \\
 %& \leq (2C)^{2(k-1)}D \frac{C/2   + H^{k-1} }{n} \\
 & \leq \frac{H^{k-1} (2C)^{2(k-1)+1} D}{n}
@@ -802,7 +809,7 @@ Plugging this into the definition of $y_i^k$, the difference $\|y_j^k - {y_j^k}\
 \end{align*}
 If $j= i$, this is bounded by (as $n \rightarrow \infty$)
 \begin{align*}
-\leq L_{f^{act}} \cdot ((2C)^{2(k-1)}D + o(1)) \leq (2C)^{2k}D
+\leq L_{f^{act}} \cdot \left((2C)^{2(k-1)}D + o(1)\right) \leq (2C)^{2k}D
 \end{align*}
 If $j\neq i$, this is bounded above by
 \begin{align*}
