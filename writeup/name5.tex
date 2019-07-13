@@ -21,7 +21,7 @@
 
 
 
-%\renewcommand{\baselinestretch}{0.99}
+%\renewcommand{\baselinestretch}{0.97}
 
 
 
@@ -221,14 +221,14 @@ Each layer has a set of $H$ \key{attention heads}; we first compute attention sc
 \end{equation}
 where $f^{att}_{k,h}$ combines the activations from the previous level into an attention score.
 This can be implemented e.g. using dot product or additive attention.
-The final activation of the head is computed by weighting according to attention weights:
+The  activation of the head is computed by weighting according to attention weights:
 \begin{equation}
     b_{i,k,h} = \sum_{j=1}^n \hat{a}_{i,j}^{(k,h)} y_j^{(k-1)}
 \end{equation}
 In the soft attention version, the weights $\hat{a}_{i,\cdot}$ are obtained by the softmax operation: $\hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot})$.
-In the hard attention variant \cite{perez2019turing}, one takes the actual maximum of attention values instead of softmax:
+In the hard attention variant \cite{perez2019turing}, one takes the actual maximum attention values:
 $\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{When there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis also works under other schemes of resolving ties, such as random selection.}
-The final activation at each position is then computed as
+The  per-position activations are then computed as
 \begin{equation}
     y_i^{(k)} := f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})
 \end{equation}
@@ -237,8 +237,8 @@ where $f^{act}$ is implemented as a fully-connected feedforward network with a s
 \paragraph{Hard and Soft Attention}
 There is a choice between soft attention and hard attention \cite{shen2018reinforced,perez2019turing}.
 The one prior theoretical study of transformers~\cite{perez2019turing} assumes hard attention.
-In practice, soft attention is easier to train with gradient descent methods; however, analysis studies suggest that attention often concentrates on one or a few positions in trained transformer models \cite{voita2019analyzing,clark2019bert} and that the most important heads tend to be those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
-We will  examine both hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:soft}) attention settings.
+In practice, soft attention is easier to train with gradient descent; however, analysis studies suggest that attention often concentrates on one or a few positions in trained transformer models \cite{voita2019analyzing,clark2019bert} and that the most important heads are those that clearly focus on a few positions~\cite{voita2019analyzing}, suggesting that attention often behaves  like hard attention in practice. %, and analysis of neural network attention focuses on the positions where attention concentrates
+We will  examine both hard (Section~\ref{sec:hard}) and soft (Section~\ref{sec:soft}) attention.
 %We will see that, if arbitrary activation functions are allowed, soft attention is significantly more powerful than hard attention.
 %On the other hand, in the realistic setting where activation functions obey reasonable regularity conditions (satisfied by ReLU, Tanh, \dots), hard and soft attention result in similar limitations.
 
@@ -393,8 +393,7 @@ A \key{restriction} $\rho$ is a family of maps $\rho_n : \{1, \dots, n\} \righta
 A restriction $\rho$ is applied to a transformer by restricting, when the input size is $n$, the input symbol $x_i$ to the value $\rho_n(i)$ whenever $\rho_n(i) \in \{0, 1\}$.
 The output value of the resulting transformer only depends on those inputs $x_i$ such that $\rho_n(i) = *$.
 
-
-The idea of using such input restrictions has been successful in the theory of Boolean circuits~\cite{furst1984parity,yao1986separating,hastad1994optimal}.
+The idea of using such input restrictions has been successful in the theory of Boolean circuits~\cite{furst1984parity,hastad1994optimal}.
 In particular, \citet{furst1984parity}  famously used it to prove that polynomial-size bounded-depth Boolean circuits with $\wedge, \vee$, and $\neg$ gates cannot compute \textsc{Parity}.
 We describe a new method to prove existence of suitable restrictions appropriate to transformers, as the proof approaches from the Boolean circuit literature do not seem to generalize to networks with real-valued activations.
 
@@ -412,16 +411,16 @@ Transformers with hard attention cannot model \textsc{Parity} or \textsc{2Dyck}.
 %, or \textsc{BooleanFormula} (i.e., asymptotic cross-entropy is at chance level).
 \end{corollary}
 \begin{proof}
-Take $C=0.9$.
-For \textsc{Parity}, after applying a restriction, the output of the transformer depends on $c$ inputs.
+
+For \textsc{Parity}, after applying a restriction, the transformer's output depends on $c$ inputs.
 An input of sufficiently large size $n$ thus has unrestricted inputs that do not influence the output.
-But flipping a single input bit changes the value, so the transformer's output cannot match membership in \textsc{Parity} beyond chance as soon as $n$ is sufficiently large.
+But flipping a single input bit changes the value, so the transformer's output cannot match membership in \textsc{Parity} beyond chance for such $n$.
 
 %As a corollary, transformers also cannot model \textsc{BooleanFormula}, as they cannot model iterated negation.
 
 For \textsc{2Dyck}, we show that hard attention transformers cannot even solve the simpler variant \textsc{1Dyck} with a single bracket type (`(', `)').
 We first restrict the first $0.2n$ input positions to `(' and the last $0.2n$ positions to `)'.
-After then applying the restriction provided by the theorem, the resulting restricted input will still be compatible with both well-bracketed and non-well-bracketed inputs, but the prediction will depend only on a bounded number of positions.
+After then applying the restriction provided by the theorem with $C=0.9$, the resulting restricted input will still be compatible with both well-bracketed and non-well-bracketed inputs, but the prediction will depend only on a bounded number of positions.
 As the prediction depends on only a bounded number of positions, this shows the transformer could not recognize \textsc{1Dyck}, and thus also not \textsc{2Dyck}.
 %The probability that 
 %for BooleanFormula, maybe the reduction to PARITY is okay, if there is a constant fraction of chance that parity will be relevant
@@ -440,14 +439,10 @@ Therefore, such simple languages are immune to the depth reduction method, and i
 
 In general, the depth reduction method applies to languages that are sufficiently \emph{sensitive}: If, for some $C \in (0,1)$, fixing $Cn$ input symbols cannot force a word to be inside or outside of the language, then hard-attention transformers cannot recognize this language.
 Sensitivity of functions %and the structure of Hamming neighborhoods
-has been studied in computational complexity~\cite{boppana1997average,gilmer2015new,gopalan2016smooth,rossman2018average} and more recently linked to generalization in feedforward networks~\cite{de2018deep}.
+has been studied in computational complexity~\cite{boppana1997average,gopalan2016smooth} and more recently linked to generalization in feedforward networks~\cite{de2018deep}.
 We intend to investigate these connections in future work.
 
 
-
-%In general, languages are hard for transformers if any word has $\Omega(n)$ many Hamming neighbor that have the opposite label
-
-%As a corollary, we can show that: (1) Among regular languages, hard-attention transformers can at most model counter-free languages. (2) Among context-free languages that explicitly mark their hierarchical structure through bracketing (such as $a^nb^n$ and \textsc{2Dyck})
 
 \paragraph{Proof Idea of the Theorem}
 Our approach for proving Theorem~\ref{thm:hardmax-main} will be to construct input restrictions in a layerwise manner, starting from layer 1. 
@@ -505,7 +500,7 @@ such that
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
 for all sufficiently large $n$, 
-and such that the resulting function is computed by a $(H\cdot c\cdot k)$-transformer with $d-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
+and such that the resulting function is computed by a $(2^c \cdot H\cdot c\cdot k)$-transformer with $d-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
 \end{lemma}
 The lemma implies Theorem~\ref{thm:hardmax-main}:
 \begin{proof}[Proof of Theorem~\ref{thm:hardmax-main}]
@@ -529,15 +524,10 @@ In the second part, we will select a sufficiently large $k$. % that will work fo
 %The aim is that $c' := ck$.
 
 \paragraph{Part 1: Preliminaries}
-%For the $i$-th level-1 head, we assemble for all inputs $j$ maximum attention value between head $i$ and input $j$ for the two possible inputs $0$, $1$.
-%Then we sort the inputs $j$ in descending order by the maximum attention value: $j_1, j_2, \dots, j_n$ (if there are ties, we order by position).
-
-%The following observation will be important: If we fix the input $j_k$ to the value that makes the attention value achieve the higher value, then the activation at element $i$ in level 1 only depends on the inputs $i, j_1, \dots, j_{k-1}$.
-
 We construct the restrictions $\rho'_n$ separately for each $n$.
 Fix a layer-1 attention head $h$ at position $i$.
 As $y^{(0)}_i$ depends on $\leq c$ input bits, it can take on at most $\leq 2^c$ possible values.
-For every one of these possible values $z$,  and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
+For each possible values $z$,  and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
 \begin{equation}
 \max_{x_1\dots x_n\ :\ y^{(0)}_i=z} f^{att}_{k,h}(z, y^{(0)}_j)
 \end{equation}
@@ -553,10 +543,9 @@ In particular, a layer-1 head $k$-depends only on $\leq 2^c ck$ input variables.
 Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s^{(z)}}$ for one and $j_{i_s'^{(z')}}$ for the other both $k$-depend on some input bit $x_l$.
 
 
-We will construct input restrictions $\rho'_n$ using probabilistic arguments over i.i.d. random restrictions.
+We will construct input restrictions $\rho'_n$ using probabilistic arguments over random restrictions.
 For this approach to succeed, we require a  sufficient amount of independence between the activations of different heads in layer 1.
 We thus need to ensure that the number of $k$-neighbors of each head is bounded.
-
 Fix some $\eta \in (0,1)$ (to be chosen later).
 Let $H$ be the number of attention heads in each position of layer 1.
 First, assume there is some input bit that has $>\frac{2^c}{\eta}kcH/C$ many $k$-depending layer-1 heads.
@@ -571,7 +560,7 @@ Furthermore, assume the number of input bits with $> \frac{1}{\eta} c/C$ dependi
 Then the number of pairs of input bits and layer-0 activations is $>\eta Cn \cdot \frac{1}{\eta} c/C = nc$.
 But there are at most $nc$ such pairs, contradiction.
 So the number of input bits with $> \frac{1}{\eta} c/C$ depending layer-0 heads is $\leq \eta Cn$.
-We can again restrict these input bits to some fixed value (again, it doesn't matter which one).
+We can again restrict these input bits to some fixed value. % (again, it doesn't matter which one).
 
 After these preparations, for $n$ large enough,
 \begin{equation}
@@ -579,14 +568,15 @@ After these preparations, for $n$ large enough,
 \end{equation}
 
 \paragraph{Part 2: Constructing Restrictions}
-After the previous part, every input bit has $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending layer-1 heads, and consequently every layer-1 head has at most $f \leq \frac{2^{2c}}{\eta}c^2k^2H/C$ many $k$-neighbors (for any $k$).
+After the previous part, every input bit has $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending layer-1 heads.
+Consequently, every layer-1 head has at most $f \leq \frac{2^{2c}}{\eta}c^2k^2H/C$ many $k$-neighbors (for any $k$).
 Also, every input bit has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 
 
-In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho'$ of inputs, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
+In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho'$, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 For each input length $n$, define the distribution over restrictions $\rho_n'$ that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $*$ with probability $q \in (0,1)$ (to be chosen later), and $1$ or $0$ with equal probability else.
 On those input bits where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
-For the $i$-th layer-1 attention head (there are at most $Hn$ many such) and for each value $z$ (there are at most $2^c$ such), define $X_i^{(z)}$ to be the event that, for the $i$-th head, none of $j_{i_1^{(z)}}, \dots, j_{i_k^{(z)}}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
+For the $i$-th layer-1 attention head (there are at most $Hn$ many such) and for each value $z$ (there are at most $2^c$ such), define $X_i^{(z)}$ to be the event that, for this head, none of $j_{i_1^{(z)}}, \dots, j_{i_k^{(z)}}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
 Define $X_0$ to be the event that more than $(1+\delta)qCn$ many input bits are set to $0/1$ (where $\delta \in (0,1)$, to be fixed later).
 Our goal will be to show that a nonzero amount of probability mass is assigned to restrictions $\rho_n'$ avoiding all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$.
 
@@ -600,19 +590,19 @@ since the number of independent multinomial samples in the sampling of $\rho'$ i
 Second, we show that the probability of $X_i^{(z)}$ ($i=1,2,\dots, Hn$) decays exponentially in $k$.
 Fixing $z$, let $Y_i^t$ ($t=1,\dots,k$) be the event that the layer-0 activation $j_{i_t^{(z)}}$ is not assigned the value that produces the highest attention weight, for the given attention head $i$.
 Note that $X_i^{(z)} = \bigcap_t Y_i^t$.
-We have $\Prob(Y_i^s) = 1-(q/2)^c \in (0,1)$. 
+We have $\Prob(Y_i^s) = 1-((1-q)/2)^c \in (0,1)$. 
 Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}c/C = \frac{1}{\eta}c^2/C$ other events $Y_i^{s'}$, because each input bit has at most $\frac{1}{\eta} c/C$ depending layer-0 heads.
 Therefore, there is a set of $\geq \frac{k}{\frac{1}{\eta}c^2/C}$ independent events among these.
 Call these $Y_i^{t_1}, \dots, Y_i^{\frac{k}{\frac{1}{\eta}c^2/C}}$.
 Then $X_i^{(z)} \subseteq \bigcap_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} Y_i^{t_s}$, and thus
 \begin{equation}
-\Prob(X_i^{(z)}) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} \Prob(Y_i^{t_s}) = \left(1-(q/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2/C}}
+\Prob(X_i^{(z)}) \leq \prod_{s=1}^{\frac{k}{\frac{1}{\eta}c^2/C}} \Prob(Y_i^{t_s}) = \left(1-((1-q)/2)^c\right)^{\frac{k}{\frac{1}{\eta}c^2/C}}
 \end{equation}
 for each $i=1, 2, \dots, Hn$.
 
-In order to conclude that there is a restriction $\rho'_n$ avoiding all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$, we will apply the Lov{\'a}sz Local Lemma \cite[Theorem 6.17]{mitzenmacherprobability}.
-This lemma requires that the amount of statistical dependencies between these events be sufficiently `limited'.
-Indeed, each event $X_i^{(z)}$ ($i=1,2,\dots, Hn$) is statistically independent of the set $\{X_j^{(z')} : \text{heads } j \text{ and } i \text{ are not $k$-neighbors}\}$.
+In order to conclude that there is a restriction $\rho'_n$ avoiding all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$, we apply the Lov{\'a}sz Local Lemma \cite[Theorem 6.17]{mitzenmacherprobability}.
+%This requires that the amount of statistical dependency between these events be sufficiently `limited'.
+Each event $X_i^{(z)}$ ($i=1,2,\dots, Hn$) is statistically independent of the set $\{X_j^{(z')} : \text{heads } j \text{ and } i \text{ are not $k$-neighbors}\}$.
 The complement of this set has cardinality $\leq f= \frac{2^{2c}}{\eta}c^2k^2H/C$.
 By the Lov{\'a}sz Local Lemma, it is therefore sufficient to find  $A, B \in (0,1)$ such that the following inequalities hold: %, assuming $f \leq $:
 \begin{align}\label{eq:lovasz-1}
@@ -625,7 +615,7 @@ Once we have shown this, then the Lov{\'a}sz Local Lemma guarantees that there i
 
 Choose 
 $A=\frac{1}{k^2}$, $B=0.5$.
-For~(\ref{eq:lovasz-1}), we need to satisfy
+For~(\ref{eq:lovasz-1}), we need
 \begin{align}\label{eq:x1-ineq}
     D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{f/k} 
 \end{align}
@@ -664,8 +654,6 @@ This concludes the proof of the Depth Reduction Lemma.
 
 \section{Results for Soft Attention}\label{sec:soft}
 
-
-
 In the previous section, we showed that transformers using hard attention are not able to recognize a range of core formal languages.
 In this section, we study soft attention.
 It turns out that proving limitations as strong as what we found in the hard attention setting would settle a major open problem in computational complexity, and  may therefore be extremely hard to attain with currently available mathematical methods.\footnote{Showing that soft attention transformers cannot achieve perfect accuracy on evaluating Boolean formulas would separate the complexity classes $LTC^0$ and $NC^1$, a widely conjectured but long-open problem in computational complexity.}
@@ -675,7 +663,7 @@ The idea behind the proof is that the impact of any single input symbol on the o
 \begin{lemma}\label{lem:soft-tech}
 Let a soft attention transformer be given, and let $n$ be the input length.
 If we exchange one input symbol $x_i$ ($i < n$), %a single input bit $x_i$ with the bit $x_i'$
-then the change in the resulting activation $y_n^{(L)}$ at the decoder layer is bounded as $\mathcal{O}(\frac{1}{n})$ with constants depending on the parameter matrices. %, where $n$ is the input length. %, $k$ is the number of layers, and $C$ is the summed norm of the parameter matrices.
+then the change in the resulting activation $y_n^{(L)}$ at the decoder layer is bounded as $\mathcal{O}(\frac{1}{n})$ with constants depending on the parameter matrices.
 \end{lemma}
 This contrasts with recurrent networks:
 Changing a single input can have nonnegligible impact on the final state even for very long input.
@@ -683,7 +671,7 @@ E.g., an RNN recognizing \textsc{Parity} through a hidden state that encodes par
 
 
 Lemma~\ref{lem:soft-tech} entails that, as inputs become longer, soft attention transformers cannot achieve good cross-entropies on prediction problems that are very sensitive to individual input symbols:
-A Lipschitz-continuous prediction function, such as a ReLU MLP followed by a softmax operation, will not be able to make very different predictions for inputs that are encoded into very similar activation vectors $y_n^{(L)}$.
+A Lipschitz-continuous prediction function, such as a ReLU MLP with a softmax output, will not be able to make very different predictions for inputs that are encoded into similar activations $y_n^{(L)}$.
 
 %{\textcolor{red}{TODO}}
 
@@ -713,13 +701,12 @@ Thus, again, cross-entropy of a Lipschitz-continuous prediction function will co
 %In all other cases, the correct label includes one of the two closing parentheses, which depends on one single previous symbol, and both possibilities are equally likely if that symbol is unknown.
 \end{proof}
 
-\subsection{Proof of Lemma~\ref{lem:soft-tech}}
-We proceed to proving Lemma~\ref{lem:soft-tech}.
-%\begin{proof}[Proof of Lemma~\ref{lem:soft-tech}]
+%\subsection{Proof of Lemma~\ref{lem:soft-tech}}
+Having established the theorem, we proceed to proving Lemma~\ref{lem:soft-tech}.
+\begin{proof}[Proof of Lemma~\ref{lem:soft-tech}]
 We compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
 Let $D = \|v_i-v_i'\|_2$ the norm of the difference of the input embeddings at this position.
-
-	We show by induction over $k$ that, for some some $C > 0$ (to be chosen below) the differences between the resulting activations $y_j^{(k)}$, ${y_j^{(k)}}'$ are bounded as:
+	We show by induction over $k$ that, for some some $C > 0$ (chosen below) the differences between the resulting activations $y_j^{(k)}$, ${y_j^{(k)}}'$ are bounded as:
 \begin{align*}
 	\|y_i^{(k)}-{y_i^{(k)}}'\| &\leq C^{k}D = \mathcal{O}(1) \\
 	\|y_j^{(k)}-{y_j^{(k)}}'\| &\leq \frac{H^k C^{k}D}{n} = \mathcal{O}(1/n)\ \ \ (j \neq i)
@@ -768,7 +755,7 @@ If $j\neq i$, this is bounded above by
 \end{align*} 
 which is bounded by $\leq  \frac{H^{k} C^{k} D}{n}$.
 This proves the inductive step for $k>0$.
-%\end{proof}
+\end{proof}
 
 
 
