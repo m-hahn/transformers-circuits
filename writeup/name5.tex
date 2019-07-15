@@ -800,11 +800,17 @@ Such processing models predict difficulty with center embedding because they can
 %One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
 %  and \textsc{LogicalFormulas}
 
+{\color{red}
+Our results thus suggest that there might be properties of language that make transformers suitable models, despite their inability to exactly model formal languages of the types typically assumed in theoretical linguistics (e.g. they cannot do stacks).
 
+Maybe language due to redundancy don't have this sensitivity property
 
+TODO more takeaways
 
+-- 
 
-
+-- language doesn't have this sensitivity property
+}
 
 
 
@@ -814,7 +820,9 @@ Such processing models predict difficulty with center embedding because they can
 \section{Conclusion}
 We formally investigated the capabilities of self-attention in modeling regular languages and hierarchical structure.
 We showed that transformers cannot model periodic regular languages or basic recursion, either with hard or soft attention, and even if infinite precision is allowed. %, or Boolean formula evaluation
+This entails that self-attention cannot in general emulate stacks, or even finite-state automata.
 Our results theoretically confirm the idea that self-attention, by avoiding recurrence, has quite limited computational power.
+
 %is not capable of modeling hierarchical structure.
 
 %\section*{Acknowledgments}
