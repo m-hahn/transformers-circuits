@@ -785,6 +785,7 @@ This clear contrast between infinite-precision LSTMs and our findings for infini
 
 Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
 Our results entail that self-attention is strongly limited in its ability to model context-free languages or evaluate logical formulas.
+In particular, self-attention cannot in general emulate stacks or finite-state automata.
 How should we reconcile this with the success of transformers at many natural language processing tasks?
 One possibility is that strong quantitative performance on NLP tasks can be achieved without genuine understanding of linguistic structure, as has been argued for other neural network models used in NLP that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
 This would suggest that models such as transformers may not be capable in principle to understand language in a fully human-like way.
@@ -795,22 +796,15 @@ Such processing models predict difficulty with center embedding because they can
 
 
 
-%While our hard attention results hold under extremely general assumptions, the analysis of soft attention builds on regularity properties of the operations that existing transformer models are composed of.
-%It would be interesting to investigate to what extent computational power increases when other operations -- e.g., discontinuous activations, or infinite attention logits -- are allowed.
-%One can show that the use of discontinuous activation functions such as the Heaviside function would enable perfect modeling of \textsc{Parity}; however, we do not know whether such changes would help with context-free languages such as \textsc{2Dyck}.\footnote{Analogy with Boolean circuits suggests that such results might be extremely hard to obtain: If transformers with soft attention were shown unable to model context-free languages such as the set of true logical formulas, even when allowing arbitrary activation functions, this would separate the functions computed by linear-size $TC^0$ circuits from the class $NC^1$. Separation of $TC^0$ and $NC^1$ is a widely believed but long-open conjecture whose solution would be a major breakthough in computational complexity \cite{arora2009computational}.}
-%  and \textsc{LogicalFormulas}
-
-{\color{red}
-Our results thus suggest that there might be properties of language that make transformers suitable models, despite their inability to exactly model formal languages of the types typically assumed in theoretical linguistics (e.g. they cannot do stacks).
-
-Maybe language due to redundancy don't have this sensitivity property
-
-TODO more takeaways
-
--- 
-
--- language doesn't have this sensitivity property
-}
+% Another possibility is that natural language has properties distinct from these formal languages that make it easier to process for self-attention.
+%We suggest that language might avoid 
+%{\color{red}
+%Our results thus suggest that there might be properties of language that make transformers suitable models, despite their inability to exactly model formal languages of the types typically assumed in theoretical linguistics (e.g. they cannot do stacks).
+%Maybe language due to redundancy don't have this sensitivity property
+%TODO more takeaways
+%-- 
+%-- language doesn't have this sensitivity property
+%}
 
 
 
