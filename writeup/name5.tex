@@ -535,7 +535,7 @@ For each value $z$, we order the positions $\{1, \dots, n\}$ downwards by this v
 %For each head $h$ at position $i$, we fold the $\leq 2^c$ sequences resulting for the values $z_1, ..., z_{2^c}$ into a single sequence: $j_1, j_2, ..., j_{n\cdot 2^c} := j_1^{(z_1)}, j_1^{(z_2)}, \dots, j_1^{(z_{2^c})}, j_2^{(z_1)}, \dots, j_2^{(z_{2^c})}, \dots,j_n^{(z_1)}, \dots j_n^{(2^z)}$
 
 For each layer-1 attention head and each $z$, we then select a sequence $1 \leq i_1^{(z)} < i_2^{(z)} < \dots < i_{k}^{(z)} \leq n$ such that (1) for each $i_s^{(z)}$, there is at least one input bit $x_q$ that only feeds into the element $j_{i_s}^{(z)}$ and no other $j_{i_s'}^{(z)}$, (2) $i_{k}^{(z)}$ is minimal, i.e. there is no subsequence with smaller $i_{k}^{(z)}$ that also satisfies (1).
-There is only one case in which we cannot find such a subsequence, which is if all $y_i^{(0)}$ together depend only on $< ck$ inputs, in which case the Depth Reduction Lemma is already satisfied.
+If we cannot find such a subsequence, then all $y_i^{(0)}$ together depend only on $< ck$ inputs, in which case the Depth Reduction Lemma is already satisfied for this input length $n$.
 
 A layer-1 head $k$-\textbf{depends} on some input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r^{(z)}$ for $r \leq i_k^{(z)}$, for some $z$.
 Because $i_k^{(z)}$ is minimal, a layer-1 head $k$-depends on an input if and only if that input appears as an input to some $j_{i_s^{(z)}}$ ($s \leq k$).
