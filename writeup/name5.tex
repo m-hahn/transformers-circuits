@@ -500,7 +500,7 @@ such that
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
 for all sufficiently large $n$, 
-and such that the resulting function is computed by a $(2^c \cdot H\cdot c\cdot k)$-transformer with $d-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
+and such that the resulting function is computed by a $(H\cdot c\cdot(2^ck+1))$-transformer with $d-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
 \end{lemma}
 The lemma implies Theorem~\ref{thm:hardmax-main}:
 \begin{proof}[Proof of Theorem~\ref{thm:hardmax-main}]
@@ -573,7 +573,7 @@ Consequently, every layer-1 head has at most $f \leq \frac{2^{2c}}{\eta}c^2k^2H/
 Also, every input bit has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 
 
-In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho'$, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
+In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho'_n$, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 For each input length $n$, define the distribution over restrictions $\rho_n'$ that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $1$ or $0$ with probability $q/2$ each ($q \in (0,1)$ to be chosen later), and $*$ with probability $1-q$.
 On those input bits where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
 For the $i$-th layer-1 attention head (there are at most $Hn$ many such) and for each value $z$ (there are at most $2^c$ such), define $X_i^{(z)}$ to be the event that, for this head, none of $j_{i_1^{(z)}}, \dots, j_{i_k^{(z)}}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
@@ -642,10 +642,10 @@ for all sufficiently large $n$.
 Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such that $(1+\delta)q \in (0,1)$) in such a way as to achieve $(1-\eta)^2\cdot (1-(1+\delta)q) = C'/C$.
 
 
-
-We now note that, since every layer-1 head depends only on $\leq 2^cck$ many input bits after applying $\rho'$, each layer-1 activation $y_j^{(1)}$ only depends on $\leq 2^cHck$ many input bits.
-We can thus collapse layers 0 and 1, converting layer-1 activations into layer-0 activations $y_j^{(0)}$, and obtain a $(2^cHck)$-transformer performing the same computation as before when $\rho'$ is applied.
-This concludes the proof of the Depth Reduction Lemma.
+After applying $\rho'_n$, every layer-1 head $b_{j,1,h}$ depends only on the $c$ input bits feeding into $y_j^{(0)}$, and the $\leq c2^ck$ input bits that the head $k$-depends on.
+Thus, each layer-1 activation $y_j^{(1)}$ only depends on $\leq Hc(2^ck+1)$ input bits.
+We can thus remove layer 0, convert layer-1 activations $y_j^{(1)}$ into layer-0 activations $y_j^{(0)}$, and obtain a $(Hc(2^ck+1))$-transformer performing the same computation as before when $\rho'$ is applied.
+%This concludes the proof of the Depth Reduction Lemma.
 
 
 %Can the same proof work for Dyck? Fix the first $0.2n$ to `(', and can we force the random restrictions to only restrict $0.3n$ (replace $2$ by $10$)?
