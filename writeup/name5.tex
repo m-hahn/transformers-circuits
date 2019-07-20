@@ -729,12 +729,12 @@ Choose $C : = 4(1 + \exp(2A) + L_{f^{act}})$.
 Recall that activations $y_i^{(k)}$ are defined as $f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})$, where $b_{i,k,h}$ equals $\sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{(k-1)}$.
 We first calculate
 \begin{align*}
-& \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - {y'}_w^{k-1}\|
+& \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {y'}_w^{(k-1)}\|
 \\
 %\end{align*}
 %which is bounded as follows:
 %\begin{align*}
-& \leq + \hat{a}_{j,i}^{k,h} \|y_i^{(k-1)} - {y'}_i^{k-1}\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{k-1} - {y'}_w^{k-1}\| 
+& \leq + \hat{a}_{j,i}^{k,h} \|y_i^{(k-1)} - {y'}_i^{(k-1)}\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {y'}_w^{(k-1)}\| 
 \end{align*}
 By induction hypothesis, this is bounded by:
 \begin{align*}
@@ -787,7 +787,7 @@ Hierarchical structure, at least at the level of context-free languages, is wide
 Our results entail that self-attention is strongly limited in its ability to model context-free languages or evaluate logical formulas.
 In particular, self-attention cannot in general emulate stacks or finite-state automata.
 How should we reconcile this with the success of transformers at many natural language processing tasks?
-One possibility is that strong quantitative performance on NLP tasks can be achieved without genuine understanding of linguistic structure, as has been argued for other neural network models used in NLP that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
+One possibility is that strong quantitative performance on NLP tasks can be achieved without genuine understanding of syntactic structure, as has been suggested for other neural network models used in NLP that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
 This would suggest that models such as transformers may not be capable in principle to understand language in a fully human-like way.
 Another possibility is that humans also have limited capacity to solve such problems, which means that human-like language understanding may not require full computational power to solve such problems.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
