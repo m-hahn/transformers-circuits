@@ -365,7 +365,8 @@ In fact, we do not even assume that the internal position-wise representations $
     \includegraphics[width=0.22\textwidth]{figures/sa3_.png} &
         \includegraphics[width=0.23\textwidth]{figures/sa4_.png}
         \end{tabular}
-	\caption{Iteratively reducing the layers of a transformer by fixing a few input symbols. (a) We fix a small number of input symbols, `attracting' attention from the first layer to a few inputs. (b) After this step, Lemma~\ref{lemma:depth-red} ensures that each activation in the first layer only depends on a small number of input symbols. (c) We again fix a few input symbols in such a way as to `attract' attention of layer-2 heads to some layer-1 activations. As a result, each layer-2 activation only depends on a small number of layer-1 activations, again by Lemma~\ref{lemma:depth-red}. (d) After this step, each layer-1 activation only depends on a few inputs, and we can remove layer 1. In this example, input $X_5$ ends up being ignored by the transformer after applying the restriction.}
+	\caption{Iteratively reducing the layers of a transformer by fixing a few input symbols. (a) We fix a small number of input symbols, `attracting' attention from the first layer to a few inputs. (b) After this step, Lemma~\ref{lemma:depth-red} ensures that each activation in the first layer only depends on a small number of input symbols. (c) We again fix a few input symbols in such a way as to `attract' attention of layer-2 heads to some layer-1 activations. As a result, each layer-2 activation only depends on a small number of layer-1 activations, again by Lemma~\ref{lemma:depth-red}. (d) After this step, each layer-1 activation only depends on a few inputs, and we can remove layer 1. % In this example, input $X_5$ ends up being ignored by the transformer after applying the restriction.
+	}
 	\label{fig:depth-reduction}
 \end{figure*}
 
@@ -390,7 +391,7 @@ This shows that the transformer could not have solved a problem such as \textsc{
 
 In order to formalize the idea of `fixing'  a few input bits, we introduce the notion of restrictions:
 A \key{restriction} $\rho$ is a family of maps $\rho_n : \{1, \dots, n\} \rightarrow \{*, 0, 1\}$ for $n \in \mathbb{N}$.
-A restriction $\rho$ is applied to a transformer by restricting, when the input size is $n$, the input symbol $x_i$ to the value $\rho_n(i)$ whenever $\rho_n(i) \in \{0, 1\}$.
+A restriction $\rho$ is applied to a transformer by restricting, when the input length is $n$, the input symbol $x_i$ to the value $\rho_n(i)$ whenever $\rho_n(i) \in \{0, 1\}$.
 The output value of the resulting transformer only depends on those inputs $x_i$ such that $\rho_n(i) = *$.
 
 The idea of using such input restrictions has been successful in the theory of Boolean circuits~\cite{furst1984parity,hastad1994optimal}.
@@ -767,8 +768,8 @@ In the hard attention setting, our results hold independently of activation func
 In the soft attention setting, our results are slightly less general, but still show that transformers cannot achieve good cross-entropies when modeling distributions over these formal languages.
 
 
-Our results are asymptotic in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is sufficiently long.
-A transformer may nonetheless be able to perform well on on short inputs; indeed, given any bound $N$ on the input length, it is certainly possible to construct a transformer that will achieve perfect accuracy on all examples of length $n \leq N$; our results show that the number of heads and layers, or the parameter norms, will have to increase with $N$.
+Our results are asymptotic in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is \emph{sufficiently long}.
+A transformer may nonetheless be able to perform well on on short inputs; indeed, given any bound $N$ on the input length, it is possible to construct a transformer that will achieve perfect accuracy or cross-entropy on all examples of length $n \leq N$; our results show that the number of heads and layers, or the parameter norms, will have to increase with $N$.
 
 
 How do our results compare to what is known about LSTMs?
@@ -779,17 +780,14 @@ Infinite-precision RNNs and LSTMs can model stacks \cite{tabor2000fractal,grunin
 This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers may provide a theoretical explanation for the empirical finding that LSTMs seem to outperform transformers in modeling hierarchical structure \citep{tran2018importance}.
 
 
-
-
-
-
 Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
-Our results entail that self-attention is strongly limited in its ability to model context-free languages or evaluate logical formulas.
+Our results entail that self-attention is limited in its ability to model context-free languages or evaluate logical formulas.
 In particular, self-attention cannot in general emulate stacks or finite-state automata.
-How should we reconcile this with the success of transformers at many natural language processing tasks?
-One possibility is that strong quantitative performance on NLP tasks can be achieved without genuine understanding of syntactic structure, as has been suggested for other neural network models used in NLP that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
-This would suggest that models such as transformers may not be capable in principle to understand language in a fully human-like way.
-Another possibility is that humans also have limited capacity to solve such problems, which means that human-like language understanding may not require full computational power to solve such problems.
+
+How should we reconcile this with the success of transformers at many NLP tasks?
+One possibility is that strong quantitative performance on NLP tasks can be achieved with imperfect understanding of syntactic structure, as has been suggested for other neural network models that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
+A second possibility is that practical implementations of transformers circumvent such limitations by using large numbers of layers and heads, in relation to the sentence lengths typically occurring in natural language.
+Relatedly, humans may also have limited capacity to solve such problems, which means that human-like language understanding may not require full computational power to solve such problems.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
 Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
