@@ -528,7 +528,7 @@ In the second part, we will select a sufficiently large $k$. % that will work fo
 We construct the restrictions $\rho'_n$ separately for each $n$.
 Fix a layer-1 attention head $h$ at position $i$.
 As $y^{(0)}_i$ depends on $\leq c$ input bits, it can take on at most $\leq 2^c$ possible values.
-For each possible values $z$,  and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
+For each possible value $z$,  and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
 \begin{equation}
 \max_{x_1\dots x_n\ :\ y^{(0)}_i=z} f^{att}_{k,h}(z, y^{(0)}_j)
 \end{equation}
@@ -725,9 +725,9 @@ We'll write $F$ for this upper bound for $\|y_j^{(k)}\|_2$.
 As $f^{act}$ is implemented as a ReLU MLP \cite{vaswani2017attention}, $L_{f^{act}}$ depends on the norms of the parameter matrices.
 Attention logits are bounded by $A := F^2 L_{f^{att}}$ in the case of multiplicative/bilinear attention, and $A := 2 F L_{f^{att}}$ in the case of additive attention.
 %If attention logits are bounded as $|a_i| \leq A$,
-Then any attention weight $\widehat{a}_{j,i} = \exp(a_i)/\sum_j \exp(a_j)$ is upper bounded by $\frac{\exp(A)}{\exp(A) + (n-1) \exp(-A)} \leq \frac{\exp(2A)}{n}$.
+Then any attention weight $\widehat{a}_{j,i} = \exp(a_i)/\sum_j \exp(a_j)$ is upper bounded by $\frac{\exp(A)}{\exp(A) + (n-1) \exp(-A)} \leq \frac{\exp(2A)}{n-1}$.
 
-Choose $C : = 4(1 + \exp(2A) + L_{f^{act}})$. 
+Choose $C : = 4(1 + 2\exp(2A) + L_{f^{act}})$. 
 Recall that activations $y_i^{(k)}$ are defined as $f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})$, where $b_{i,k,h}$ equals $\sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{(k-1)}$.
 We first calculate
 \begin{align*}
@@ -740,7 +740,7 @@ We first calculate
 \end{align*}
 By induction hypothesis, this is bounded by:
 \begin{align*}
-\leq \frac{\exp(2A)}{n}  C^{2(k-1)} D + \frac{H^{k-1}C^{2(k-1)}D}{n} \leq \frac{H^{k-1} C^{2k-1} D}{n}
+\leq \frac{\exp(2A)}{n-1}  C^{2(k-1)} D + \frac{H^{k-1}C^{2(k-1)}D}{n} \leq \frac{H^{k-1} C^{2k-1} D}{n}
 \end{align*}
 Plugging this into the definition of $y_i^{(k)}$, the difference $\|y_j^{(k)} - {y_j^{(k)}}\|$ is at most
 \begin{align*}
