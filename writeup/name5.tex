@@ -227,7 +227,7 @@ The  activation of the head is computed by weighting according to attention weig
 \end{equation}
 In the soft attention version, the weights $\hat{a}_{i,\cdot}$ are obtained by the softmax operation: $\hat{a}_{i,\cdot} = \operatorname{softmax}(a_{i,\cdot})$.
 In the hard attention variant \cite{perez2019turing}, one takes the actual maximum attention values:
-$\hat{a}_{i,j} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{When there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis also works under other schemes of resolving ties, such as random selection.}
+$\hat{a}_{i,j}^{(k,h)} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{When there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis also works under other schemes of resolving ties, such as random selection.}
 The  per-position activations are then computed as
 \begin{equation}
     y_i^{(k)} := f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})
@@ -532,6 +532,7 @@ For each possible values $z$,  and each position $j \in \{1, \dots, n\}$, we com
 \begin{equation}
 \max_{x_1\dots x_n\ :\ y^{(0)}_i=z} f^{att}_{k,h}(z, y^{(0)}_j)
 \end{equation}
+considering only inputs $x_1\dots x_n$ that are compatible with the restriction $\rho_n$.
 For each value $z$, we order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1^{(z)}, \dots, j_n^{(z)}$ for each layer-1 attention head $h$ at a position $i$ and possible value $z$ of $y^{(0)}_i$ (In the case of ties, we order by  position, by Footnote 1).
 %For each head $h$ at position $i$, we fold the $\leq 2^c$ sequences resulting for the values $z_1, ..., z_{2^c}$ into a single sequence: $j_1, j_2, ..., j_{n\cdot 2^c} := j_1^{(z_1)}, j_1^{(z_2)}, \dots, j_1^{(z_{2^c})}, j_2^{(z_1)}, \dots, j_2^{(z_{2^c})}, \dots,j_n^{(z_1)}, \dots j_n^{(2^z)}$
 
