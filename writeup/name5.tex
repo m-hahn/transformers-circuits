@@ -704,11 +704,12 @@ Thus, again, cross-entropy of a Lipschitz-continuous prediction function will co
 \end{proof}
 
 %\subsection{Proof of Lemma~\ref{lem:soft-tech}}
-Having established the theorem, we proceed to proving Lemma~\ref{lem:soft-tech}.
+%Having established the theorem, w
+We proceed to proving Lemma~\ref{lem:soft-tech}.
 \begin{proof}[Proof of Lemma~\ref{lem:soft-tech}]
 We compare the activations at the decoder layer for two inputs that only differ in the input at the $i$-th position.
 Let $D = \|v_i-v_i'\|_2$ the norm of the difference of the input embeddings at this position.
-	We show by induction over $k$ that, for some some $C > 0$ (chosen below) the differences between the resulting activations $y_j^{(k)}$, ${y_j^{(k)}}'$ are bounded as:
+	We show by induction over $k = 1, \dots, L$ that, for some some $C > 0$ (chosen below) the differences between the resulting activations $y_j^{(k)}$, ${y_j^{(k)}}'$ are bounded as:
 \begin{align*}
 	\|y_i^{(k)}-{y_i^{(k)}}'\| &\leq C^{2k}D = \mathcal{O}(1) \\
 	\|y_j^{(k)}-{y_j^{(k)}}'\| &\leq \frac{H^k C^{2k}D}{n} = \mathcal{O}(1/n)\ \ \ (j \neq i)
