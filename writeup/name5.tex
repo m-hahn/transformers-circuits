@@ -724,12 +724,12 @@ Choose $C : = 4(1 + 2\exp(2A) + L_{f^{act}})$.
 Recall that activations $y_i^{(k)}$ are defined as $f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})$, where $b_{i,k,h}$ equals $\sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{(k-1)}$.
 We first calculate
 \begin{align*}
-& \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {y'}_w^{(k-1)}\|
+& \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {y}_w^{(k-1)}'\|
 \\
 %\end{align*}
 %which is bounded as follows:
 %\begin{align*}
-& \leq + \hat{a}_{j,i}^{k,h} \|y_i^{(k-1)} - {y'}_i^{(k-1)}\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {y'}_w^{(k-1)}\| 
+& \leq + \hat{a}_{j,i}^{k,h} \|y_i^{(k-1)} - {y}_i^{(k-1)}'\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {y}_w^{(k-1)}'\| 
 \end{align*}
 By induction hypothesis, this is bounded by:
 \begin{align*}
@@ -739,11 +739,11 @@ Plugging this into the definition of $y_i^{(k)}$, the difference $\|y_j^{(k)} - 
 \begin{align*}
 	L_{f^{act}} \cdot \left(\|y_j^{(k-1)}-{y_j^{(k-1)}}'\| + \sum_{q=1}^H \|b_{i,k,q} - b_{i,k,q}'\|\right)
 \end{align*}
-If $j= i$, this is bounded by (as $n \rightarrow \infty$)
+First, if $j= i$, this is bounded by (as $n \rightarrow \infty$)
 \begin{align*}
 \leq L_{f^{act}} \cdot \left(C^{2(k-1)}D + o(1)\right) \leq C^{2k}D
 \end{align*}
-If $j\neq i$, this is bounded above by
+Second, if $j\neq i$, it is bounded above by
 \begin{align*}
 	&  (1/n) \cdot L_{f^{act}} \cdot \left(H^{2(k-1)} C^{(k-1)}D + H^{k} C^{2k-1} D\right)
   %&   \\
