@@ -537,13 +537,13 @@ considering only inputs $x_1\dots x_n$ that are compatible with the restriction 
 For each value $z$, we order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1^{(z)}, \dots, j_n^{(z)}$ for each layer-1 attention head $h$ at a position $i$ and possible value $z$ of $y^{(0)}_i$ (In the case of ties, we order by  position, by Footnote 1).
 %For each head $h$ at position $i$, we fold the $\leq 2^c$ sequences resulting for the values $z_1, ..., z_{2^c}$ into a single sequence: $j_1, j_2, ..., j_{n\cdot 2^c} := j_1^{(z_1)}, j_1^{(z_2)}, \dots, j_1^{(z_{2^c})}, j_2^{(z_1)}, \dots, j_2^{(z_{2^c})}, \dots,j_n^{(z_1)}, \dots j_n^{(2^z)}$
 
-For each layer-1 attention head and each $z$, we then select a sequence $1 \leq i_1^{(z)} < i_2^{(z)} < \dots < i_{k}^{(z)} \leq n$ such that (1) for each $i_s^{(z)}$, there is at least one input bit $x_q$ that only feeds into the element $j_{i_s}^{(z)}$ and no other $j_{i_s'}^{(z)}$, (2) $i_{k}^{(z)}$ is minimal, i.e. there is no subsequence with smaller $i_{k}^{(z)}$ that also satisfies (1).
+For each layer-1 attention head and each $z$, we then select a sequence $1 \leq i_1^{(z)} < i_2^{(z)} < \dots < i_{k}^{(z)} \leq n$ such that (1) for each $i_s^{(z)}$, there is at least one input bit $x_q$ that only feeds into the element $j_{i_s^{(z)}}^{(z)}$ and no $j_{i_{s'}^{(z)}}^{(z)}$ ($s\neq s'$), and (2) $i_{k}^{(z)}$ is minimal, i.e. there is no subsequence with smaller $i_{k}^{(z)}$ that also satisfies (1).
 If we cannot find such a subsequence, then all $y_i^{(0)}$ together depend only on $< ck$ inputs, in which case the Depth Reduction Lemma is already satisfied for this input length $n$.
 
 A layer-1 head $k$-\textbf{depends} on some input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r^{(z)}$ for $r \leq i_k^{(z)}$, for some $z$.
 Because $i_k^{(z)}$ is minimal, a layer-1 head $k$-depends on an input if and only if that input appears as an input to some $j_{i_s^{(z)}}$ ($s \leq k$).
 In particular, a layer-1 head $k$-depends only on $\leq 2^c ck$ input variables.
-Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s^{(z)}}$ for one and $j_{i_s'^{(z')}}$ for the other both $k$-depend on some input bit $x_l$.
+Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s^{(z)}}$ for one and $j_{i_{s'}^{(z')}}$ for the other both $k$-depend on some input bit $x_l$.
 
 
 We will construct input restrictions $\rho'_n$ using probabilistic arguments over random restrictions.
@@ -579,7 +579,7 @@ Also, every input bit has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho'_n$, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 For each input length $n$, define the distribution over restrictions $\rho_n'$ that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $1$ or $0$ with probability $q/2$ each ($q \in (0,1)$ to be chosen later), and $*$ with probability $1-q$.
 On those input bits where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
-For the $i$-th layer-1 attention head (there are at most $Hn$ many such) and for each value $z$ (there are at most $2^c$ such), define $X_i^{(z)}$ to be the event that, for this head, none of $j_{i_1^{(z)}}, \dots, j_{i_k^{(z)}}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
+For the $i$-th layer-1 attention head ($i=1,\dots,Hn$) and for each value $z$ (there are at most $2^c$ such), define $X_i^{(z)}$ to be the event that, for this head, none of $y_{j_{i_1^{(z)}}}^{(0)}, \dots, y_{j_{i_k^{(z)}}}^{(0)}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
 Define $X_0$ to be the event that a fraction greater than $(1+\delta)q$ of the input bits that $\rho_n$ maps to $*$ are set to $0/1$ by $\rho_n'$ (where $\delta \in (0,1)$, to be fixed later).
 Our goal will be to show that a nonzero amount of probability mass is assigned to restrictions $\rho_n'$ avoiding all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$.
 
@@ -591,7 +591,7 @@ First, a Chernoff bound gives~\cite[Theorem 4.4]{mitzenmacherprobability}
 since $\rho_n$ has $\geq (1-\eta)^2Cn$ unrestricted input bits.
 
 Second, we show that the probability of $X_i^{(z)}$ ($i=1,2,\dots, Hn$) decays exponentially in $k$.
-Fixing $z$, let $Y_i^t$ ($t=1,\dots,k$) be the event that the layer-0 activation $j_{i_t^{(z)}}$ is not assigned the value that produces the highest attention weight, for the given attention head $i$.
+Fixing $z$, let $Y_i^t$ ($t=1,\dots,k$) be the event that the layer-0 activation $y_{j_{i_t^{(z)}}}^{(0)}$ is not fixed to the value that produces the highest attention weight, for the given attention head $i$.
 Note that $X_i^{(z)} = \bigcap_t Y_i^t$.
 We have $\Prob(Y_i^s) \leq 1-(q/2)^c \in (0,1)$. 
 Any $Y_i^s$ can be statistically dependent on at most $c \cdot \frac{1}{\eta}c/C = \frac{1}{\eta}c^2/C$ other events $Y_i^{s'}$, because each input bit has at most $\frac{1}{\eta} c/C$ depending layer-0 heads.
