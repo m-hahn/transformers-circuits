@@ -788,7 +788,7 @@ In particular, self-attention cannot in general emulate stacks or finite-state a
 
 How should we reconcile this with the success of transformers at many NLP tasks?
 One possibility is that strong quantitative performance on NLP tasks can be achieved with imperfect understanding of syntactic structure, as has been suggested for other neural network models that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
-A second possibility is that practical implementations of transformers circumvent such limitations by using large numbers of layers and heads, in relation to the sentence lengths typically occurring in natural language.
+A second possibility is that practical implementations of transformers manage to circumvent such limitations by using large numbers of layers and heads, in relation to the sentence lengths typically occurring in natural language.
 Relatedly, humans may also have limited capacity to solve such problems, which means that human-like language understanding may not require full computational power to solve such problems.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
