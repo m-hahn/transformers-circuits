@@ -527,24 +527,21 @@ In the second part, we will select a sufficiently large $k$. % that will work fo
 
 \paragraph{Part 1: Preliminaries}
 We construct the restrictions $\rho'_n$ separately for each $n$.
-Fix a layer-1 attention head $h$ at position $i$.
+Fix a layer-1 attention head $h$ ($h=1,\dots, H$) at position $i$ ($i=1, \dots, n$).
 As $y^{(0)}_i$ depends on $\leq c$ input bits, it can take on at most $\leq 2^c$ possible values.
 For each possible value $z$,  and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
 \begin{equation}
-\max_{x_1\dots x_n\ :\ y^{(0)}_i=z} f^{att}_{k,h}(z, y^{(0)}_j)
+\max_{x_1\dots x_n\ :\ y^{(0)}_i=z} f^{att}_{1,h}(z, y^{(0)}_j)
 \end{equation}
 considering only inputs $x_1\dots x_n$ that are compatible with the restriction $\rho_n$.
 For each value $z$, we order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1^{(z)}, \dots, j_n^{(z)}$ for each layer-1 attention head $h$ at a position $i$ and possible value $z$ of $y^{(0)}_i$ (In the case of ties, we order by  position, by Footnote 1).
-%For each head $h$ at position $i$, we fold the $\leq 2^c$ sequences resulting for the values $z_1, ..., z_{2^c}$ into a single sequence: $j_1, j_2, ..., j_{n\cdot 2^c} := j_1^{(z_1)}, j_1^{(z_2)}, \dots, j_1^{(z_{2^c})}, j_2^{(z_1)}, \dots, j_2^{(z_{2^c})}, \dots,j_n^{(z_1)}, \dots j_n^{(2^z)}$
-
-For each layer-1 attention head and each $z$, we then select a sequence $1 \leq i_1^{(z)} < i_2^{(z)} < \dots < i_{k}^{(z)} \leq n$ such that (1) for each $i_s^{(z)}$, there is at least one input bit $x_q$ that only feeds into the element $j_{i_s^{(z)}}^{(z)}$ and no $j_{i_{s'}^{(z)}}^{(z)}$ ($s\neq s'$), and (2) $i_{k}^{(z)}$ is minimal, i.e. there is no subsequence with smaller $i_{k}^{(z)}$ that also satisfies (1).
+For each layer-1 attention head and each $z$, we then select a sequence $1 \leq i_1^{(z)} < i_2^{(z)} < \dots < i_{k}^{(z)} \leq n$ such that (1) for each $i_s^{(z)}$, there is at least one input bit $x_q$ that only feeds into the activation at position $j_{i_s^{(z)}}^{(z)}$ and no $j_{i_{s'}^{(z)}}^{(z)}$ ($s\neq s'$), and (2) $i_{k}^{(z)}$ is minimal, i.e. there is no subsequence with smaller $i_{k}^{(z)}$ that also satisfies (1).
 If we cannot find such a subsequence, then all $y_i^{(0)}$ together depend only on $< ck$ inputs, in which case the Depth Reduction Lemma is already satisfied for this input length $n$.
 
 A layer-1 head $k$-\textbf{depends} on some input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r^{(z)}$ for $r \leq i_k^{(z)}$, for some $z$.
 Because $i_k^{(z)}$ is minimal, a layer-1 head $k$-depends on an input if and only if that input appears as an input to some $j_{i_s^{(z)}}$ ($s \leq k$).
 In particular, a layer-1 head $k$-depends only on $\leq 2^c ck$ input variables.
 Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s^{(z)}}$ for one and $j_{i_{s'}^{(z')}}$ for the other both $k$-depend on some input bit $x_l$.
-
 
 We will construct input restrictions $\rho'_n$ using probabilistic arguments over random restrictions.
 For this approach to succeed, we require a  sufficient amount of independence between the activations of different heads in layer 1.
@@ -565,10 +562,7 @@ But there are at most $nc$ such pairs, contradiction.
 So the number of input bits with $> \frac{1}{\eta} c/C$ depending layer-0 heads is $\leq \eta Cn$.
 We can again restrict these input bits to some fixed value. % (again, it doesn't matter which one).
 
-After these preparations, for $n$ large enough,
-\begin{equation}
-|\{i \leq n: \rho_n(i) = *\}| \geq (1-\eta)^2 C n
-\end{equation}
+After these preparations, for $n$ large enough, the set $\{i \leq n: \rho_n(i) = *\}$ has at least $(1-\eta)^2 C n$ elements.
 
 \paragraph{Part 2: Constructing Restrictions}
 After the previous part, every input bit has $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending layer-1 heads.
@@ -607,16 +601,13 @@ In order to conclude that there is a restriction $\rho'_n$ avoiding all events $
 %This requires that the amount of statistical dependency between these events be sufficiently `limited'.
 Each event $X_i^{(z)}$ ($i=1,2,\dots, Hn$) is statistically independent of the set $\{X_j^{(z')} : \text{heads } j \text{ and } i \text{ are not $k$-neighbors}\}$.
 The complement of this set has cardinality $\leq f= \frac{2^{2c}}{\eta}c^2k^2H/C$.
-By the Lov{\'a}sz Local Lemma, it is therefore sufficient to find  $A, B \in (0,1)$ such that the following inequalities hold: %, assuming $f \leq $:
+Set $A:=\frac{1}{k^2}$, $B:=\frac{1}{2}$.
+By the Lov{\'a}sz Local Lemma, it is sufficient show the following: %, assuming $f \leq $:
 \begin{align}\label{eq:lovasz-1}
 &\Prob(X_i^{(z)}) \leq A(1-B)(1-A)^{f} \\ \label{eq:lovasz-2}
 &\Prob(X_0)  \leq B (1-A)^{2^cHn}
 \end{align}
-Once we have shown this, then the Lov{\'a}sz Local Lemma guarantees that there is some input restriction $\rho_n'$ that avoids all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$.
-
-
-Choose 
-$A=\frac{1}{k^2}$, $B=0.5$.
+The Lov{\'a}sz Local Lemma will then guarantee that there is some input restriction $\rho_n'$ that avoids all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$.
 For~(\ref{eq:lovasz-1}), we need
 \begin{align}\label{eq:x1-ineq}
     D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{f/k} 
