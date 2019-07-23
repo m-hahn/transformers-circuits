@@ -784,7 +784,7 @@ This clear contrast between infinite-precision LSTMs and our findings for infini
 
 Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
 Our results entail that self-attention is limited in its ability to model context-free languages or evaluate logical formulas.
-In particular, self-attention cannot in general emulate stacks or finite-state automata.
+In particular, self-attention cannot in general emulate stacks or arbitrary finite-state automata.
 
 How should we reconcile this with the success of transformers at many NLP tasks?
 One possibility is that strong quantitative performance on NLP tasks can be achieved with imperfect understanding of syntactic structure, as has been suggested for other neural network models that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
@@ -814,7 +814,7 @@ Such processing models predict difficulty with center embedding because they can
 \section{Conclusion}
 We formally investigated the capabilities of self-attention in modeling regular languages and hierarchical structure.
 We showed that transformers cannot model periodic regular languages or basic recursion, either with hard or soft attention, and even if infinite precision is allowed. %, or Boolean formula evaluation
-This entails that self-attention cannot in general emulate stacks, or even finite-state automata.
+This entails that self-attention cannot in general emulate stacks or general finite-state automata.
 Our results theoretically confirm the idea that self-attention, by avoiding recurrence, has quite limited computational power.
 
 %is not capable of modeling hierarchical structure.
