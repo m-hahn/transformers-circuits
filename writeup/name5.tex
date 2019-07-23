@@ -726,14 +726,11 @@ We first calculate
 \begin{align*}
 & \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {y}_w^{(k-1)}'\|
 \\
-%\end{align*}
-%which is bounded as follows:
-%\begin{align*}
-& \leq + \hat{a}_{j,i}^{k,h} \|y_i^{(k-1)} - {y}_i^{(k-1)}'\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {y}_w^{(k-1)}'\| 
+& = \hat{a}_{j,i}^{k,h} \|y_i^{(k-1)} - {y}_i^{(k-1)}'\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {y}_w^{(k-1)}'\|
 \end{align*}
-By induction hypothesis, this is bounded by:
+which, using the induction hypothesis, is at most:
 \begin{align*}
-\leq \frac{\exp(2A)}{n-1}  C^{2(k-1)} D + \frac{H^{k-1}C^{2(k-1)}D}{n} \leq \frac{H^{k-1} C^{2k-1} D}{n}
+\frac{\exp(2A)}{n-1}  C^{2(k-1)} D + \frac{H^{k-1}C^{2(k-1)}D}{n} \leq \frac{H^{k-1} C^{2k-1} D}{n}
 \end{align*}
 Plugging this into the definition of $y_i^{(k)}$, the difference $\|y_j^{(k)} - {y_j^{(k)}}\|$ is at most
 \begin{align*}
