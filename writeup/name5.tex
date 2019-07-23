@@ -720,7 +720,7 @@ Attention logits are bounded by $A := F^2 L_{f^{att}}$ in the case of multiplica
 %If attention logits are bounded as $|a_i| \leq A$,
 Then any attention weight $\widehat{a}_{j,i} = \exp(a_i)/\sum_j \exp(a_j)$ is upper bounded by $\frac{\exp(A)}{\exp(A) + (n-1) \exp(-A)} \leq \frac{\exp(2A)}{n-1}$.
 
-Choose $C : = 4(1 + 2\exp(2A) + L_{f^{act}})$. 
+Choose $C : = 2\cdot (1 + \exp(2A) + L_{f^{act}})$. 
 Recall that activations $y_i^{(k)}$ are defined as $f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})$, where $b_{i,k,h}$ equals $\sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{(k-1)}$.
 We first calculate
 \begin{align*}
