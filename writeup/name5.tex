@@ -447,8 +447,9 @@ We intend to investigate these connections in future work.
 
 \paragraph{Proof Idea of the Theorem}
 Our approach for proving Theorem~\ref{thm:hardmax-main} will be to construct input restrictions in a layerwise manner, starting from layer 1. 
-In order for this to go through, the main challenge is to construct a suitable restriction at a given layer:
-As shown in Figure~\ref{fig:restr}, this restriction should only affect a few input bits (namely, $Cn$ many input bits), while forcing each attention head in the first layer to ignore all but $c$ input bits.
+%Restrictions are created separately for each input length $n$.
+In order for this construction to go through, the main challenge is to construct a suitable restriction at a given layer:
+As shown in Figure~\ref{fig:restr}, this restriction should only affect a few input bits (about $(1-C^{1/L})n$ many input bits), while forcing each attention head in the first layer to ignore all but $c$ input bits.
 Perhaps surprisingly, this is possible; the idea is to fix input bits that achieve high attention scores for several heads, so that input bits that cannot achieve such high attention scores will be ignored.
 
 
@@ -476,18 +477,18 @@ After the removal of the first layer of a transformer, the resulting structure i
 We introduce a technical definition to make this concept precise:
 
 \begin{defin}[$c$-Transformer]
-Let $c$ a positive integer. A $c$-transformer of depth $d$ is one in which the layer-0 activations $y_j^{(0)}$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions:
+Let $c$ a positive integer. A $c$-transformer with $L$ layers is one in which the layer-0 activations $y_j^{(0)}$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions:
 \begin{equation}
     y_j^{(0)} = f^{inp}_{n,j}((v_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (v_{i_c^{j},n}, p_{i_c^{j,n}} ))
 \end{equation}
-Here, the indices ${i_s^{j,n}}$ depend on the input length $n$.
+for some indices ${i_s^{j,n}} \in \{1, \dots, n\}$ ($s = 1, \dots, c$).
 \end{defin}
 
-Note that an ordinary transformer  of depth $d$ is also a $1$-transformer of depth $d$.
+%Note that an ordinary transformer  of depth $L$ is also a $1$-transformer of depth $L$.
 
 With this technical notion, we show that we can reduce layers, iteratively removing the lowest layer until no self-attention layer is left:
 \begin{lemma}[Depth Reduction Lemma]\label{lemma:depth-red}
-Given a $c$-transformer with $d$ layers, and some restriction $\rho$ such that
+Given a $c$-transformer with $L$ layers, and some restriction $\rho$ such that
 \begin{equation}
 |\{i \leq n: \rho_n(i) = *\}| \geq Cn
 \end{equation}
@@ -501,7 +502,7 @@ such that
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
 for all sufficiently large $n$, 
-and such that the resulting function is computed by a $(H\cdot c\cdot(2^ck+1))$-transformer with $d-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
+and such that the resulting function is computed by a $(H\cdot c\cdot(2^ck+1))$-transformer with $L-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
 \end{lemma}
 The lemma implies Theorem~\ref{thm:hardmax-main}:
 \begin{proof}[Proof of Theorem~\ref{thm:hardmax-main}]
