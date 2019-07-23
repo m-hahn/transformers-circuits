@@ -711,15 +711,14 @@ Once we have shown this, we know that the influence of any individual input on t
 For $k=0$, $\|y_i^{(0)} - {y_i^{(0)}}'\| \leq D$, %\footnote{We are assuming that $f$ is addition or concatenation \cite{vaswani2017attention}; for operations such as an MLP, there would be an additional Lipschitz constant depending on parameters and activation functions.}
 and %, where $L_f$ is the Lipschitz constant of the operation $f$ combining position and input embeddings.
 $\|y_j^{(0)} - {y_j^{(0)}}'\| = 0$ for $j \neq i$.
-For $k>0$, we first note that for activations $\|y_j^{(k)}\|_2 \leq 2 \left(\operatorname{max}(1,L_{f^{act}})\right)^{L}  (\|p_j\| + \|v_j\|)$,
-if $L_{f^{act}}$ is the Lipschitz constant of $f^{act}$.
+For $k>0$, we first note that $\|y_j^{(k)}\|_2 \leq 2 C_{f^{act}}^{L}  (\|p_j\| + \|v_j\|)$,
+where $C_{f^{act}} < \infty$ depends on the norms of the parameter matrices of $f^{act}$, which is implemented as a ReLU MLP \cite{vaswani2017attention}.
 We'll write $F$ for this upper bound for $\|y_j^{(k)}\|_2$.
-As $f^{act}$ is implemented as a ReLU MLP \cite{vaswani2017attention}, $L_{f^{act}}$ depends on the norms of the parameter matrices.
-Attention logits are bounded by $A := F^2 L_{f^{att}}$ in the case of multiplicative/bilinear attention, and $A := 2 F L_{f^{att}}$ in the case of additive attention.
+Attention logits are bounded by $A := F^2 C_{f^{att}}$ in the case of dot-product attention, and $A := 2 F C_{f^{att}}$ in the case of additive attention.
 %If attention logits are bounded as $|a_i| \leq A$,
 Then any attention weight $\widehat{a}_{j,i} = \exp(a_i)/\sum_j \exp(a_j)$ is upper bounded by $\frac{\exp(A)}{\exp(A) + (n-1) \exp(-A)} \leq \frac{\exp(2A)}{n-1}$.
 
-Choose $C : = 2\cdot (1 + \exp(2A) + L_{f^{act}})$. 
+Choose $C : = 2\cdot (1 + \exp(2A) + L_{f^{act}})$, where $L_{f^{act}}$ is the Lipschitz constant of the ReLU MLP $f^{act}$. 
 Recall that activations $y_i^{(k)}$ are defined as $f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})$, where $b_{i,k,h}$ equals $\sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{(k-1)}$.
 We first calculate
 \begin{align*}
