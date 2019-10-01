@@ -769,16 +769,23 @@ In the soft attention setting, our results are slightly less general, but still 
 Our results are asymptotic in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is \emph{sufficiently long}.
 A transformer may nonetheless be able to perform well on on short inputs; indeed, given any bound $N$ on the input length, it is possible to construct a transformer that will achieve perfect accuracy or cross-entropy on all examples of length $n \leq N$; our results show that the number of heads and layers, or the parameter norms, will have to increase with $N$.
 
-TODO add discussion
-
-
 How long does an input have to be for the results to start becoming relevant?
-TODO derive $H^L$ behavior
+Our proofs do not provide a definitive answer to this question.
+It can be seen from the Depth Reduction Lemma that hard-attention transformers for \textsc{Parity}/\textsc{2Dyck} will fail on inputs of length greater than around $^L H$.
+When considering the dimensions of the real-world state-of-the-art systems (TODO GPT-2 how many layers), this bound is certainly beyond the scale relevant to real-world NLP.
+However, it is unclear how far this bound is from optimality. Also, note that our proof for hard attention makes no assumption about activation functions, and stronger bounds might be obtained by restricting to realistic functions used in implementations.
 
-When considering the dimensions of the extremely large state-of-the-art systems (TODO GPT-2 how many layers), such bounds are clearly beyond the scale relevant to real-world NLP.
+%It is important to note that it is unclear how far the bound is from optimality. 
+%It is easy to construct a hard-attention transformer for \textsc{Parity} with $L$ layers that will perform correctly up to length $\exp(L)$ inputs, but failing beyond.
+
 On the other hand, it has been observed that neural networks may require far fewer parameters for computing a function than typically used, and that overparamaterization is mainly beneficial for the learning process, and not necessary for computational capabilities (CITE). TODO how far has BERT been compressed.
 \citep{voita2019analyzing,michel2019sixteen}.
 When pruning networks \citet{michel2019sixteen} show that some BERT layers can be reduced to just a single attention head.
+
+
+Understanding this theoretically is an important and challenging problem for future research.
+
+
 %A challenging problem for future research may be to mathematically investigate the learning process of transformer-like models, and determine
 
 Say explicitly whether I think it is relevant to practical NLP
