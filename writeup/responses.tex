@@ -110,7 +110,7 @@
 \begin{document}
 \maketitle 
 
-\response{We thank the reviewers and the editor for their thoughtful comments.
+\response{We thank the reviewers and the editor for their feedback.
 We are also grateful for the decision to grant us two additional pages, which we used to expand and clarify the mathematical presentation, and add further discussion of the relevance of our results.}
 
 \section{Editor's Comments}
@@ -120,7 +120,9 @@ in the original Vaswani et al transformer paper (queries, keys and values),
 or otherwise refer to other common and somewhat standardized presentations
 of the transformer model that do not use this terminology.
 
-\response{TODO}
+\response{We have added explicit pointers to queries, keys, and values in Section 3: First, we added the following to the paragraph following Equation (1): TODO}
+
+\response{Second, we added the following behind Equation (2): TODO}
 
 (b) Add more salient discussion of skip-connection / residual connections,
 and in particular remark on them in the proofs. While reviewer C believes
@@ -130,7 +132,15 @@ certain other readers will also face similar confusion. Please enhance the
 relevant proofs with discussion of why they work also in the presence of
 residual connections.
 
-\response{TODO}
+\response{We have added pointers to residual connections in the following places:}
+
+\response{After Equation (3):}
+
+\response{Figures 1 and 2: We added dashed connections marking skip connections, and added the following to the caption TODO}
+
+\response{Last paragraph of Section 5: TODO}
+
+\response{Section 6: TODO}
 
 (c) Expand the discussion on the relevancy of the result. In particular:
 - (c1) Expand on your thoughts on what the value of showing such an
@@ -155,9 +165,15 @@ is indeed the case, it needs to be stated explicitly.
 used in sections 5 and 6 to cater to audiences who are less familiar with
 these literature and techniques.
 
-\response{TODO}
+\response{We have used the additional space to expand various parts of Sections 5 and 6:}
 
-\response{Additionally, we have expanded the proof to give an explicit bound on the input length starting at which our results provide limitations in the hard attention case. Reviewer C had noted that our original proof provided an exponential tower upper bound; we now show that a much gentler growth can be shown. This increased the complexity of the proof only minimally, and -- more importantly -- we feel that this provides a more informative answer to the question of practical relevance.}
+\response{(1) We added Figure 3, which explains how the sequence $i^{(z)}_1, \dots, i^{(z)}_k$ is constructed, and added a pointer to this figure in the paragraph below Equation (9). While none of the reviewers asked specifically about this part, we felt this was worth adding, because the definition of this sequence is the crucial starting point for the entire proof (e.g., the notion of `k-dependendence' is based on it), and colleagues found that the prose description alone was a bit dense.}
+
+\response{(2) TODO}
+
+\response{... We have expanded the proof of Theorem 7. Reviewer B had noted that it was too brief, so we now explain in more detail the argument for \textsc{Parity} and \textsc{2Dyck}.}
+
+%\response{Additionally, we have expanded the proof to give an explicit bound on the input length starting at which our results provide limitations in the hard attention case. Reviewer C had noted that our original proof provided an exponential tower upper bound; we now show that a much gentler growth can be shown. This increased the complexity of the proof only minimally, and -- more importantly -- we feel that this provides a more informative answer to the question of practical relevance.}
 
 \section{Reviewer A:}
 
@@ -177,7 +193,7 @@ sequences longer than 2*(1-Cn+c) PARITY is unrecognizable; you could
 at least test non-membership for shorter sequences (though still not
 membership).
 
-\response{It is true that, as Reviewer A remarks, nonmembership can be enforced by fixing a few inputs also for 1Dyck and certain other languages that are not recognized by transformers. We have clarified TODO}
+\response{We acknowledge that our phrasing was insufficiently specific. It is true that, as Reviewer A remarks, nonmembership can be enforced by fixing a few $^*$specific$^*$ inputs also for 1Dyck and certain other languages that are not recognized by transformers. The difference between, e.g., 1Dyck and $a^nb^n$ is that, for $a^nb^n$, $^*$any$^*$ part of the input is suitable (positions in the first half can be fixed to $b$, positions in the second half to $a$), whereas only positions at the boundaries are suitable when applying this to 1Dyck. We have clarified this by adding the phrase TODO}
 
 
 The Transformer paper itself (section 3.1) critically notes the
@@ -194,7 +210,9 @@ of the model and cannot be ignored. That there is a required
 influencer for each node and that these cover ultimately the entire
 input sequence would seem to undermine the core argument of this paper.
 
-\response{TODO}
+\response{Residual conections do not cause a problem for the proof because the final prediction is determined by $y_n^{(L)}$, which -- after applying the depth reduction method -- will only have a skip connection from $y_n^{(0)}$, which depends on only finitely many inputs.}
+
+\response{We have added pointers to residual connections in various points of the paper, as explained in the response to the editor. }
 
 
 Setting aside the possible flaw noted above, it is important to ask, is
@@ -221,19 +239,18 @@ of common sense. Transformer *does* appear to capture more,
 longer-distance context and can in practice be trained to do so better
 than other models.
 
-\response{TODO}
+\response{As described in more detail in the response to the editor, we have expanded the Discussion section, including discussion of the question of practical relevance.}
 
 \section{Reviewer B:}
 
 
-*Confusion*
 A formal proof to replace such intuitions would be progress. But my
 confusion about the formalization already starts on page 3, where I can’t
 square the definitions of (hard and soft) attention heads with those in
 Vaswani et al 2017. Where are the value, key and query components that are
 so crucial in that work?
 
-\response{TODO}
+\response{As detailed in the response to the editor, we have added explicit references to values, keys, and queries.}
 
 The confusion continues throughout section 5, where first ‘restrictions’
 are introduced. The basic idea, the paper says, is that a small fraction of
@@ -247,7 +264,7 @@ lack of knowledge about the Boolean circuit literature, but I would need
 more explanation and perhaps terminology more carefully tuned to an
 ACL*-audience here to follow this entire section.
 
-\response{TODO}
+\response{We have, at least for the definition, added the more informative term `input restriction' to clarify that inputs are being restricted, not models. We have also added an explicit reference to the term `restriction' in the captions of Figures 1 and 2 (TODO).}
 
 I don’t fare much better in section 6, where a different set of
 mathematical techniques is used to prove theorem 6 and lemma 5. The paper
@@ -255,7 +272,7 @@ uses a simple PCFG to define the input language, but I am immediately at a
 loss when the proofs start after giving theorem 6. What is an *equally
 likely* non-member that yields similar but different output activations?
 
-\response{TODO}
+\response{We agree that the proof of Theorem 6 was very dense, we have substantially expanded it to clarify the argument.}
 
 *Relevance*
 Even if all the proofs are correct, I have some doubts about how relevant
@@ -268,7 +285,7 @@ dependencies, because humans fail at them too. This is such a crucial issue
 for assessing the relevance of the presented proofs, that I think it would
 deserve some longer discussion and some supportive empirical data.
 
-\response{TODO}
+\response{As detailed in the response to the editor, we have expanded the Discussion section to address the question of relevance.}
 
 
 \section{Reviewer C:}
@@ -291,7 +308,7 @@ work, i.e. cannot be addressed without major changes, and since they are
 acknowledged in the text, I do not think they should be treated as an
 impediment for publication.
 
-\response{TODO}
+\response{As detailed in the response to the editor, we have expanded the Disucssion section to address the question of practical relevance. Regarding the soft attention results, we have added a few sentences about what kinds of architectures the proof is aplicable to (TODO).}
 
 \begin{verbatim}
 Minor comments:
@@ -304,5 +321,7 @@ attention.
 be a superscript
 * Typo in line 850: some some
 \end{verbatim}
+
+\response{Thanks for pointing these out, we fixed these.}
 
 \end{document}

@@ -21,7 +21,7 @@
 
 
 
-\renewcommand{\baselinestretch}{0.989}
+%\renewcommand{\baselinestretch}{0.989}
 
 
 
@@ -323,7 +323,7 @@ In fact, we do not even assume that the internal position-wise representations $
     \includegraphics[width=0.22\textwidth]{figures/sa3_b.png} &
         \includegraphics[width=0.23\textwidth]{figures/sa4_b.png}
         \end{tabular}
-	\caption{Iteratively reducing the layers of a transformer by fixing a few input symbols. (a) We fix a small number of input symbols, `attracting' attention from the first layer to a few inputs. (b) After this step, Lemma~\ref{lemma:depth-red} ensures that each activation in the first layer only depends on a small number of input symbols that it can attend to (solid connections), plus the input that feeds into it via a skip connection (dashed connections). (c) We again fix a few input symbols in such a way as to `attract' attention of layer-2 heads to some layer-1 activations. As a result, each layer-2 activation only depends on a small number of layer-1 activations, again by Lemma~\ref{lemma:depth-red}. (d) After this step, each layer-1 activation only depends on a few inputs, and we can remove layer 1.
+	\caption{Iteratively reducing the layers of a transformer by fixing a few input symbols. (a) By applying a suitable input restriction, we fix a small number of input symbols, `attracting' attention from the first layer to a few inputs. (b) After this step, Lemma~\ref{lemma:depth-red} ensures that each activation in the first layer only depends on a small number of input symbols that it can attend to (solid connections), plus the input that feeds into it via a skip connection (dashed connections). (c) We again fix a few input symbols in such a way as to `attract' attention of layer-2 heads to some layer-1 activations. As a result, each layer-2 activation only depends on a small number of layer-1 activations, again by Lemma~\ref{lemma:depth-red}. (d) After this step, each layer-1 activation only depends on a few inputs, and we can remove layer 1.
 	}
 	\label{fig:depth-reduction}
 \end{figure*}
@@ -336,7 +336,7 @@ This shows that the transformer could not have solved a problem such as \textsc{
 
 In order to formalize the idea of `fixing'  a few input bits, we introduce the notion of input restrictions:
 An \key{input restriction} (short: \key{restriction}) $\rho$ is a family of maps $\rho_n : \{1, \dots, n\} \rightarrow \{*, 0, 1\}$ for $n \in \mathbb{N}$.
-An input restriction $\rho$ is applied to a transformer by restricting, when the input length is $n$, the input symbol $x_i$ to the value $\rho_n(i)$ whenever $\rho_n(i) \in \{0, 1\}$.
+An input restriction $\rho$ is applied to a transformer by fixing, when the input length is $n$, the input symbol $x_i$ to the value $\rho_n(i)$ whenever $\rho_n(i) \in \{0, 1\}$.
 The output value of the resulting transformer only depends on those inputs $x_i$ such that $\rho_n(i) = *$.
 
 The idea of using such input restrictions has been successful in the theory of Boolean circuits~\cite{furst1984parity,hastad1994optimal}.
@@ -445,25 +445,6 @@ such that
 for all sufficiently large $n$, 
 and such that the resulting function is computed by a $( c\cdot(2^ckH+1))$-transformer with $L-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
 \end{lemma}
-
-
-\begin{lemma}[Depth Reduction Lemma]\label{lemma:depth-red}
-Given a $c$-transformer with $L$ layers, and some restriction $\rho$ such that
-\begin{equation}
-|\{i \leq n: \rho_n(i) = *\}| \geq Cn
-\end{equation}
-($C \in (0,1]$)
-for all sufficiently large $n$.
-%with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
-Choose any $C' < C$.
-Then there is a restriction $\rho'$ 
-such that
-\begin{equation}
-|\{i \leq n: \rho'_n(i) = *\}| \geq C'n
-\end{equation}
-for all sufficiently large $n$, 
-and such that the resulting function is computed by a $(H\cdot c\cdot(2^ck+1))$-transformer with $L-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
-\end{lemma}
 The lemma implies Theorem~\ref{thm:hardmax-main}:
 \begin{proof}[Proof of Theorem~\ref{thm:hardmax-main}]
 The output of the transformer is determined by the last activation $y_{n}^{(L)}$.
@@ -499,7 +480,7 @@ For each possible value $z$,  and each position $j \in \{1, \dots, n\}$, we comp
 considering only inputs $x_1\dots x_n$ that are compatible with the restriction $\rho_n$.
 For each value $z$, we order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1^{(z)}, \dots, j_n^{(z)}$ for each layer-1 attention head $h$ at a position $i$ and possible value $z$ of $y^{(0)}_i$ (In the case of ties, we order by  position, by Footnote 1).
 For each layer-1 attention head and each $z$, we then select a sequence $1 \leq i_1^{(z)} < i_2^{(z)} < \dots < i_{k}^{(z)} \leq n$ such that (1) for each $i_s^{(z)}$, there is at least one input bit $x_q$ that only feeds into the activation at position $j_{i_s^{(z)}}^{(z)}$ and no $j_{i_{s'}^{(z)}}^{(z)}$ ($s\neq s'$), and (2) $i_{k}^{(z)}$ is minimal, i.e. there is no subsequence with smaller $i_{k}^{(z)}$ that also satisfies (1).
-This is visualized in an example in Figure~\ref{fig:selecting}.
+This construction is visualized in an example in Figure~\ref{fig:selecting}.
 We can find such a subsequence unless $n \leq ck$, in which case the Depth Reduction Lemma is already satisfied for this input length $n$.
 %If we cannot find such a subsequence, then all $y_i^{(0)}$ together depend only on $< ck$ inputs, 
 
@@ -515,7 +496,7 @@ We can find such a subsequence unless $n \leq ck$, in which case the Depth Reduc
         \end{tabular}
 	\caption{Selecting the sequence $i_{1}^{(z)} \dots i_{k}^{(z)}$: We have a $c$-transformer with $c=2$, i.e., each Layer 0 activation only depends on at most two input bits.
 	(a)  We fix some head in Layer 1 at position $i$ (here, $i=5$), and some value $z$ for $y^{(0)}_i$ (blue activation). For each other layer-0 activation $y^{(0)}_j$, we compute the maximal possible attention value between that activation and the Layer 1 head, assuming the fixed value $z$ for $y^{(0)}_i$ -- these maximum attention values are visualized by the thickness of the different lines.
-	(b) We select $k = 2$ Layer 0 activations, marked in blue and green. For each of these, there is at least one (in fact, two here) input bits that feed into this one and no other selected activation, also marked in blue and green, respectively.}
+	(b) We select $k = 2$ activations from Layer 0, marked in yellow and green. For each of these, there is at least one (in fact, two in this example) input bits that feed into this one and no other selected activation, also marked in yellow and green, respectively.}
 	\label{fig:selecting}
 \end{figure}
 
@@ -615,8 +596,7 @@ For such a $\rho'$, we have
 \end{equation*}
 for all sufficiently large $n$.
 Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such that $(1+\delta)q \in (0,1)$) in such a way as to achieve $(1-\eta)^2\cdot (1-(1+\delta)q) = C'/C$.
-E.g. $q=1/2$, $\delta=1/5$, choose $\eta$
-$(1-\eta)^2\cdot 3/2 = C'/C$.
+%E.g. $q=1/2$, $\delta=1/5$, choose $\eta$ $(1-\eta)^2\cdot 3/2 = C'/C$.
 
 After applying $\rho'_n$, every layer-1 head $b_{j,1,h}$ depends only on (1) the $c$ input bits feeding into $y_j^{(0)}$, and (2) the $\leq c2^ck$ input bits that the head $k$-depends on.
 Thus, each layer-1 activation $y_j^{(1)}$ only depends on $\leq c\cdot (2^ckH+1)$ input bits: There are $\leq H\cdot c \cdot 2^c \cdot k$ input bits that the $H$ different attention heads $k$-depend on, plus a skip-connection from $y_j^{(0)}$, which itself depends on $\leq c$ input bits.
@@ -748,11 +728,12 @@ A transformer may nonetheless be able to perform well on on short inputs; indeed
 
 How long does an input have to be for such limitations to start becoming relevant?
 Our proofs do not provide a definitive answer to this question.
-Iteratively applying the Depth Reduction Lemma to bound $c$ after successive reduction of layers only bounds it by a tetration (something of the order of $^L H$), far beyond the scale relevant to real-world NLP when considering the size of NLP models such as BERT (12 heads and layers, \citet{devlin2018bert}).
-However, it is unclear how far this bound is from optimality.
-Also, note that our proof for hard attention makes no assumption about activation functions, and stronger bounds might be obtained by restricting to realistic functions used in implementations.
-Relatedly, it has been found that real-world transformers may require far fewer parameters for computing a function than they require for successful training; e.g., some BERT layers can be reduced to just a single attention head with small performance loss \citep{voita2019analyzing,michel2019sixteen}.
-We believe that theoretically understanding the role of the number of heads and layers in shaping learning and representational capacity is an important and challenging problem for future research.
+Iteratively applying the Depth Reduction Lemma to bound $c$ after successive reduction of layers only bounds the necessary iput length $n$ by a tetration (of the order of $^L H$), far beyond the scale relevant to real-world NLP when considering the size of NLP models such as BERT (12 heads and layers, \citet{devlin2018bert}).
+Our results thus do not constitute conclusive evidence for limitations of large real-world systems.
+On the other hand, it is unknown how loose or tight this upper bound is.
+Also, note that our proof for hard attention makes no assumption about activation functions, and more informative bounds might be obtained by restricting to realistic functions used in implementations.
+Relatedly, it has been found that real-world transformers may require far fewer parameters for computing a function than they require for successful training; e.g., some BERT layers can be reduced to just a single attention head with small performance loss \citep{michel2019sixteen,voita2019analyzing}.
+We believe that a full theoretical understanding of the role of the number of heads and layers in shaping learning and representational capacity is an important and challenging problem for future research.
 
 
 %It can be seen from the Depth Reduction Lemma that hard-attention transformers for \textsc{Parity}/\textsc{2Dyck} will fail on inputs of length greater than around $^L H$.
@@ -767,8 +748,14 @@ TODO also talk about relevance to NLP practitioners
 
 TODO: What is the value of such an asymptotic property? (unexpressability in the limit = ungeneralizability)?
 
+What is the relevance of this asymptotic property?
+
+- (unexpressability in the limit = ungeneralizability)?
+
+
+
 \paragraph{Relevance to NLP}
-What is the relevance of this result for NLP and computational linguistics?
+%What is the relevance of this result for NLP and computational linguistics?
 Our results do not provide reasons against using transformers for processing natural language, and, indeed, it may be possible to apply them successfully to tasks closer to \textsc{Parity}/\textsc{2Dyck}, depending on the input length and model size.
 
 Our result does show that models that are theoretically ...
@@ -785,6 +772,11 @@ We believe that this does not stand in contrast with the theoretical findings:
 Modeling longer context and modeling hierarchical structure are different questions.
 To give a very simple example, the regular language $(ba^*b)|(ca^*c)$ requires maintaining an arbitrarily long dependency between the first and last symbol in a sequence, yet it does not exhibit recursive structure (and it is easy to construct a hard-attention transformer solving it).
 If our theoretical results are relevant at the scale found in practical NLP applications, then they may suggest that long-range context, such as discourse, might have properties that allow it to be approximated by architectures that cannot fully deal with general hierarchical structure.
+
+\paragraph{Scope of Results}
+mention what kinds of architectures soft attention results are applicable to
+
+soft attention results most crucially rely on the fact that the number of layers is bounded independently of the input size
 
 \paragraph{Comparison with Recurrent Models}
 How do our results compare to what is known about LSTMs?
@@ -805,6 +797,7 @@ One possibility is that strong quantitative performance on NLP tasks can be achi
 
 A second possibility is that practical implementations of transformers manage to circumvent such limitations by using large numbers of layers and heads, in relation to the sentence lengths typically occurring in natural language.
 
+\paragraph{Limitations in Human Capabilities}
 Relatedly, humans may also have limited capacity to solve such problems, which means that human-like language understanding may not require full computational power to solve such problems.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
