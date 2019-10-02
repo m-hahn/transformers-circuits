@@ -673,6 +673,9 @@ Let $D = \|v_i-v_i'\|_2$ the norm of the difference of the input embeddings at t
 	\end{align*}
 Once we have shown this, we know that the influence of any individual input on the final prediction is $\mathcal{O}(\frac{1}{n})$, with constants depending on the norms of parameter matrices and the number of layers.
 
+At this point, it is worth remarking that a key property of transformers for this proof is that the number $L$ of layers is bounded independently of the input length.
+A similar proof strategy can also be applied to other fixed-depth architectures that combine unboundedly many inputs in a smooth manner, such as 1D temporal convolutions with average pooling (TODO CITE).
+
 
 For $k=0$, $\|y_i^{(0)} - {y_i^{(0)}}'\| \leq D$, %\footnote{We are assuming that $f$ is addition or concatenation \cite{vaswani2017attention}; for operations such as an MLP, there would be an additional Lipschitz constant depending on parameters and activation functions.}
 and %, where $L_f$ is the Lipschitz constant of the operation $f$ combining position and input embeddings.
@@ -752,7 +755,7 @@ What is the relevance of this asymptotic property?
 
 - (unexpressability in the limit = ungeneralizability)?
 
-
+- suggests that the formal language view has to take a more quantitative angle
 
 \paragraph{Relevance to NLP}
 %What is the relevance of this result for NLP and computational linguistics?
@@ -766,6 +769,8 @@ Our result does show that models that are theoretically ...
 
 - language can be approximated without much recursion
 
+
+
 \paragraph{Long Distance vs. Recursion}
 Empirical evidence suggests that transformers capture longer distance context better than other architectures (CITE).
 We believe that this does not stand in contrast with the theoretical findings:
@@ -773,10 +778,6 @@ Modeling longer context and modeling hierarchical structure are different questi
 To give a very simple example, the regular language $(ba^*b)|(ca^*c)$ requires maintaining an arbitrarily long dependency between the first and last symbol in a sequence, yet it does not exhibit recursive structure (and it is easy to construct a hard-attention transformer solving it).
 If our theoretical results are relevant at the scale found in practical NLP applications, then they may suggest that long-range context, such as discourse, might have properties that allow it to be approximated by architectures that cannot fully deal with general hierarchical structure.
 
-\paragraph{Scope of Results}
-mention what kinds of architectures soft attention results are applicable to
-
-soft attention results most crucially rely on the fact that the number of layers is bounded independently of the input size
 
 \paragraph{Comparison with Recurrent Models}
 How do our results compare to what is known about LSTMs?
@@ -822,7 +823,7 @@ Such processing models predict difficulty with center embedding because they can
 
 
 \section{Conclusion}
-We formally investigated the capabilities of self-attention in modeling regular languages and hierarchical structure.
+We formally investigated the capabilities of self-attention in modeling regular languages and hierarchical structure, in the limit of long inputs.
 We showed that transformers cannot model periodic regular languages or basic recursion, either with hard or soft attention, and even if infinite precision is allowed. %, or Boolean formula evaluation
 This entails that self-attention cannot in general emulate stacks or general finite-state automata.
 Our results theoretically confirm the idea that self-attention, by avoiding recurrence, has quite limited computational power.
