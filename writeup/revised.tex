@@ -413,16 +413,15 @@ We now make these ideas formal.
 After the removal of the first layer of a transformer, the resulting structure is not a transformer any more, as each head in the lowest layer now depends on a \emph{combination} of input positions.
 We introduce a technical definition to make this concept precise:
 
-\begin{defin}[$(c,d)$-Transformer]
-Let $c,d$ be positive integers. A $(c,d)$-transformer with $L$ layers is one in which
-\begin{enumerate}
-    \item the layer-0 activations $y_j^{(0)}$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions:
+\begin{defin}[$c$-Transformer]
+Let $c$ be a positive integer. A $c$-transformer with $L$ layers is one in which the layer-0 activations $y_j^{(0)}$ depend on the embeddings not just at one position $j$, but are a function of the embeddings at $\leq c$ input positions:
 \begin{equation}
     y_j^{(0)} = f^{inp}_{n,j}((v_{i_1^{j,n}}, p_{i_1^{j,n}}), \dots, (v_{i_c^{j,n}}, p_{i_c^{j,n}} ))
 \end{equation}
-for some indices ${i_s^{j,n}} \in \{1, \dots, n\}$ ($s = 1, \dots, c$), and 
-\item for any $n \in \mathbb{N}$ and any $j \in \{1, \dots n\}$, the activation $y_j^{(0)}$ can take on at most $d$ different values as the input word $x_1\dots x_n$ varies.
-\end{enumerate}
+for some indices ${i_s^{j,n}} \in \{1, \dots, n\}$ ($s = 1, \dots, c$).
+%, and 
+%\item for any $n \in \mathbb{N}$ and any $j \in \{1, \dots n\}$, the activation $y_j^{(0)}$ can take on at most $d$ different values as the input word $x_1\dots x_n$ varies.
+%\end{enumerate}
 \end{defin}
 
 %Note that an ordinary transformer  of depth $L$ is also a $1$-transformer of depth $L$.
@@ -444,7 +443,7 @@ such that
 |\{i \leq n: \rho'_n(i) = *\}| \geq C'n
 \end{equation}
 for all sufficiently large $n$, 
-and such that the resulting function is computed by a $(H\cdot c\cdot(dk+1), d^{H(1+k)})$-transformer with $L-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
+and such that the resulting function is computed by a $( c\cdot(2^ckH+1))$-transformer with $L-1$ layers, for some integer $k$ (depending on $C'$), where $H \geq 1$ is the number of attention heads at each layer and position.
 \end{lemma}
 
 
@@ -481,7 +480,7 @@ Then, after applying the resulting restriction, the final activation $y_{n}^{(L)
 
 %\begin{proof}
 
-TODO figure out where to talk about skip connections
+%TODO figure out where to talk about skip connections
 
 \subsection{Proving the Depth Reduction Lemma}
 This section will be devoted to proving the Depth Reduction Lemma.
@@ -500,8 +499,26 @@ For each possible value $z$,  and each position $j \in \{1, \dots, n\}$, we comp
 considering only inputs $x_1\dots x_n$ that are compatible with the restriction $\rho_n$.
 For each value $z$, we order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1^{(z)}, \dots, j_n^{(z)}$ for each layer-1 attention head $h$ at a position $i$ and possible value $z$ of $y^{(0)}_i$ (In the case of ties, we order by  position, by Footnote 1).
 For each layer-1 attention head and each $z$, we then select a sequence $1 \leq i_1^{(z)} < i_2^{(z)} < \dots < i_{k}^{(z)} \leq n$ such that (1) for each $i_s^{(z)}$, there is at least one input bit $x_q$ that only feeds into the activation at position $j_{i_s^{(z)}}^{(z)}$ and no $j_{i_{s'}^{(z)}}^{(z)}$ ($s\neq s'$), and (2) $i_{k}^{(z)}$ is minimal, i.e. there is no subsequence with smaller $i_{k}^{(z)}$ that also satisfies (1).
+This is visualized in an example in Figure~\ref{fig:selecting}.
 We can find such a subsequence unless $n \leq ck$, in which case the Depth Reduction Lemma is already satisfied for this input length $n$.
 %If we cannot find such a subsequence, then all $y_i^{(0)}$ together depend only on $< ck$ inputs, 
+
+
+
+
+\begin{figure}[ht]
+    \centering
+    \begin{tabular}{cccc}
+    (a) & (b) \\
+    \includegraphics[height=0.1\textheight]{writeup/figures/select-1.png} &
+        \includegraphics[height=0.1\textheight]{writeup/figures/select-2.png}&
+        \end{tabular}
+	\caption{Selecting the sequence $i_{1}^{(z)} \dots i_{k}^{(z)}$: We have a $c$-transformer with $c=2$, i.e., each Layer 0 activation only depends on at most two input bits.
+	(a)  We fix some head in Layer 1 at position $i$ (here, $i=5$), and some value $z$ for $y^{(0)}_i$ (blue activation). For each other layer-0 activation $y^{(0)}_j$, we compute the maximal possible attention value between that activation and the Layer 1 head, assuming the fixed value $z$ for $y^{(0)}_i$ -- these maximum attention values are visualized by the thickness of the different lines.
+	(b) We select $k = 2$ Layer 0 activations, marked in blue and green. For each of these, there is at least one (in fact, two here) input bits that feed into this one and no other selected activation, also marked in blue and green, respectively.}
+	\label{fig:selecting}
+\end{figure}
+
 
 A layer-1 head $k$-\textbf{depends} on some input $x_i$ if $\rho_n(i) = *$ and $x_i$ appears as an input to some $j_r^{(z)}$ for $r \leq i_k^{(z)}$, for some $z$.
 Because $i_k^{(z)}$ is minimal, a layer-1 head $k$-depends on an input if and only if that input appears as an input to some $j_{i_s^{(z)}}$ ($s \leq k$).
@@ -602,55 +619,14 @@ E.g. $q=1/2$, $\delta=1/5$, choose $\eta$
 $(1-\eta)^2\cdot 3/2 = C'/C$.
 
 After applying $\rho'_n$, every layer-1 head $b_{j,1,h}$ depends only on (1) the $c$ input bits feeding into $y_j^{(0)}$, and (2) the $\leq c2^ck$ input bits that the head $k$-depends on.
-Thus, each layer-1 activation $y_j^{(1)}$ only depends on $\leq Hc(2^ck+1)$ input bits: There are $H\cdot c \cdot 2^c \cdot k$ input bits that the $H$ different attention heads $k$-depend on, plus a skip-connection from $y_j^{(0)}$, which itself depends on $\leq c$ input bits.
-We can thus remove layer 0, convert layer-1 activations $y_j^{(1)}$ into layer-0 activations $y_j^{(0)}$, and obtain a $(Hc(2^ck+1))$-transformer performing the same computation as before when $\rho'$ is applied.
-%This concludes the proof of the Depth Reduction Lemma.
+Thus, each layer-1 activation $y_j^{(1)}$ only depends on $\leq c\cdot (2^ckH+1)$ input bits: There are $\leq H\cdot c \cdot 2^c \cdot k$ input bits that the $H$ different attention heads $k$-depend on, plus a skip-connection from $y_j^{(0)}$, which itself depends on $\leq c$ input bits.
+We can thus remove layer 0, convert layer-1 activations $y_j^{(1)}$ into layer-0 activations $y_j^{(0)}$, and obtain a $(c\cdot(2^ckH+1))$-transformer performing the same computation as before when $\rho'$ is applied.
+This concludes the proof of the Depth Reduction Lemma.
 
 
 
-The head $b_{j,1,h}$ can take on $d^{1+k}$ many possible values.
-Consequently, $y_j^{(1)}$ can take on $d^{H(1+k)}$ many possible values.
-
-\paragraph{At what $n$ do limitations begin?}
-
-How large does $k$ have to be?
-
-Choose $\eta = 1/2$. So $C'/C = 1/4$. $C=1/4^W$ ($W$ the number of layers reduced so far).
-
-\begin{align}
-   2^{1/k} \left(1-(1/4)^c\right)^{\frac{1}{2c^2 4^W}} &\leq \frac{1}{k^{2/k}} (1-\frac{1}{k^2})^{2 d^2 c^2kH 4^W}
-\end{align}
-where $D =   \in (0,1)$.
-For the first term on the right, 
-\begin{align*}
-\lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \exp\left(-\log(k^2) / k\right) = 1
-\end{align*}
-Also, $\lim_{k\rightarrow \infty} (1-A)^{f/k}$ equals
-\begin{align*}
-\lim_{k\rightarrow \infty} \left(1-\frac{1}{k^2}\right)^{\frac{2^{2c}}{\eta}c^2kH/C} = \lim_{k\rightarrow \infty} \left(1-\frac{E^2}{k^2}\right)^{k} = 1
-\end{align*}
-for $E := \frac{2^{2c}}{\eta}c^2H/C$. So, if we choose $k$ large enough (independently of $n$), the RHS of (\ref{eq:x1-ineq}) can be made arbitrarily close to $1$, in particular, greater than $D$.
-In order to also satisfy~(\ref{eq:lovasz-2}), we need
-\begin{align*}
-\exp\left(-\delta^2q(1-\eta)^2C/3\right)  \leq B^{1/n} (1-A)^{2^c H}
-\end{align*}
-which holds for $n$, $k$ large enough (again, choosing $k$ independent of $n$). 
-In conclusion, there exists, for each sufficiently-large $n$, a restriction $\rho'_n$ that avoids all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$, for some $k$ independent of $n$.
-For such a $\rho'$, we have
-\begin{equation*}
-|\{i \leq n: \rho_n'(i) = *\}|\geq (1-\eta)^2\cdot (1-(1+\delta)q) C n
-\end{equation*}
-for all sufficiently large $n$.
-Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such that $(1+\delta)q \in (0,1)$) in such a way as to achieve $(1-\eta)^2\cdot (1-(1+\delta)q) = C'/C$.
-
-
-
-If we iteratively apply this (assuming the input alphabet is binary), we get 
-1
-$H\cdot 1\cdot(2 k_1+1)$
-$H\cdot 1\cdot(d^{H(1+k_1)}k_2+1)$
-
-%Can the same proof work for Dyck? Fix the first $0.2n$ to `(', and can we force the random restrictions to only restrict $0.3n$ (replace $2$ by $10$)?
+%The head $b_{j,1,h}$ can take on $d^{1+k}$ many possible values.
+%Consequently, $y_j^{(1)}$ can take on $d^{H(1+k)}$ many possible values.
 
 
 
@@ -693,14 +669,15 @@ As $n\rightarrow\infty$, cross-entropy on predicting the next symbol converges t
 \end{thm}
 
 \begin{proof}
-For \textsc{Parity}, exchanging a single bit flips membership.
-Thus, for any member of the language, there is an equally likely non-member such that output activations differ by $\mathcal{O}(\frac{1}{n})$.
+First, let us consider \textsc{Parity}.
+Let $p_{\textsc{Parity}}$ be the distribution over bitstrings defined above.
+Exchanging a single bit flips membership in \textsc{Parity}.
+Thus, for any $x \in \textsc{Parity}$, there is a word $x' \not\in \textsc{Parity}$, differing only in one bit, such that $p(x) = p(x')$.
+As $x$ and $x'$ differ only in one bit, the transformer's output activations differ by $\mathcal{O}(\frac{1}{n})$.
 Therefore, a Lipschitz-continuous prediction function cannot robustly assign different next-symbol probabilities after even and odd numbers of 1s, and cross-entropy will converge to unigram chance level.
 
 For \textsc{2Dyck}, exchanging a single input symbol can flip whether the next symbol can be `)', `]', or only an opening bracket / \textsc{EndOfSequence}.
-Thus, again, cross-entropy of a Lipschitz-continuous prediction function will converge to unigram chance level.
-%, the probability that a well-bracketed prefix of length $n$ is exactly balanced is $o(1)$.
-%In all other cases, the correct label includes one of the two closing parentheses, which depends on one single previous symbol, and both possibilities are equally likely if that symbol is unknown.
+By the same reasoning as for \textsc{Parity}, cross-entropy of a Lipschitz-continuous prediction function will again converge to unigram chance level.
 \end{proof}
 
 %\subsection{Proof of Lemma~\ref{lem:soft-tech}}
@@ -871,3 +848,58 @@ Our results theoretically confirm the idea that self-attention, by avoiding recu
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\paragraph{At what $n$ do limitations begin?}
+
+How large does $k$ have to be?
+
+Choose $\eta = 1/2$. So $C'/C = 1/4$. $C=1/4^W$ ($W$ the number of layers reduced so far).
+
+\begin{align}
+   2^{1/k} \left(1-(1/4)^c\right)^{\frac{1}{2c^2 4^W}} &\leq \frac{1}{k^{2/k}} (1-\frac{1}{k^2})^{2 d^2 c^2kH 4^W}
+\end{align}
+where $D =   \in (0,1)$.
+For the first term on the right, 
+\begin{align*}
+\lim_{k\rightarrow \infty} A^{1/k} = \lim_{k\rightarrow \infty} \exp\left(-\log(k^2) / k\right) = 1
+\end{align*}
+Also, $\lim_{k\rightarrow \infty} (1-A)^{f/k}$ equals
+\begin{align*}
+\lim_{k\rightarrow \infty} \left(1-\frac{1}{k^2}\right)^{\frac{2^{2c}}{\eta}c^2kH/C} = \lim_{k\rightarrow \infty} \left(1-\frac{E^2}{k^2}\right)^{k} = 1
+\end{align*}
+for $E := \frac{2^{2c}}{\eta}c^2H/C$. So, if we choose $k$ large enough (independently of $n$), the RHS of (\ref{eq:x1-ineq}) can be made arbitrarily close to $1$, in particular, greater than $D$.
+In order to also satisfy~(\ref{eq:lovasz-2}), we need
+\begin{align*}
+\exp\left(-\delta^2q(1-\eta)^2C/3\right)  \leq B^{1/n} (1-A)^{2^c H}
+\end{align*}
+which holds for $n$, $k$ large enough (again, choosing $k$ independent of $n$). 
+In conclusion, there exists, for each sufficiently-large $n$, a restriction $\rho'_n$ that avoids all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$, for some $k$ independent of $n$.
+For such a $\rho'$, we have
+\begin{equation*}
+|\{i \leq n: \rho_n'(i) = *\}|\geq (1-\eta)^2\cdot (1-(1+\delta)q) C n
+\end{equation*}
+for all sufficiently large $n$.
+Then choose $\eta \in (0,1)$ small, $q \in (0,1)$ small, and $\delta >0$ (such that $(1+\delta)q \in (0,1)$) in such a way as to achieve $(1-\eta)^2\cdot (1-(1+\delta)q) = C'/C$.
+
+
+
+If we iteratively apply this (assuming the input alphabet is binary), we get 
+1
+$H\cdot 1\cdot(2 k_1+1)$
+$H\cdot 1\cdot(d^{H(1+k_1)}k_2+1)$
+
+%Can the same proof work for Dyck? Fix the first $0.2n$ to `(', and can we force the random restrictions to only restrict $0.3n$ (replace $2$ by $10$)?
