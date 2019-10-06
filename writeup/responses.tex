@@ -171,7 +171,7 @@ these literature and techniques.
 
 \response{(2) TODO}
 
-\response{... We have expanded the proof of Theorem 7. Reviewer B had noted that it was too brief, so we now explain in more detail the argument for \textsc{Parity} and \textsc{2Dyck}.}
+\response{... We have expanded the proof of Theorem 7. Reviewer B had noted that it was too brief, so we now explain in more detail the argument for \textsc{Parity} and \textsc{2Dyck}. We weakened the statement of the theorem (suboptimal cross-entropy, instead of unigram baseline level, for 2Dyck), in order to be able to present the argument in more sufficient detail.}
 
 %\response{Additionally, we have expanded the proof to give an explicit bound on the input length starting at which our results provide limitations in the hard attention case. Reviewer C had noted that our original proof provided an exponential tower upper bound; we now show that a much gentler growth can be shown. This increased the complexity of the proof only minimally, and -- more importantly -- we feel that this provides a more informative answer to the question of practical relevance.}
 
@@ -210,7 +210,7 @@ of the model and cannot be ignored. That there is a required
 influencer for each node and that these cover ultimately the entire
 input sequence would seem to undermine the core argument of this paper.
 
-\response{Residual conections do not cause a problem for the proof because the final prediction is determined by $y_n^{(L)}$, which -- after applying the depth reduction method -- will only have a skip connection from $y_n^{(0)}$, which depends on only finitely many inputs.}
+\response{Thanks for pointing out that the paper did not make the role of residual connections very clear. Residual conections do not cause a problem for the proof because the final prediction is determined by $y_n^{(L)}$, which -- after applying the depth reduction method -- will only have a skip connection from $y_n^{(0)}$, which depends on only finitely many inputs.}
 
 \response{We have added pointers to residual connections in various points of the paper, as explained in the response to the editor. }
 
