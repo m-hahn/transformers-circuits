@@ -758,9 +758,9 @@ Choose $C : = 2\cdot (1 + \exp(2A) + L_{f^{act}})$, where $L_{f^{act}}$ is the L
 Recall that activations $y_i^{(k)}$ are defined as $f^{act}(y_i^{(k-1)}, b_{i,k,1}, \dots, b_{i,k,H})$, where $b_{i,k,h}$ equals $\sum_{j=1}^n \hat{a}_{i,j}^{k,h} y_j^{(k-1)}$.
 We first calculate
 \begin{align*}
-& \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {y}_w^{(k-1)}'\|
+& \|b_{j,k,h} - b_{j,k,h}'\|  \leq \sum_{w=1}^n \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {{y}_w^{(k-1)}}'\|
 \\
-& = \hat{a}_{j,i}^{k,h} \|y_i^{(k-1)} - {y}_i^{(k-1)}'\|  + \sum_{w \neq i} \hat{a}_{j,w}^{k,h} \|y_w^{(k-1)} - {y}_w^{(k-1)}'\|
+& = \hat{a}_{j,i}^{k,h} \|y_i^{(k-1)} - {{y}_i^{(k-1)}}'\|  + \sum_{w \neq i} {\hat{a}_{j,w}}^{k,h} \|y_w^{(k-1)} - {{y}_w^{(k-1)}}'\|
 \end{align*}
 which, using the induction hypothesis, is at most:
 \begin{align*}
