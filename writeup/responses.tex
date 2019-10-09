@@ -294,9 +294,9 @@ of the model and cannot be ignored. That there is a required
 influencer for each node and that these cover ultimately the entire
 input sequence would seem to undermine the core argument of this paper.}
 
-\response{Thanks for pointing out that the paper did not make the role of residual connections clear. Residual conections do not cause a problem for the proof because the final prediction is determined by $y_n^{(L)}$, which -- after applying the depth reduction method -- will only have a skip connection from $y_n^{(0)}$, which depends on only finitely many inputs.}
+\response{Thanks for pointing out that the paper did not explicitly reference the role of residual connections. We have added pointers to residual connections at various points in the paper, as explained in the response to the editor.}
 
-\response{We have added pointers to residual connections in various points of the paper, as explained in the response to the editor. }
+%\response{Residual conections do not cause a problem for the proof because, as described at the end of Section 3 and in the proof of Theorem 1 (immediately before Section 5.1), the final prediction is assumed to be determined by $y_n^{(L)}$, the activation at the highest layer and the last symbol. After applying the depth reduction method to remove all layers, $y_n^{(L)}$ will only have a skip connection from $y_n^{(0)}$, which depends on only boundedly many inputs. Similarly, the soft attention results (Lemma 5) also take into consideration that the $n$th input symbol might have nonnegligible impact on the final activation $y_n^{(L)}$. One can certainly conceive of other transformer-like architectures where the prediction is not derived from $y_n^{(L)}$; however, the proofs described in the paper are applicable to any architecture that derives a final fixed-dimensional representation using only self-attention and residual connections.}
 
 
 \original{Setting aside the possible flaw noted above, it is important to ask, is
