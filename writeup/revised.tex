@@ -395,8 +395,8 @@ Perhaps surprisingly, this is possible; the idea is to fix input bits that achie
     \centering
     \begin{tabular}{cccc}
     (a) & (b) \\
-    \includegraphics[width=0.22\textwidth]{writeup/figures/restr-0b.png} &
-        \includegraphics[width=0.22\textwidth]{writeup/figures/restr-2b.png}&
+    \includegraphics[width=0.22\textwidth]{figures/restr-0b.png} &
+        \includegraphics[width=0.22\textwidth]{figures/restr-2b.png}&
         \end{tabular}
 	\caption{Finding a good restriction: (a) Every attention head in the first layer could potentially attend to any input bit. (b) Perhaps surprisingly, one can fix a small number of input bits in such a way that each layer-1 attention head can only possibly attend to $c$ (here, $c=1$) inputs, and ignores all other inputs. Each activation vector $y_j^{(1)}$ in the first layer then only depends on the $H\cdot c$ inputs that its $H$ (here, $H=1$) attention heads can attend to, plus the input $x_j$ that feeds into it via a skip-connection.}
 	\label{fig:restr}
@@ -491,8 +491,8 @@ We can find such a subsequence unless $n \leq ck$, in which case the Depth Reduc
     \centering
     \begin{tabular}{cccc}
     (a) & (b) \\
-    \includegraphics[height=0.1\textheight]{writeup/figures/select-1.png} &
-        \includegraphics[height=0.1\textheight]{writeup/figures/select-2.png}&
+    \includegraphics[height=0.1\textheight]{figures/select-1.png} &
+        \includegraphics[height=0.1\textheight]{figures/select-2.png}&
         \end{tabular}
 	\caption{Selecting the sequence $i_{1}^{(z)} \dots i_{k}^{(z)}$: We have a $c$-transformer with $c=2$, i.e., each Layer 0 activation only depends on at most two input bits.
 	(a)  We fix some head in Layer 1 at position $i$ (here, $i=5$), and some value $z$ for $y^{(0)}_i$ (blue activation). For each other layer-0 activation $y^{(0)}_j$, we compute the maximal possible attention value between that activation and the Layer 1 head, assuming the fixed value $z$ for $y^{(0)}_i$ -- these maximum attention values are visualized by the thickness of the different lines.
