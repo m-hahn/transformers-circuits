@@ -3,18 +3,12 @@
 \usepackage{url}
 \usepackage[T1]{fontenc}
 
+\usepackage{times,latexsym}
+\usepackage{url}
+\usepackage[T1]{fontenc}
 
 
 
-\renewcommand{\baselinestretch}{0.989}
-
-
-
-%\setlength\titlebox{5cm}
-% You can expand the titlebox if you need extra space
-% to show all the authors. Please do not make the titlebox
-% smaller than 5cm (the original size); we will check this
-% in the camera-ready version and ask you to change it back.
 
 \newcommand\BibTeX{B{\sc ib}\TeX}
 \newcommand\confname{EMNLP-IJCNLP 2019}
@@ -35,6 +29,68 @@
 
 
 \newcommand{\Prob}{\mathbb{P}}%
+
+%\usepackage{pslatex}
+%\usepackage{latexsym}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{url}
+%\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{rotating}
+\usepackage{multirow}
+
+
+
+
+
+\usepackage[T1]{fontenc}
+
+\usepackage{pslatex}
+%\usepackage{latexsym}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{url}
+%\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{rotating}
+%\usepackage{natbib}
+\usepackage{amssymb}
+
+
+\usepackage{amsthm}
+ 
+
+\allowdisplaybreaks
+
+
+
+
+
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+
+% Use the lineno option to display guide line numbers if required.
+
+\usepackage{amsmath}
+\usepackage{tikz-dependency}
+
+\usepackage{amssymb}% http://ctan.org/pkg/amssymb
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+
+
 
 %\usepackage{pslatex}
 %\usepackage{latexsym}
@@ -97,6 +153,9 @@
 \newcommand\comment[1]{{\color{red}#1}}
 \newcommand\response[1]{{\color{blue}#1}}
 
+\newcommand\newtext[1]{``\textit{#1}''}
+
+\newcommand\original[1]{\textbf{#1}}
 
 \newcommand{\thetad}[0]{{\theta_d}}
 \newcommand{\thetal}[0]{{\theta_{LM}}}
@@ -115,41 +174,64 @@ We are also grateful for the decision to grant us two additional pages, which we
 
 \section{Editor's Comments}
 
-(a) Make more explicit the connection between your presentation to the one
+\original{(a) Make more explicit the connection between your presentation to the one
 in the original Vaswani et al transformer paper (queries, keys and values),
 or otherwise refer to other common and somewhat standardized presentations
-of the transformer model that do not use this terminology.
+of the transformer model that do not use this terminology.}
 
-\response{We have added explicit pointers to queries, keys, and values in Section 3: First, we added the following to the paragraph following Equation (1): TODO}
+\response{We have added explicit pointers to queries, keys, and values in Section 3:}
 
-\response{Second, we added the following behind Equation (2): TODO}
+\begin{enumerate}
+    \item \response{We added the following to the paragraph following Equation (1), to clarify how the function $f^{att}_{k,h}$ is instantiated in Vaswani et al. (2017):}
 
-(b) Add more salient discussion of skip-connection / residual connections,
+\response{\newtext{Specifically, the implementation described by Vaswani et al. (2017, p. 5) linearly transforms the position-wise activations $y_i^{(k-1)}$ separately into `query' vectors $Q y_i^{(k-1)}$ and `key' vectors $K y_i^{(k-1)}$ (for some parameter matrices $K, Q$); the attention score $a_{i,j}^{(k,h)}$ is then implemented as a scaled dot product of query $Q y_i^{(k-1)}$ and key $K y_j^{(k-1)}$.}}
+\newline
+
+\item \response{Second, we added the following behind Equation (2):}
+
+\response{\newtext{We note that the implementation described by Vaswani et al. (2017) first linearly transforms the activations $y_j^{(k-1)}$ into `value vectors' before multiplying with $ \hat{a}_{i,j}^{(k,h)}$; this is mathematically equivalent to applying this linear transformation to $b_{i,k,h}$ as part of the map $f^{act}$ we describe below.}}
+\end{enumerate}
+
+\original{(b) Add more salient discussion of skip-connection / residual connections,
 and in particular remark on them in the proofs. While reviewer C believes
 the results should hold also with residual connections, I initially shared
 reviewer A's reaction of not understanding this detail, and I am fairly
 certain other readers will also face similar confusion. Please enhance the
 relevant proofs with discussion of why they work also in the presence of
-residual connections.
+residual connections.}
 
 \response{We have added pointers to residual connections in the following places:}
 
-\response{After Equation (3):}
 
-\response{Figures 1 and 2: We added dashed connections marking skip connections, and added the following to the caption TODO}
+\begin{enumerate}
+    \item \response{After Equation (3):}
 
-\response{Last paragraph of Section 5: TODO}
+\response{\newtext{[...] where $f^{act}$ is implemented as a fully-connected feedforward network with a skip-connection (Vaswani et al., 2017) from $y_i^{(k-1)}$ to $y_i^{(k)}$.}}
+\newline
 
-\response{Section 6: TODO}
+\item \response{In Figures 1 and 2: We added dashed connections marking skip connections, and added the following phrases to the caption: \newtext{[...] plus the input that feeds into it via a skip connection (dashed
+connections) [...]} for Figure 1, and \newtext{[...] plus the input x j that feeds into it
+via a skip-connection. [...]} for Figure 2.}
+\newline
 
-(c) Expand the discussion on the relevancy of the result. In particular:
+\item \response{In the last paragraph of Section 5, we changed the phrasing to specifically point out skip connections:}
+
+\response{\newtext{Thus, each layer-1 activation $y_j^{(1)}$ only depends on $\leq c\cdot (2^ckH+1)$ input bits: There are $\leq H\cdot c \cdot 2^c \cdot k$ input bits that the $H$ different attention heads $k$-depend on, plus a skip-connection from $y_j^{(0)}$, which itself depends on $\leq c$ input bits.}}
+
+\response{In line with this change, we changed the Depth Reduction Lemma, replacing the term $(H\cdot c\cdot(2^ck+1))$ in the conclusion with the (smaller) $( c\cdot(2^ckH+1))$, as this (slightly stronger) conclusion follows naturally from the expanded reasoning quoted above.}
+\end{enumerate}
+
+
+\response{We further verified that the proofs in Section 6 are compatible with the presence of skip connections.}
+
+\original{(c) Expand the discussion on the relevancy of the result. In particular:
 - (c1) Expand on your thoughts on what the value of showing such an
 asymptotic property is (traditionally, proofs of unexpressability in the
-limit are really stand-ins for proofs of ungeneralizability).
+limit are really stand-ins for proofs of ungeneralizability).}
 
 \response{TODO}
 
-- (c2) In particular, expand on the applicability of the results to
+\original{- (c2) In particular, expand on the applicability of the results to
 processing of natural language data and what is the takeaway to NLP
 practitioners, if any. Empirical evidence suggests that the transformer
 architecture is indeed preferable to other architectures in capturing longer
@@ -157,27 +239,29 @@ distance context, how is this reconciled with the theoretical findings?
 - Note that it is perfectly OK to have a theoretical result that does not
 have any relevance to empirical NLP work, and I find the result to be
 interesting enough to be published also without such relevance. But, if that
-is indeed the case, it needs to be stated explicitly.
+is indeed the case, it needs to be stated explicitly.}
 
 \response{TODO}
 
-(d) Attempt to Improve / simplify / expand the presentation of mathematics
+\original{(d) Attempt to Improve / simplify / expand the presentation of mathematics
 used in sections 5 and 6 to cater to audiences who are less familiar with
-these literature and techniques.
+these literature and techniques.}
 
-\response{We have used the additional space to expand various parts of Sections 5 and 6:}
+\response{We have used the additional space to expand and improve various parts of Sections 5 and 6:}
 
-\response{(1) We added Figure 3, which explains how the sequence $i^{(z)}_1, \dots, i^{(z)}_k$ is constructed, and added a pointer to this figure in the paragraph below Equation (9). While none of the reviewers asked specifically about this part, we felt this was worth adding, because the definition of this sequence is the crucial starting point for the entire proof (e.g., the notion of `k-dependendence' is based on it), and colleagues found that the prose description alone was dense.}
+\begin{enumerate}
+    \item \response{We added Figure 3, which explains how the sequence $i^{(z)}_1, \dots, i^{(z)}_k$ is constructed, and added a pointer to this figure in the paragraph below Equation (9). While none of the reviewers asked specifically about this part, we felt this was worth expanding on, because the definition of this sequence is the crucial starting point for the entire proof in Section 5 (e.g., the notion of `k-dependendence' is based on it), and other colleagues found that the prose description alone was very dense.}
 
-\response{(2) TODO}
+\item \response{We have changed the definition of the distributions used for \textsc{Parity} and \textsc{2Dyck}: For \textsc{Parity}, we originally had inadvertently defined the automaton in such a way that it would generate strings with both even and odd numbers of $1$s; we have fixed this in the reision. For \textsc{2Dyck}, we changed the definition of the PCFG to make the equivalence to the automaton-based description in Skachkova et al. (2018) clearer.}
 
-\response{... We have expanded the proof of Theorem 7. Reviewer B had noted that it was brief and opaque, so we now explain in more detail the argument for \textsc{Parity} and \textsc{2Dyck}. We weakened the statement of the theorem (suboptimal cross-entropy, instead of unigram baseline level, for 2Dyck), in order to be able to present the argument in more sufficient detail. We chose to nonetheless put part of the argument into a footnote, as we feel it is specific to $2\textsc{Dyck}$ and seems tangential to the properties of self-attention.}
+\item \response{We have expanded the proof of Theorem 7. Reviewer B had noted that both the role of the probability distributions, and the role of the PCFG were opaque. We now explain in more detail the argument for \textsc{Parity} and \textsc{2Dyck}. We weakened the statement of the theorem (suboptimal cross-entropy, instead of unigram baseline level, for 2Dyck), in order to be able to present the argument in full detail. We nonetheless chose to put one part of the argument into a footnote, as we feel it is specific to $2\textsc{Dyck}$ and seems tangential to the properties of self-attention.}
+\end{enumerate}
 
 %\response{Additionally, we have expanded the proof to give an explicit bound on the input length starting at which our results provide limitations in the hard attention case. Reviewer C had noted that our original proof provided an exponential tower upper bound; we now show that a much gentler growth can be shown. This increased the complexity of the proof only minimally, and -- more importantly -- we feel that this provides a more informative answer to the question of practical relevance.}
 
 \section{Reviewer A:}
 
-(Minor issue): I am confused by the discussion of languages that can and
+\original{(Minor issue): I am confused by the discussion of languages that can and
 can't be
 shown to be modeled by transformers in lines 420-487. It is said "A
 crucial difference between these languages and PARITY / 2DYCK is that
@@ -191,12 +275,12 @@ unknown. If I understand the general argument as applied to PARITY,
 then you could force 1-Cn bits to be all 0. If done, then for all
 sequences longer than 2*(1-Cn+c) PARITY is unrecognizable; you could
 at least test non-membership for shorter sequences (though still not
-membership).
+membership).}
 
-\response{We acknowledge that our phrasing was insufficiently specific. It is true that, as Reviewer A remarks, nonmembership can be enforced by fixing a few $^*$specific$^*$ inputs also for 1Dyck and certain other languages that are not recognized by transformers. The difference between, e.g., 1Dyck and $a^nb^n$ is that, for $a^nb^n$, $^*$any$^*$ part of the input is suitable (positions in the first half can be fixed to $b$, positions in the second half to $a$), whereas only positions at the boundaries are suitable when applying this to 1Dyck. We have clarified this by adding the phrase TODO}
+\response{We agree that the phrasing was insufficiently specific. It is true that, as Reviewer A points out, nonmembership can be enforced by fixing a few \emph{specific} inputs also for \textsc{1Dyck} and certain other languages that are not recognized by transformers. The difference between, e.g., 1Dyck and $a^nb^n$ is that, for $a^nb^n$, \emph{any} part of the input is suitable (Positions in the first half can be fixed to $b$, positions in the second half to $a$), whereas only positions at the boundaries are suitable when attempting to enforce nonmembership in \textsc{1Dyck}. We have clarified this by adding the phrase \newtext{in any part of an input string} after \newtext{fixing a few inputs}.}
 
 
-The Transformer paper itself (section 3.1) critically notes the
+\original{The Transformer paper itself (section 3.1) critically notes the
 inclusion of a so-called residual connection
 at each layer that ensures an aspect of each input is propagated up the
 layer
@@ -208,14 +292,14 @@ abstract away specifics of attention design, representation, and even
 to treat soft attention as hard, the residual connection is a critical part
 of the model and cannot be ignored. That there is a required
 influencer for each node and that these cover ultimately the entire
-input sequence would seem to undermine the core argument of this paper.
+input sequence would seem to undermine the core argument of this paper.}
 
-\response{Thanks for pointing out that the paper did not make the role of residual connections very clear. Residual conections do not cause a problem for the proof because the final prediction is determined by $y_n^{(L)}$, which -- after applying the depth reduction method -- will only have a skip connection from $y_n^{(0)}$, which depends on only finitely many inputs.}
+\response{Thanks for pointing out that the paper did not make the role of residual connections clear. Residual conections do not cause a problem for the proof because the final prediction is determined by $y_n^{(L)}$, which -- after applying the depth reduction method -- will only have a skip connection from $y_n^{(0)}$, which depends on only finitely many inputs.}
 
 \response{We have added pointers to residual connections in various points of the paper, as explained in the response to the editor. }
 
 
-Setting aside the possible flaw noted above, it is important to ask, is
+\original{Setting aside the possible flaw noted above, it is important to ask, is
 there a practical effect of the results in this paper? The
 restrictions that accomplish the described insensitivity behavior are
 not arbitrary, but are in fact quite carefully crafted. This makes the
@@ -237,22 +321,22 @@ human language modeling remains in any case; it requires wide ranging,
 sporadic, multimodal, though ultimately finite context to capture all
 of common sense. Transformer *does* appear to capture more,
 longer-distance context and can in practice be trained to do so better
-than other models.
+than other models.}
 
 \response{As described in more detail in the response to the editor, we have expanded the Discussion section, including discussion of the question of practical relevance.}
 
 \section{Reviewer B:}
 
 
-A formal proof to replace such intuitions would be progress. But my
+\original{A formal proof to replace such intuitions would be progress. But my
 confusion about the formalization already starts on page 3, where I can’t
 square the definitions of (hard and soft) attention heads with those in
 Vaswani et al 2017. Where are the value, key and query components that are
-so crucial in that work?
+so crucial in that work?}
 
-\response{As detailed in the response to the editor, we have added explicit references to values, keys, and queries.}
+\response{As detailed in the response to the editor, we have added explicit references to values, keys, and queries, explaining how our definition covers the implemention described in Vaswani et al 2017.}
 
-The confusion continues throughout section 5, where first ‘restrictions’
+\original{The confusion continues throughout section 5, where first ‘restrictions’
 are introduced. The basic idea, the paper says, is that a small fraction of
 the input is fixed in a particular way. Perhaps this is a round-about way to
 define a subset of the Parity/2Dyck languages for which the Tranformer’s
@@ -262,19 +346,19 @@ restrictions on models in proofs of what model can do (even when
 restricted), and not in proofs on what they cannot do. It is probably my
 lack of knowledge about the Boolean circuit literature, but I would need
 more explanation and perhaps terminology more carefully tuned to an
-ACL*-audience here to follow this entire section.
+ACL*-audience here to follow this entire section.}
 
-\response{We have, at least for the definition, added the more informative term `input restriction' to clarify that inputs are being restricted, not models. We have also added an explicit reference to the term `restriction' in the captions of Figures 1 and 2 (TODO).}
+\response{We have, in several places, added the more informative term \newtext{input restriction} to clarify that inputs are being restricted, not models. For instance, we changed \newtext{A \key{restriction} $\rho$ [...]} to \newtext{An \key{input restriction} (short: \key{restriction}) $\rho$ [...]}. We have also added explicit references to the term \newtext{input restriction} in the captions of Figures 1 and 2. We believe that the combination of formal definition and visualization in these figures now makes the meaning of the term unambiguous.}
 
-I don’t fare much better in section 6, where a different set of
+\original{I don’t fare much better in section 6, where a different set of
 mathematical techniques is used to prove theorem 6 and lemma 5. The paper
 uses a simple PCFG to define the input language, but I am immediately at a
 loss when the proofs start after giving theorem 6. What is an *equally
-likely* non-member that yields similar but different output activations?
+likely* non-member that yields similar but different output activations?}
 
-\response{We agree that the proof of Theorem 6 was very dense, we have substantially expanded it to clarify the argument.}
+\response{We have substantially expanded the proof of Theorem 6 to clarify the argument and the role of the PCFG, as described in the response to the editor.}
 
-*Relevance*
+\original{*Relevance*
 Even if all the proofs are correct, I have some doubts about how relevant
 all this is for understanding the behavior of the Transformer on real
 language data. The paper, on page 10, briefly discusses the very reasonable
@@ -283,14 +367,14 @@ in this paper by using a large number of layers and attention heads, and
 that natural language data simply doesn’t contain those deeply nested
 dependencies, because humans fail at them too. This is such a crucial issue
 for assessing the relevance of the presented proofs, that I think it would
-deserve some longer discussion and some supportive empirical data.
+deserve some longer discussion and some supportive empirical data.}
 
 \response{As detailed in the response to the editor, we have expanded the Discussion section to address the question of relevance.}
 
 
 \section{Reviewer C:}
 
-The most significant drawback I see in this work is that its results are
+\original{The most significant drawback I see in this work is that its results are
 asymptotic, i.e. apply only to input sequences that are very long.  This
 means that from a practical perspective, it is unclear if the limitations
 established are at all relevant.  The authors acknowledge this fact and
@@ -306,9 +390,11 @@ but I believe it could be stressed a bit more boldly (e.g. in the discussion
 in Section 7).  Overall, the two shortcomings I raised are inherent to this
 work, i.e. cannot be addressed without major changes, and since they are
 acknowledged in the text, I do not think they should be treated as an
-impediment for publication.
+impediment for publication.}
 
-\response{As detailed in the response to the editor, we have expanded the Disucssion section to address the question of practical relevance. Regarding the soft attention results, we have added a few sentences about what kinds of architectures the proof is aplicable to (TODO).}
+\response{As detailed in the response to the editor, we have expanded the Disucssion section to address the question of practical relevance. Further, regarding the soft attention results, we have added a few sentences about what kinds of architectures the proof is applicable to, in the proof of Lemma 5: \newtext{At this point, it is worth remarking that a key property of transformers for this proof is that the number $L$ of layers is bounded independently of the input length.
+A similar proof strategy can also be applied to other fixed-depth architectures that combine unboundedly many inputs in a smooth manner, such as 1D temporal convolutions with average pooling.
+}}
 
 \begin{verbatim}
 Minor comments:
@@ -323,5 +409,8 @@ be a superscript
 \end{verbatim}
 
 \response{Thanks for pointing these out, we fixed these.}
+
+
+
 
 \end{document}
