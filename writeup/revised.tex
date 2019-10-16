@@ -784,25 +784,40 @@ We have shown that, even with infinite precision, transformers cannot robustly m
 In the hard attention setting, our results hold independently of activation functions and the magnitude of the parameters, and show that no transformer   can accurately classify strings as belonging to such languages.
 In the soft attention setting, our results are slightly less general, but still show that transformers cannot achieve good cross-entropies when modeling distributions over these formal languages.
 
-\paragraph{Asymptotic Nature of Results}
-Our results are asymptotic in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is \emph{sufficiently long}.
+
+Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
+Our results entail that self-attention is limited in its ability to model context-free languages or evaluate logical formulas.
+In particular, self-attention cannot in general emulate stacks or arbitrary finite-state automata.
+
+
+How should we reconcile this with the success of transformers at many NLP tasks?
+One possible source of this apparent divergence is that  our results are asymptotic, in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is \emph{sufficiently long}.
 A transformer may nonetheless be able to perform well on on short inputs; indeed, given any bound $N$ on the input length, it is possible to construct a transformer that will achieve perfect accuracy or cross-entropy on all examples of length $n \leq N$; our results show that the number of heads and layers, or the parameter norms, will have to increase with $N$.
+Practical implementations of transformers might thus be able circumvent such asymptotic limitations by using large numbers of layers and heads, in relation to the sentence lengths typically occurring in natural language.
+Therefore, our results do not constitute conclusive evidence for practical limitations of real-world NLP systems.
 
-How long does an input have to be for such limitations to start becoming relevant?
-Our proofs do not provide a definitive answer to this question.
-Iteratively applying the Depth Reduction Lemma to bound $c$ after successive reduction of layers only bounds the necessary iput length $n$ by a tetration (of the order of $^L H$), far beyond the scale relevant to real-world NLP when considering the size of NLP models such as BERT (12 heads and layers, \citet{devlin2018bert}).
-Therefore, our results do not constitute conclusive evidence for limitations of large real-world systems.
+%How long does an input have to be for such limitations to start becoming relevant? Our proofs do not provide a definitive answer to this question. Iteratively applying the Depth Reduction Lemma to bound $c$ after successive reduction of layers only bounds the necessary input length $n$ by a tetration (of the order of $^L H$), far beyond the scale relevant to real-world NLP when considering the size of NLP models such as BERT (12 heads and layers, \citet{devlin2018bert}).
 
-On the other hand, it is unknown how loose or tight this upper bound is.
-Also, note that our proof for hard attention makes no assumption about activation functions, and more informative bounds might be obtained by restricting to realistic functions used in implementations.
-Relatedly, it has been found that real-world transformers may require far fewer parameters for computing a function than they require for successful training; e.g., some BERT layers can be reduced to just a single attention head with small performance loss \citep{michel2019sixteen,voita2019analyzing}.
-We believe that a full theoretical understanding of the role of the number of heads and layers in shaping learning and representational capacity is an important and challenging problem for future research.
+We believe that the main implications of our results are theoretical.
+
+
+They, for the first time, showcase mathematical techniques for analyzing limitations of self-attention, an architecture at the heart of recent significant advances in NLP.
+
+
+
+
+This provides theoretical understanding of -- previously conjectured -- differences between self-attention and theoretically more well-studied recurrent architectures.
+%It also opens the door to asking whether there
+It also highlights that natural language can be modeled well quantitatively with models that are too weak for the formal languages typically assumed in theoretical linguistics.
+
 
 In linguistics, asymptotic expressibility in the limit of long sentences has typically been understood as a formalization of the existence of generalizable descriptions:
-For instance, while regular languages are sufficient to model language up to any finite bound, it has typically been argued that more powerful formalism such as CFGs are necessary to construct generalizable descriptions of natural language~\citep{chomsky1957syntactic}.
+For instance, while regular languages are sufficient to model language up to any finite bound on sequence length, it has typically been argued that more powerful formalism such as CFGs are necessary to construct generalizable descriptions of natural language~\citep{chomsky1957syntactic}.
 However, transformers are not intended as linguistic descriptions.
+TODO
+%If our asymptotic results indeed imply that transformers 
 
-
+Asymptotic expressivity of recurrent networks has received a lot of attention (CITE).
 
 
 
@@ -813,22 +828,18 @@ However, transformers are not intended as linguistic descriptions.
 %A challenging problem for future research may be to mathematically investigate the learning process of transformer-like models, and determine
 
 
-
-\paragraph{Comparison with Recurrent Models}
-How do our results compare to what is known about LSTMs?
+%How do our results compare to what is known about LSTMs?
+Our results provide a clear contrast between self-attentive and recurrent networks:
 Recurrent networks such as LSTMs can perfectly emulate finite-state automata, and therefore can model any finite state language with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with perfect accuracy and cross-entropy, independent of the input length.
 
 Infinite-precision RNNs and LSTMs can model stacks \cite{tabor2000fractal,gruning2006stack,kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages perfectly. % and \textsc{LogicalFormulas} perfectly.
-This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers may provide a theoretical explanation for the empirical finding that LSTMs seem to outperform transformers in modeling hierarchical structure \citep{tran2018importance}.
+%This clear contrast between infinite-precision LSTMs and our findings for infinite-precision transformers may provide a theoretical explanation for the empirical finding that LSTMs seem to outperform transformers in modeling hierarchical structure \citep{tran2018importance}.
+The results presented here thus constitute the first theoretical confirmation of the intuition that models entirely built on self-attention have restricted expressivity when compared to recurrent architectures~\cite{tran2018importance,dehghani2018universal,shen2018disan,chen2018best,hao2019modeling}.
 
-\paragraph{Role of Hierarchical Structure in Language}
-Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
-Our results entail that self-attention is limited in its ability to model context-free languages or evaluate logical formulas.
-In particular, self-attention cannot in general emulate stacks or arbitrary finite-state automata.
 
-How should we reconcile this with the success of transformers at many NLP tasks?
-One possibility is that practical implementations of transformers circumvent such asymptotic limitations by using large numbers of layers and heads, in relation to the sentence lengths typically occurring in natural language, as discussed above.
+
+
 
 Another possibility is that strong quantitative performance on NLP tasks can be achieved with imperfect understanding of syntactic structure, as has been suggested for other neural network models that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
 Relatedly, humans may also have limited capacity to solve such problems, which means that human-like language understanding may not require full computational power to solve such problems.
@@ -836,15 +847,10 @@ For instance, it has long been noted that center embeddings, syntactic structure
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
 Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
 
-\paragraph{Relevance to Computational Linguistics}
-As discussed in the preceding paragraphs, our results do not provide reasons against using transformers for practical NLP, given their strong empirical success. %, and, indeed, it may be possible to apply them successfully to tasks closer to \textsc{Parity}/\textsc{2Dyck}, depending on the input length and model size.
+%\paragraph{Relevance to Computational Linguistics}
+%As discussed in the preceding paragraphs, our results do not provide reasons against using transformers for practical NLP, given their strong empirical success. %, and, indeed, it may be possible to apply them successfully to tasks closer to \textsc{Parity}/\textsc{2Dyck}, depending on the input length and model size.
 %The empirical success of transformers at capturing long-term context 
-We believe that the main implications of our results are theoretical:
-They showcase mathematical techniques for proving results about limitations of self-attention, an architecture at the heart of recent significant advances in NLP.
-This provides theoretical understanding of -- previously conjectured -- differences between self-attention and theoretically more well-studied recurrent architectures.
-%It also opens the door to asking whether there
-It also highlights that natural language can be modeled well quantitatively with models that are too weak for the formal languages typically assumed in theoretical linguistics.
-
+%We believe that the main implications of our results are theoretical:
 
 
 
@@ -869,6 +875,10 @@ Our results theoretically confirm the idea that self-attention, by avoiding recu
 
 
 
+On the other hand, it is unknown how loose or tight this upper bound is.
+Also, note that our proof for hard attention makes no assumption about activation functions, and more informative bounds might be obtained by restricting to realistic functions used in implementations.
+Relatedly, it has been found that real-world transformers may require far fewer parameters for computing a function than they require for successful training; e.g., some BERT layers can be reduced to just a single attention head with small performance loss \citep{michel2019sixteen,voita2019analyzing}.
+We believe that a full theoretical understanding of the role of the number of heads and layers in shaping learning and representational capacity is an important and challenging problem for future research.
 
 
 
