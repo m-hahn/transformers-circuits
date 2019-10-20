@@ -522,7 +522,7 @@ Let $H$ be the number of attention heads in each position of layer 1.
 
 
 
-We now show that we can assume, without loss of generality, that each layer-0 head has at most $\leq 2^c kH$ many $k$-depending layer-1 heads.
+We now show that we can assume, without loss of generality, that each layer-0 head has at most $\leq 2^c kH$ many $k$-depending (non-satisfied) layer-1 heads.
 Assume that indeed some layer-0 head has $>  2^c kH$ many $k$-depending layer-1 heads (combined with values $z$).
 By fixing $\leq c$ input bits, we can fix this head to a value that achieves the maximum attention value for at least $> kH$ many of these $k$-depending layer-1 heads (due to the Pigeonhole Principle).
 Once we have done this, 
@@ -533,7 +533,7 @@ This procedure can be iterated at most until each Layer-1 head satisfies the Dep
 Let $U$ the number of times this procedure is iterated ($U \leq \frac{2^c n}{k}$).
 At the end, $\{i \leq n: \rho_n(i) = *\}$ has at least $(1-\eta) C n - cU \geq ((1-\eta) C  - \frac{2^c c}{k}) n$ elements.
 By choosing $k$ so large that $\frac{2^c c}{k} \leq \eta$, we find that $\{i \leq n: \rho_n(i) = *\}$  still has at least $(1-2\eta) C n$ many elements.
-Given that $2\eta < \frac{1}{2}$, this is still a constant fraction of $n$.
+Given that $\eta < \frac{1}{2}$, this is still a nonzero constant fraction of $n$.
 Once this is completed, each layer-0 head has at most $\leq 2^c kH$ many $k$-depending layer-1 heads.
 Thus each input bit has at most $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending layer-1 heads.
 
