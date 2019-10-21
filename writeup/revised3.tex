@@ -462,24 +462,32 @@ Then, after applying the resulting restriction, the final activation $y_{n}^{(L)
 %\begin{proof}
 \subsection{Proving the Depth Reduction Lemma}
 This section will be devoted to proving the Depth Reduction Lemma.
-We will do the first part of the argument for all integers $k \in \mathbb{N}$.
-In the second part, we will select a sufficiently large $k$. % that will work for all input lengths $n$.
+%We will do the first part of the argument for all integers $k \in \mathbb{N}$.
+%In the second part, we will select a sufficiently large $k$. % that will work for all input lengths $n$.
 %The aim is that $c' := ck$.
-
-\paragraph{Part 1: Preliminaries}
 We construct the restrictions $\rho'_n$ separately for each $n$.
+Throughout the proof, we will need a few parameters independent of $n$: First, we need an integer $k$ that has to be sufficiently large for the proof to succeed, and will be fixed later in the proof.
+Second, we need parameters $\eta \in (0, \frac{1}{2})$, $q \in (0,1)$ and $\delta > 0$, we will also fix the specific values later in the proof.
 
-Let $\eta \in (0, \frac{1}{2})$ (to be fixed at the end of the proof).
-We first show that we can assume, without loss of generality, that each input bit has $\leq \frac{1}{\eta} c/C$ depending layer-0 heads.
+We will construct input restrictions $\rho'_n$ on the basis of the given restriction $\rho_n$.
+In this process, we will only \emph{restrict additional bits}, that is, the only case in which $\rho_n'(i)$ can be different from $\rho_n(i)$ is that $\rho_n'(i)$ may be $0$ or $1$ where $\rho_n(i)$ was $*$.
+The construction proceeds in three stages, which all may restrict additional bits.
+At the end, we verify that the conclusion of the Depth Reduction Lemma is satisfied.
+
+\paragraph{Stage 1}
+%Let $\eta \in (0, \frac{1}{2})$ (to be fixed at the end of the proof).
+In the first stage, we start from $\rho_n$, and first modify it so that each input bit serves as an input to at most $\leq \frac{1}{\eta} c/C$ many different layer-0 heads, after applying $\rho_n'$.
 Assume the number of input bits with $> \frac{1}{\eta} c/C$ depending layer-0 activations is $\geq \eta Cn$.
-Then the number of pairs of input bits and layer-0 activations is $>\eta Cn \cdot \frac{1}{\eta} c/C = nc$.
-But there are at most $nc$ such pairs, contradiction.
+Then the number of pairs of input bits and depending layer-0 activations is $>\eta Cn \cdot \frac{1}{\eta} c/C = nc$.
+But there are at most $nc$ such pairs, because there are $n$ layer-0 activations, each of which depends on $\leq c$ inputs.
 So the number of input bits with $> \frac{1}{\eta} c/C$ depending layer-0 heads is $\leq \eta Cn$.
-We can restrict these input bits to some fixed value (it doesn't matter which one), and the set $\{i \leq n: \rho_n(i) = *\}$ still has at least $(1-\eta) C n$ elements.
+We can modify $\rho_n$ by restricting these input bits to some fixed value in $\{0, 1\}$ (it doesn't matter which one), and the set $\{i \leq n: \rho'_n(i) = *\}$ still has at least $(1-\eta) C n$ elements, for all sufficiently large $n$.
 
-
+\paragraph{Stage 2}
+We now describe the second stage.
 Fix a layer-1 attention head $h$ ($h=1,\dots, H$) at position $i$ ($i=1, \dots, n$).
 As $y^{(0)}_i$ depends on $\leq c$ input bits, it can take on at most $\leq 2^c$ possible values.
+We say that a pair $((i,h),z)$, of a head $h$ at position $i$ and a possible value $z$ of $y^{(0)}_i$, \emph{satisfies the depth reduction lemma} if it can only attend to $\leq k$ different layer-1 heads given the restriction $\rho'_n(i)$ as constructed so far.
 For each possible value $z$,  and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
 \begin{equation}
 \max_{x_1\dots x_n\ :\ y^{(0)}_i=z} f^{att}_{1,h}(z, y^{(0)}_j)
@@ -513,29 +521,27 @@ Because $i_k^{(z)}$ is minimal, a layer-1 head $k$-depends on an input if and on
 In particular, a layer-1 head $k$-depends only on $\leq 2^c ck$ input variables.
 Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s^{(z)}}$ for one and $j_{i_{s'}^{(z')}}$ for the other both $k$-depend on some input bit $x_l$.
 
-We will construct input restrictions $\rho'_n$ using probabilistic arguments over randomly chosen restrictions.
+We will construct $\rho'_n$ using probabilistic arguments over randomly chosen restrictions.
 For this approach to succeed, we require a  sufficient amount of independence between the activations of different heads in layer 1.
 We thus need to ensure that the number of $k$-neighbors of each head is bounded.
-Fix some $\eta \in (0,\frac{1}{2})$ (to be chosen later).
-Let $H$ be the number of attention heads in each position of layer 1.
+Recall the parameter $\eta \in (0,\frac{1}{2})$, and let $H$ be the number of attention heads in each position of layer 1.
 
 
 
-
-We now show that we can assume, without loss of generality, that each layer-0 head has at most $\leq 2^c kH$ many $k$-depending (non-satisfied) layer-1 heads.
-Assume that indeed some layer-0 head has $>  2^c kH$ many $k$-depending layer-1 heads (combined with values $z$).
-By fixing $\leq c$ input bits, we can fix this head to a value that achieves the maximum attention value for at least $> kH$ many of these $k$-depending layer-1 heads (due to the Pigeonhole Principle).
+We now further modify $\rho_n'$ so that each layer-0 head has at most $\leq 2^c kH$ many $k$-depending layer-1 heads  such that some $((h,i),z)$ does not yet satisfy the Depth Reduction Lemma.
+Assume that indeed some layer-0 head  has $>  2^c kH$ many $k$-depending layer-1 heads $(h,i)$ such that some $((h,i),z)$ does not yet satisfy the Depth Reduction Lemma.
+By fixing $\leq c$ input bits and appealing to the Pigeonhole principle, we can fix this head to a value that achieves the maximum attention value for at least $> kH$ many of these $k$-depending layer-1 heads.
 Once we have done this, 
-$\{i \leq n: \rho_n(i) = *\}$ has at least $(1-\eta) C n - c$ elements, and $> kH$ many layer-1 heads (+value $z$) now already satisfy the Depth Reduction Lemma.
+$\{i \leq n: \rho_n(i) = *\}$ still has at least $(1-\eta) C n - c$ elements, and $> kH$ many additional pairs $((h,i),z)$ now also satisfy the Depth Reduction Lemma.
 We then repeat the selection of the sequence $j_1^{(z)}, \dots, j_n^{(z)}$, and repeat the construction described here.
-We iterate this procedure until no layer-0 head has $>  2^c kH$ many $k$-depending layer-1 heads.
+We iterate this procedure until no layer-0 head has $>  2^c kH$ many $k$-depending layer-1 heads $(h,i)$ such that some $((h,i),z)$.
 This procedure can be iterated at most until each Layer-1 head satisfies the Depth Reduction Lemma, that is, at most $\frac{2^c H n}{kH} = \frac{2^c n}{k}$ times.
-Let $U$ the number of times this procedure is iterated ($U \leq \frac{2^c n}{k}$).
+Let $U$ be the number of times this procedure is iterated ($U \leq \frac{2^c n}{k}$).
 At the end, $\{i \leq n: \rho_n(i) = *\}$ has at least $(1-\eta) C n - cU \geq ((1-\eta) C  - \frac{2^c c}{k}) n$ elements.
 By choosing $k$ so large that $\frac{2^c c}{k} \leq \eta$, we find that $\{i \leq n: \rho_n(i) = *\}$  still has at least $(1-2\eta) C n$ many elements.
 Given that $\eta < \frac{1}{2}$, this is still a nonzero constant fraction of $n$.
 Once this is completed, each layer-0 head has at most $\leq 2^c kH$ many $k$-depending layer-1 heads.
-Thus each input bit has at most $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending layer-1 heads.
+Thus each input bit now has at most $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending layer-1 heads $(h,i)$ such that some $((h,i),z)$ does not yet satisfy the Depth Reduction Lemma.
 
 %Assume the number of such input bits is larger than $\eta Cn$ for some $n$.
 %Then, the number of pairs of input bits and $k$-depending level-1 heads would be more than $> \eta C n \cdot \frac{2^c}{\eta} H k c/C = 2^c Hckn$ for this $n$.
@@ -548,17 +554,17 @@ Thus each input bit has at most $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending 
 
 %After these preparations, for $n$ large enough, the set $\{i \leq n: \rho_n(i) = *\}$ still has at least $(1-2\eta) C n$ elements.
 
-\paragraph{Part 2: Constructing Restrictions}
-After the previous part, every input bit has $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending layer-1 heads.
+\paragraph{Stage 3}
+After the previous part, every input bit has $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending layer-1 heads $(h,i)$ such that some $((h,i),z)$ does not yet satisfy the Depth Reduction Lemma.
 Also, as described above, every layer-1 head $k$-depends on at most $\leq 2^cck$ many input bits.
 Consequently, every layer-1 head has at most $f \leq \frac{2^{2c}}{\eta}c^2k^2H/C$ many $k$-neighbors (for any $k$).
 Also, every input bit has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 
 
-In order to prove the existence of suitable input restrictions, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho'_n$, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
+In order to complete the construction of $\rho_n'$, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho'_n$, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 For each input length $n$, define the distribution over restrictions $\rho_n'$ that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $1$ or $0$ with probability $q/2$ each ($q \in (0,1)$ to be chosen later), and $*$ with probability $1-q$.
 On those input bits where $\rho_n(i) \neq *$, we restrict this random restriction to agree with $\rho_n(i)$.
-For the $i$-th layer-1 attention head ($i=1,\dots,Hn$) and for each value $z$ (there are at most $2^c$ such), define $X_i^{(z)}$ to be the event that, for this head, none of $y_{j_{i_1^{(z)}}}^{(0)}, \dots, y_{j_{i_k^{(z)}}}^{(0)}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
+For the $i$-th layer-1 attention head ($i=1,\dots,Hn$) and for each value $z$ (there are at most $2^c$ such) such that $((h,i),z)$ does not satisfy the depth reduction lemma, define $X_i^{(z)}$ to be the event that, for this head, none of $y_{j_{i_1^{(z)}}}^{(0)}, \dots, y_{j_{i_k^{(z)}}}^{(0)}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
 Define $X_0$ to be the event that a fraction greater than $(1+\delta)q$ of the input bits that $\rho_n$ maps to $*$ are set to $0/1$ by $\rho_n'$ (where $\delta \in (0,1)$, to be fixed later).
 Our goal will be to show that a nonzero amount of probability mass is assigned to restrictions $\rho_n'$ avoiding all events $\{X_0\} \cup \{X_i^{(z)} : i, z\}$.
 
@@ -618,7 +624,7 @@ For such a $\rho'$, we have
 |\{i \leq n: \rho_n'(i) = *\}|\geq (1-2\eta)\cdot (1-(1+\delta)q) C n
 \end{equation*}
 for all sufficiently large $n$.
-Then choose $\eta \in (0,\frac{1}{2})$ small, $q \in (0,1)$ small, and $\delta >0$ (such that $(1+\delta)q \in (0,1)$) in such a way as to achieve $(1-2\eta)\cdot (1-(1+\delta)q) = C'/C$.
+Then choose $\eta \in (0,\frac{1}{2})$ small, $q \in (0,1)$, and $\delta >0$ (such that $(1+\delta)q \in (0,1)$) in such a way as to achieve $(1-2\eta)\cdot (1-(1+\delta)q) = C'/C$.
 
 
 After applying $\rho'_n$, every layer-1 head $b_{j,1,h}$ depends only on (1) the $c$ input bits feeding into $y_j^{(0)}$, and (2) the $\leq c2^ck$ input bits that the head $k$-depends on.
