@@ -169,7 +169,7 @@
 \begin{document}
 \maketitle 
 
-\response{We thank the reviewers and the editor for their feedback.
+\response{We thank the reviewers and the editor for their helpful feedback.
 We are also grateful for the decision to grant us two additional pages, which we used to expand and clarify the mathematical presentation, and add further discussion of the relevance of our results.}
 
 \section{Editor's Comments}
@@ -249,12 +249,21 @@ these literature and techniques.}
 
 \response{We have used the additional space to expand and improve various parts of Sections 5 and 6:}
 
+\response{Major Changes:}
 \begin{enumerate}
-    \item \response{We added Figure 3, which explains how the sequence $i^{(z)}_1, \dots, i^{(z)}_k$ is constructed, and added a pointer to this figure in the paragraph below Equation (9). While none of the reviewers asked specifically about this part, we felt this was worth expanding on, because the definition of this sequence is the crucial starting point for the entire proof in Section 5 (e.g., the notion of `k-dependendence' is based on it), and other colleagues found that the prose description alone was very dense.}
+\item \response{We have clearly organized the proof of the Depth Reduction Lemma into three stages, and notationally separated the restrictions constructed in the three stages. While we have left the third part (formerly `Constructing Restrictions') mostly unchanged, we have reworked the presentation of the first two stages. We have moved one paragraph from the middle of the proof to the first stage, as it is the simplest part of the proof, and independent of the rest. We have fully rewritten the argument showing that we can restrict to heads with few $k$-neighbors, using a notion of being `satisfied'.}
 
-\item \response{We have changed the definition of the distributions used for \textsc{Parity} and \textsc{2Dyck}: For \textsc{Parity}, we originally had inadvertently defined the automaton in such a way that it would generate strings with both even and odd numbers of $1$s; we have fixed this in the reision. For \textsc{2Dyck}, we changed the definition of the PCFG to make the equivalence to the automaton-based description in Skachkova et al. (2018) clearer.}
+\item \response{We added Figure 3, which explains how the sequence $i^{(z)}_1, \dots, i^{(z)}_k$ is constructed, and added a pointer to this figure in the paragraph below Equation (9). While none of the reviewers asked specifically about this part, we felt this was worth expanding on, because the definition of this sequence is the crucial starting point for the entire proof in Section 5 (e.g., the notion of `k-dependendence' is based on it), and other colleagues found that the prose description alone was very dense.}
 
-\item \response{We have expanded the proof of Theorem 7. Reviewer B had noted that both the role of the probability distributions, and the role of the PCFG were opaque. We now explain in more detail the argument for \textsc{Parity} and \textsc{2Dyck}. We weakened the statement of the theorem (suboptimal cross-entropy, instead of unigram baseline level, for 2Dyck), in order to be able to present the argument in full detail. We nonetheless chose to put one part of the argument into a footnote, as we feel it is specific to $2\textsc{Dyck}$ and seems tangential to the properties of self-attention.}
+\item \response{We have changed the definition of the distributions used for \textsc{Parity} and \textsc{2Dyck}: For \textsc{Parity}, we originally had inadvertently defined the automaton in such a way that it would generate strings with both even and odd numbers of $1$s; we have fixed this in the revision. For \textsc{2Dyck}, we changed the definition of the PCFG to make the equivalence to the automaton-based description in Skachkova et al. (2018) clearer.}
+
+\item \response{We have expanded the proof of Theorem 7. Reviewer B had noted that both the role of the probability distributions, and the role of the PCFG were opaque. We now explain in more detail the argument for \textsc{Parity} and \textsc{2Dyck}. We weakened the statement of the theorem (suboptimal cross-entropy, instead of unigram baseline level, for 2Dyck), in order to be able to present the argument in full detail. We nonetheless chose to put one part of the argument into a footnote, as we feel it is specific to PCFGs, and seems tangential to the properties of self-attention.}
+\end{enumerate}
+
+\response{Minor Changes:}
+\begin{enumerate}
+\item \response{We have changed notation so that heads are represented as tuples $(h,i)$ (number of head and position) instead of single indices ranging over $\{1, \dots, Hn\}$.}
+\item \response{We have replaced $(1-\eta)^2$ by $(1-2\eta)$.}
 \end{enumerate}
 
 %\response{Additionally, we have expanded the proof to give an explicit bound on the input length starting at which our results provide limitations in the hard attention case. Reviewer C had noted that our original proof provided an exponential tower upper bound; we now show that a much gentler growth can be shown. This increased the complexity of the proof only minimally, and -- more importantly -- we feel that this provides a more informative answer to the question of practical relevance.}
