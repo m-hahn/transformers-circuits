@@ -465,21 +465,19 @@ This section will be devoted to proving the Depth Reduction Lemma.
 %We will do the first part of the argument for all integers $k \in \mathbb{N}$.
 %In the second part, we will select a sufficiently large $k$. % that will work for all input lengths $n$.
 %The aim is that $c' := ck$.
-We construct the restrictions $\rho'_n$ separately for each $n$.
-We will construct $\rho'_n$ on the basis of the given restriction $\rho_n$.
+We construct the restrictions $\rho'_n$ separately for each $n$, on the basis of the given restriction $\rho_n$.
 In this process, we will only \emph{restrict additional bits}, that is, the only case in which $\rho_n'(i)$ can be different from $\rho_n(i)$ is that $\rho_n'(i)$ may be $0$ or $1$ where $\rho_n(i)$ was $*$.
-The construction proceeds in three stages, which all may restrict additional bits.
-At the end, we verify that the conclusion of the Depth Reduction Lemma is satisfied for the resulting restriction $\rho_n$.
+The construction proceeds in three stages $\rho_n^{(1)}, \rho_n^{(2)}, \rho_n^{(3)} = \rho_n'$, which all may restrict additional bits.
+At the end, we verify that the conclusion of the Depth Reduction Lemma is satisfied for the resulting restriction $\rho_n'$.
 
 Throughout the proof, we will need a few parameters independent of $n$: First, we need an integer $k$ that has to be sufficiently large for the proof to succeed, and will be fixed later in the proof.
-Second, we need parameters $\eta \in (0, \frac{1}{2})$, $q \in (0,1)$ and $\delta > 0$, we will also fix the specific values later in the proof.
+Second, we need parameters $\eta \in (0, \frac{1}{2})$, $q \in (0,1)$ and $\delta > 0$; we will also fix the specific values later in the proof.
 
 
 
 \paragraph{Stage 1}
-%Let $\eta \in (0, \frac{1}{2})$ (to be fixed at the end of the proof).
-In the first stage, we start from $\rho_n$ and first modify it into a restriction $\rho^{(1)}_n$ so that each input bit serves as an input to at most $\leq \frac{1}{\eta} c/C$ many different layer-0 heads, after applying $\rho^{(1)}_n$.
-Assume the number of input bits with $> \frac{1}{\eta} c/C$ depending layer-0 activations is $\geq \eta Cn$.
+We start from $\rho_n$ and first modify it into a restriction $\rho^{(1)}_n$ such that each input bit serves as an input to at most $\leq \frac{1}{\eta} c/C$ many different layer-0 heads, when applying $\rho^{(1)}_n$.
+Assume the number of input bits feeding into more than $\frac{1}{\eta} c/C$ different layer-0 activations is $\geq \eta Cn$.
 Then the number of pairs of input bits and depending layer-0 activations is $>\eta Cn \cdot \frac{1}{\eta} c/C = nc$.
 But there are at most $nc$ such pairs, because there are $n$ layer-0 activations, each of which depends on $\leq c$ inputs.
 So the number of input bits with $> \frac{1}{\eta} c/C$ depending layer-0 heads is $\leq \eta Cn$.
@@ -488,7 +486,7 @@ We can obtain $\rho^{(1)}_n$ from $\rho_n$ by restricting these input bits to so
 \paragraph{Stage 2}
 We now describe the second stage.
 We write $(h,i)$ for a layer-1 attention head $h$ ($h=1,\dots, H$) at position $i$ ($i=1, \dots, n$).
-Fix such a head $(h,)$.
+Fix such a head $(h,i)$.
 As $y^{(0)}_i$ depends on $\leq c$ input bits, it can take on at most $\leq 2^c$ possible values.
 For each possible value $z$,  and each position $j \in \{1, \dots, n\}$, we compute the maximum possible attention value that can be achieved for this pair:
 \begin{equation}\label{eq:max-att}
@@ -499,10 +497,9 @@ For each value $z$, we order the positions $\{1, \dots, n\}$ downwards by this v
 For each layer-1 attention head and each $z$, we then select a sequence $1 \leq i_1^{(z)} < i_2^{(z)} < \dots < i_{k}^{(z)} \leq n$ such that (1) for each $i_s^{(z)}$, there is at least one input bit $x_q$ that only feeds into the activation at position $j_{i_s^{(z)}}^{(z)}$ and no $j_{i_{s'}^{(z)}}^{(z)}$ ($s\neq s'$), and (2) $i_{k}^{(z)}$ is minimal, i.e. there is no subsequence with smaller $i_{k}^{(z)}$ that also satisfies (1).
 This construction is visualized in an example in Figure~\ref{fig:selecting}.
 We can find such a subsequence unless $n \leq ck$, in which case the Depth Reduction Lemma is already satisfied for this input length $n$.
-%If we cannot find such a subsequence, then all $y_i^{(0)}$ together depend only on $< ck$ inputs, 
 
 If $z$ is a possible value of the activation $y^{(0)}_i$, then we
-say that a pair $((i,h),z)$, of a head $h$ at position $i$ and a possible value $z$ of $y^{(0)}_i$, is \key{satisfied} if one of the layer-0 activations $y^{(0)}_{i_s^{(z)}}$ ($s \in \{1, \dots k\}$) is fixed by $\rho_n'$ to the value achieving the maximum attention value (\ref{eq:max-att}).
+say that a pair $((i,h),z)$, of a head $h$ at position $i$ and a possible value $z$ of $y^{(0)}_i$, is \key{satisfied} if one of the layer-0 activations $y^{(0)}_{i_s^{(z)}}$ ($s \in \{1, \dots k\}$) is fixed by $\rho^{(1)}_n$ to the value achieving the maximum attention value (\ref{eq:max-att}).
 Also, we say that $(h,i)$ is satisfied if each $((h,i),z)$ is.
 The idea behind this definition is: If $((h,i),z)$ is satisfied, then there are at most $k$ different layer-0 heads that this head could attend to when applying $\rho_n'$, assuming that $y^{(0)}_i$ takes the value $z$.
 As a consequence, a satisfied head can only depend on $ c\cdot (2^ck+1)$ many input bits.
@@ -538,47 +535,30 @@ Recall the parameter $\eta \in (0,\frac{1}{2})$, and let $H$ be the number of at
 
 
 To this end, we modify $\rho^{(1)}_n$ into $\rho^{(2)}_n$ so that each layer-0 head has at most $\leq 2^c kH$ many $k$-depending unsatisfied layer-1 heads.
-Assume that indeed some layer-0 head  has $>  2^c kH$ many $k$-depending unsatisfied layer-1 heads. % $(h,i)$ such that some $((h,i),z)$ does not yet satisfy the Depth Reduction Lemma.
+Assume that indeed some layer-0 head  has more than $2^c kH$ many $k$-depending unsatisfied layer-1 heads. % $(h,i)$ such that some $((h,i),z)$ does not yet satisfy the Depth Reduction Lemma.
 By fixing $\leq c$ input bits and appealing to the Pigeonhole principle, we can fix this head to a value that achieves the maximum attention value for at least $> kH$ many of these $k$-depending layer-1 heads.
 Let $\rho^{(2)}_n$ be the restriction resulting from adding this to $\rho^{(1)}_n$.
 Once we have done this, 
-$\{i \leq n: \rho_n^{(2)}(i) = *\}$ still has at least $(1-\eta) C n - c$ elements, and $> kH$ many additional pairs $((h,i),z)$ are now also satisfied.
+$\{i \leq n: \rho_n^{(2)}(i) = *\}$ still has at least $(1-\eta) C n - c$ elements, and more than $kH$ many additional pairs $((h,i),z)$ are now also satisfied.
 We then repeat the selection of the sequence $j_1^{(z)}, \dots, j_n^{(z)}$ (substituting $\rho^{(2)}_n$ for $\rho^{(1)}_n$ in the definition), and repeat the construction described here, to restrict additional input bits in $\rho^{(2)}_n$.
 We iterate this procedure until no layer-0 head has $>  2^c kH$ many $k$-depending unsatisfied layer-1 heads $(h,i)$. % such that some $((h,i),z)$.
 This procedure can be iterated at most until each layer-1 head is satisfied, that is, at most $\frac{2^c H n}{kH} = \frac{2^c n}{k}$ times.
 Let $U$ be the number of times this procedure is iterated ($U \leq \frac{2^c n}{k}$).
 At the end, $\{i \leq n: \rho_n^{(2)}(i) = *\}$ has at least $(1-\eta) C n - cU \geq \left((1-\eta) C  - \frac{2^c c}{k}\right) n$ elements.
 By choosing $k$ so large that $\frac{2^c c}{k} \leq \eta$, we find that $\{i \leq n: \rho^{(2)}_n(i) = *\}$  still has at least $(1-2\eta) C n$ many elements.
-%Given that $\eta < \frac{1}{2}$, this is still a nonzero constant fraction of $n$.
 Once this is completed, each layer-0 head has at most $\leq 2^c kH$ many $k$-depending unsatisfied layer-1 heads.
-Thus each input bit now has at most $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending unsatisfied layer-1 heads. % $(h,i)$ such that some $((h,i),z)$ does not yet satisfy the Depth Reduction Lemma.
+Thus each input bit now has at most $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending unsatisfied layer-1 heads.
 Consequently, every unsatisfied layer-1 head has at most $f \leq \frac{2^{2c}}{\eta}c^2k^2H/C$ many unsatisfied $k$-neighbors.
-%These statements hold for any $k$ that is large enough .
-
-%Assume the number of such input bits is larger than $\eta Cn$ for some $n$.
-%Then, the number of pairs of input bits and $k$-depending level-1 heads would be more than $> \eta C n \cdot \frac{2^c}{\eta} H k c/C = 2^c Hckn$ for this $n$.
-%However, recall that a layer-1 head $k$-depends only on $\leq 2^c ck$ input bits, and that there are $Hn$ layer-1 heads.
-%Therefore, there are at most $\leq 2^c Hckn$ many pairs of input bits and $k$-depending layer-1 heads -- contradiction.
-%Thus, the number of such input bits is at most $\leq \eta Cn$ for all $n$.
-%We can therefore modify the restriction $\rho_n$ so that it is set to some fixed value (doesn't matter which one) for these $\leq \eta Cn$ input bits, and unchanged for the others.
-%After this manipulation, every input bit has at most $\frac{2^c}{\eta}kcH/C$ many $k$-depending layer-1 heads, independent of $n$.
-
-
-%After these preparations, for $n$ large enough, the set $\{i \leq n: \rho_n(i) = *\}$ still has at least $(1-2\eta) C n$ elements.
 
 \paragraph{Stage 3}
-%After Stage 2, every input bit has $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending unsatisfied layer-1 heads.
-%Also, as ensured in Stage 1, every layer-1 head $k$-depends on at most $\leq 2^cck$ many input bits.
-%Also, every input bit has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
 In order to construct the third and final restriction $\rho^{(3)}_n$, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho^{(3)}_n$, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 For each input length $n$, define the distribution over restrictions $\rho_n^{(3)}$ that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $1$ or $0$ with probability $q/2$ each ($q \in (0,1)$ to be chosen later), and $*$ with probability $1-q$.
 On those input bits where $\rho_n^{(2)}(i) \neq *$, we restrict this random restriction to agree with $\rho_n^{(2)}(i)$.
-For an layer-1 attention head $(h,i)$ and for each value $z$ (there are at most $2^c$ such), define $X_{i,h}^{(z)}$ to be the event that, for this head, none of $y_{j_{i_1^{(z)}}}^{(0)}, \dots, y_{j_{i_k^{(z)}}}^{(0)}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
+For an layer-1 attention head $(h,i)$ and for each value $z$ (there are at most $2^c$ such), define $X_{i,h}^{(z)}$ to be the event that, for this head, none of $y_{j_{i_1^{(z)}}}^{(0)}, \dots, y_{j_{i_k^{(z)}}}^{(0)}$ are fixed to the value that produces the highest attention weight.
 Define $X_0$ to be the event that a fraction greater than $(1+\delta)q$ of the input bits that $\rho_n^{(2)}$ maps to $*$ are set to $0/1$ by $\rho_n^{(3)}$ (where $\delta \in (0,1)$, to be fixed later).
 Our goal will be to show that a nonzero amount of probability mass is assigned to restrictions $\rho_n'$ avoiding all events $\{X_0\} \cup \{X_{i,h}^{(z)} : i, z\}$.
 
 First, a Chernoff bound gives~\cite[Theorem 4.4]{mitzenmacherprobability}
-%\footnote{See \url{https://en.wikipedia.org/wiki/Chernoff_bound#Multiplicative_form_(relative_error)}}
 \begin{equation}
 \Prob(X_0) \leq    \exp\left(-\delta^2q(1-2\eta)Cn / 3\right)
 \end{equation}
@@ -689,9 +669,9 @@ Therefore, a Lipschitz-continuous prediction function cannot robustly assign dif
 
 For \textsc{2Dyck}, consider a string $x$ of length $n$, known to be the prefix of a word generated by the PCFG.
 One can show that there is a constant $P_0 \in (0,1)$ (dependent on $p$ but not $n$), such that $x$ both ends with a closing bracket, and is unbalanced, with probability $\geq P_0$.\footnote{One can show this formally using a Markov chain argument.
-Let the \key{height} of a word $x$ be the number of opening brackets minus the number of closing brackets in $x$.
-When iteratively sampling a symbol sequence using a pushdown automaton for \textsc{2Dyck}, the height $H_{n}$ of the prefix $x$ up to length $n$ forms a Markov chain on $\{0, 1, 2, \dots\}$. %~\citep{keener1992limit}.
-The prefix $x$ is unbalanced if and only if the height is $>0$, this is always the case whenever $n$ is odd.
+Let the \key{height} $H(x)$ of a word $x$ be the number of opening brackets minus the number of closing brackets in $x$.
+When iteratively sampling a symbol sequence using a pushdown automaton for \textsc{2Dyck}, the height $H_{n}$ of the prefix $x$ up to length $n$ forms a Markov chain taking values in $\mathbb{N}$. %~\citep{keener1992limit}.
+The prefix $x$ is unbalanced if and only if $H_n>0$, this is always the case whenever $n$ is odd.
 Restricting to even $n$, the chain $\{H_{n} : n = 0, 2, 4, ...\}$ is aperiodic and takes values in $\{0, 2, 4, \dots\}$.
 It is also positive recurrent, as words sampled from the PCFG have finite expected length \citep[2.2.1]{skachkova2018closing}.
 Therefore, the Markov chain $\{H_{n} : n = 0, 2, 4, ...\}$ converges to its stationary distribution~\cite{mitzenmacherprobability}, which -- by positive recurrence -- must assign some nonzero weight $\pi_{2i}$ to each height  $2i$ ($i \geq 0$).
