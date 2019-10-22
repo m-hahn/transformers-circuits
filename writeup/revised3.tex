@@ -548,10 +548,12 @@ We iterate this procedure until no layer-0 head has $>  2^c kH$ many $k$-dependi
 This procedure can be iterated at most until each layer-1 head is satisfied, that is, at most $\frac{2^c H n}{kH} = \frac{2^c n}{k}$ times.
 Let $U$ be the number of times this procedure is iterated ($U \leq \frac{2^c n}{k}$).
 At the end, $\{i \leq n: \rho_n^{(2)}(i) = *\}$ has at least $(1-\eta) C n - cU \geq ((1-\eta) C  - \frac{2^c c}{k}) n$ elements.
-By choosing $k$ so large that $\frac{2^c c}{k} \leq \eta$, we find that $\{i \leq n: \rho_n'(i) = *\}$  still has at least $(1-2\eta) C n$ many elements.
+By choosing $k$ so large that $\frac{2^c c}{k} \leq \eta$, we find that $\{i \leq n: \rho^{(2)}_n(i) = *\}$  still has at least $(1-2\eta) C n$ many elements.
 %Given that $\eta < \frac{1}{2}$, this is still a nonzero constant fraction of $n$.
 Once this is completed, each layer-0 head has at most $\leq 2^c kH$ many $k$-depending unsatisfied layer-1 heads.
 Thus each input bit now has at most $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending unsatisfied layer-1 heads. % $(h,i)$ such that some $((h,i),z)$ does not yet satisfy the Depth Reduction Lemma.
+Consequently, every unsatisfied layer-1 head has at most $f \leq \frac{2^{2c}}{\eta}c^2k^2H/C$ many unsatisfied $k$-neighbors.
+%These statements hold for any $k$ that is large enough .
 
 %Assume the number of such input bits is larger than $\eta Cn$ for some $n$.
 %Then, the number of pairs of input bits and $k$-depending level-1 heads would be more than $> \eta C n \cdot \frac{2^c}{\eta} H k c/C = 2^c Hckn$ for this $n$.
@@ -565,13 +567,10 @@ Thus each input bit now has at most $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depend
 %After these preparations, for $n$ large enough, the set $\{i \leq n: \rho_n(i) = *\}$ still has at least $(1-2\eta) C n$ elements.
 
 \paragraph{Stage 3}
-After Stage 2, every input bit has $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending unsatisfied layer-1 heads.
-Also, as ensured in Stage 1, every layer-1 head $k$-depends on at most $\leq 2^cck$ many input bits.
-Consequently, every unsatisfied layer-1 head has at most $f \leq \frac{2^{2c}}{\eta}c^2k^2H/C$ many unsatisfied $k$-neighbors (for any $k$).
-Also, every input bit has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
-
-
-In order to construct the third and final restriction $\rho^{(3)}_n$, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho'_n$, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
+%After Stage 2, every input bit has $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depending unsatisfied layer-1 heads.
+%Also, as ensured in Stage 1, every layer-1 head $k$-depends on at most $\leq 2^cck$ many input bits.
+%Also, every input bit has $\leq \frac{1}{\eta}c/C$ depending layer-0 heads.
+In order to construct the third and final restriction $\rho^{(3)}_n$, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho^{(3)}_n$, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
 For each input length $n$, define the distribution over restrictions $\rho_n^{(3)}$ that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $1$ or $0$ with probability $q/2$ each ($q \in (0,1)$ to be chosen later), and $*$ with probability $1-q$.
 On those input bits where $\rho_n^{(2)}(i) \neq *$, we restrict this random restriction to agree with $\rho_n^{(2)}(i)$.
 For an layer-1 attention head $(h,i)$ and for each value $z$ (there are at most $2^c$ such), define $X_{i,h}^{(z)}$ to be the event that, for this head, none of $y_{j_{i_1^{(z)}}}^{(0)}, \dots, y_{j_{i_k^{(z)}}}^{(0)}$ are fixed to the value that produces the highest attention weight. % (each of these is assigned either some fixed value, , or $*$).
@@ -602,14 +601,14 @@ for each $i=1,2,\dots, n$ and $h=1, \dots, H$.
 In order to conclude that there is a restriction $\rho^{(3)}_n$ avoiding all events $\{X_0\} \cup \{X_{i,h}^{(z)} : i, h, z\}$, we apply the Lov{\'a}sz Local Lemma \cite[Theorem 6.17]{mitzenmacherprobability}.
 %This requires that the amount of statistical dependency between these events be sufficiently `limited'.
 Each event $X_{i,h}^{(z)}$ is statistically independent of the set $\{X_{(j,h')}^{(z')} : \text{heads } {(j,h')} \text{ and } {(i,h)} \text{ are not $k$-neighbors}\}$.
-The complement of this set has cardinality $\leq f= \frac{2^{2c}}{\eta}c^2k^2H/C$.
+The complement of this set has cardinality $\leq f= \frac{2^{2c}}{\eta}c^2k^2H/C$, as concluded at the end of Stage 2.
 Set $A:=\frac{1}{k^2}$, $B:=\frac{1}{2}$.
 By the Lov{\'a}sz Local Lemma, it is sufficient show the following: %, assuming $f \leq $:
 \begin{align}\label{eq:lovasz-1}
 &\Prob(X_{i,h}^{(z)}) \leq A(1-B)(1-A)^{f} \\ \label{eq:lovasz-2}
 &\Prob(X_0)  \leq B (1-A)^{2^cHn}
 \end{align}
-The Lov{\'a}sz Local Lemma will then guarantee that there is some input restriction $\rho^{(3)}_n$ that avoids all events $\{X_0\} \cup \{X_{i,h}^{(z)} : i, h, z\}$.
+The Lov{\'a}sz Local Lemma then guarantees that there is some input restriction $\rho^{(3)}_n$ that avoids all events $\{X_0\} \cup \{X_{i,h}^{(z)} : i, h, z\}$.
 For~(\ref{eq:lovasz-1}), we need
 \begin{align}\label{eq:x1-ineq}
     D &\leq A^{1/k}(1-B)^{1/k}(1-A)^{f/k} 
