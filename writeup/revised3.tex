@@ -234,7 +234,7 @@ We note that the implementation described by \citet{vaswani2017attention} first 
 
 In the soft attention version, these weights $\hat{a}_{i,j}^{(k,h)}$ are obtained by the softmax operation: $\hat{a}_{i,\cdot}^{(k,h)} = \operatorname{softmax}(a_{i,\cdot}^{(k,h)})$.
 In the hard attention variant \cite{perez2019turing}, one takes the actual maximum attention values:
-$\hat{a}_{i,j}^{(k,h)} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{When there are multiple positions with maximal attention weight; we will assume that the one occurring first in the sequence is chosen. Our analysis also works under other schemes of resolving ties, such as random selection.}
+$\hat{a}_{i,j}^{(k,h)} = \delta_{j, \argmax_{j'} a_{i,j'}^{(k,h)}}$.\footnote{When there are multiple positions with maximal attention weight, we will assume that the one occurring first in the sequence is chosen. Our analysis also works under other schemes of resolving ties, such as random selection.}
 
 The  per-position activations are then computed as
 \begin{equation}
@@ -467,7 +467,7 @@ This section will be devoted to proving the Depth Reduction Lemma.
 %The aim is that $c' := ck$.
 We construct the restrictions $\rho'_n$ separately for each $n$, on the basis of the given restriction $\rho_n$.
 In this process, we will only \emph{restrict additional bits}, that is, the only case in which $\rho_n'(i)$ can be different from $\rho_n(i)$ is that $\rho_n'(i)$ may be $0$ or $1$ where $\rho_n(i)$ was $*$.
-The construction proceeds in three stages $\rho_n^{(1)}, \rho_n^{(2)}, \rho_n^{(3)} = \rho_n'$, which all may restrict additional bits.
+The construction proceeds in three stages $\rho_n^{(1)}$, $\rho_n^{(2)}$, and $\rho_n^{(3)} = \rho_n'$, which all may restrict additional bits.
 At the end, we verify that the conclusion of the Depth Reduction Lemma is satisfied for the resulting restriction $\rho_n'$.
 
 Throughout the proof, we will need a few parameters independent of $n$: First, we need an integer $k$ that has to be sufficiently large for the proof to succeed, and will be fixed later in the proof.
@@ -828,22 +828,21 @@ These tools provide theoretical understanding of differences between self-attent
 Recurrent networks such as LSTMs can perfectly emulate finite-state automata, and therefore can model any finite state language with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with perfect accuracy and cross-entropy, independent of the input length.
 Furthermore, infinite-precision RNNs and LSTMs can model stacks \cite{tabor2000fractal,gruning2006stack,kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages perfectly.
-The results presented here thus constitute the first theoretical confirmation of the intuition that models entirely built on self-attention mayhave restricted expressivity when compared to recurrent architectures~\cite{tran2018importance,dehghani2018universal,shen2018disan,chen2018best,hao2019modeling}.
+The results presented here thus constitute the first theoretical confirmation of the intuition that models entirely built on self-attention may have restricted expressivity when compared to recurrent architectures~\cite{tran2018importance,dehghani2018universal,shen2018disan,chen2018best,hao2019modeling}.
 
 
 
 Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
 Our results entail that self-attention is limited in its ability to model context-free languages or evaluate logical formulas.
 In particular, self-attention cannot in general emulate stacks or arbitrary finite-state automata.
+Coupled with the empirical success of transformers, one interpretation of our results is therefore that natural language can be modeled well quantitatively with models that are asymptotically too weak for the formal languages typically assumed in theoretical linguistics. % (TODO some citations on how this has been observed).
 
-One interpretation of our results is therefore that natural language can be modeled well quantitatively with models that are too weak for the formal languages typically assumed in theoretical linguistics.
 
-
-In linguistics, asymptotic expressibility in the limit of long sentences has often been understood as formalizing the existence of \emph{generalizable descriptions}:
+In linguistics, such asymptotic expressibility in the limit of long sentences has often been understood as formalizing the existence of \emph{generalizable descriptions}:
 For instance, while regular languages are sufficient to model language up to any finite bound on sequence length, it has typically been argued that more powerful formalisms at the level of context-free grammars or beyond are necessary to construct generalizable descriptions of natural language syntax~\citep{chomsky1957syntactic,shieber1985evidence}.
 Transformers are currently used as NLP systems, not as the basis of linguistic descriptions of grammar.
-Nonetheless, this same reasoning would suggest that transformers are limited in their capacity to induce generalizable representations of syntactic structure.
-Whether this hampers their ability to generalize and to provide interpretable representations is an interesting question for empirical research. (TODO cite some empirical papers)
+Nonetheless, this same reasoning would suggest that transformers are inherently limited in their capacity to induce generalizable representations of syntactic structure.
+Whether this hampers their ability to generalize and to provide interpretable representations in practice is an interesting question for empirical research. (TODO cite some empirical papers)
 
 %Our results pose the question of how the empirical success of transformers should be reconciled with their asymptotic limitations.
 
@@ -855,7 +854,7 @@ Whether this hampers their ability to generalize and to provide interpretable re
 
 %Asymptotic expressivity of recurrent networks has received a lot of attention (CITE).
 
-TODO say something about long-distance dependencies
+%TODO say something about long-distance dependencies
 
 
 
@@ -870,7 +869,7 @@ TODO say something about long-distance dependencies
 
 
 
-Another potential answer is that language, while having recursive structure, uses it in relatively restricted ways due to cognitive factors.
+Another potential interpretation is that language, while having recursive structure, uses it in relatively restricted ways due to cognitive factors.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
 Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
