@@ -224,12 +224,14 @@ via a skip-connection. [...]} for Figure 2.}
 
 \response{We further verified that the proofs in Section 6 are compatible with the presence of skip connections.}
 
-\original{(c) Expand the discussion on the relevancy of the result. In particular:
+\original{(c) Expand the discussion on the relevancy of the result.}
+
+\response{We have extended and restructured the discussion. We have left the first two paragraphs and the last one mostly as they were, but restructured the remainder of the discussion to provide a clearer statement of which implications we see (and which ones we don't see). In particular, the second and third paragraph now clearly state that we believe that the most direct implications are theoretical in nature, and that the results currently do not provide conclusive evidence for limitations in real-world NLP settings.}
+
+\original{In particular:
 - (c1) Expand on your thoughts on what the value of showing such an
 asymptotic property is (traditionally, proofs of unexpressability in the
 limit are really stand-ins for proofs of ungeneralizability).}
-
-\response{TODO}
 
 \original{- (c2) In particular, expand on the applicability of the results to
 processing of natural language data and what is the takeaway to NLP
@@ -241,7 +243,14 @@ have any relevance to empirical NLP work, and I find the result to be
 interesting enough to be published also without such relevance. But, if that
 is indeed the case, it needs to be stated explicitly.}
 
-\response{TODO}
+\response{We have acted on this as follows.}
+\begin{enumerate}
+    \item \response{In order the explicitly state that there may be no imminent implications for practical NLP work, we have made the following changes. At the end of the second paragraph (which discusses the asymptotic nature of the results), we now state: ``Therefore, our results do not constitute conclusive evidence for practical limitations of real-world NLP systems.'' Furthermore, the third paragraph now starts with ``We  believe  that  the  main  implications  of  our results  are  theoretical  in  nature.''}
+
+\item \response{In the third paragraph, we  explain how our results contrast with known asymptotic properties of recurrent architectures. We discuss that we view asymptotic techniques as a first step towards a deeper understanding of these architectural differences, which may be corroborated by empirical studies and/or non-asymptotic extensions of our methods.}
+
+\item \response{In the fifth paragraph, we discuss what we see as the traditional role of asymptotic properties in linguistics (providing generalizable descriptions), and discuss whether this interpretation is relevant for NLP models such as transformers. We explain that do not think that there are definite and unambiguous conclusions for empirical NLP research, but think that our results might point to interesting questions for empirical studies. }
+\end{enumerate}
 
 \original{(d) Attempt to Improve / simplify / expand the presentation of mathematics
 used in sections 5 and 6 to cater to audiences who are less familiar with
@@ -251,7 +260,7 @@ these literature and techniques.}
 
 \response{Major Changes:}
 \begin{enumerate}
-\item \response{We have clearly organized the proof of the Depth Reduction Lemma into three stages, and notationally separated the restrictions constructed in the three stages. While we have left the third part (formerly `Constructing Restrictions') mostly unchanged, we have reworked the presentation of the first two stages. We have moved one paragraph from the middle of the proof to the first stage, as it is the simplest part of the proof, and independent of the rest. We have fully rewritten the argument showing that we can restrict to heads with few $k$-neighbors, using a notion of being `satisfied'.}
+\item \response{We have organized the proof of the Depth Reduction Lemma into three stages, and notationally separated the restrictions constructed in the three stages. While we have left the third part (formerly `Constructing Restrictions') mostly unchanged, we have reworked the presentation of the first two stages. We have moved one paragraph from the middle of the proof to the first stage, as it is the simplest part of the proof, and independent of the rest. We have fully rewritten the argument showing that we can restrict to heads with few $k$-neighbors, using a notion of being `satisfied'. We believe that this part of the argument was somewhat ambiguous before, and is now fully rigorous.}
 
 \item \response{We added Figure 3, which explains how the sequence $i^{(z)}_1, \dots, i^{(z)}_k$ is constructed, and added a pointer to this figure in the paragraph below Equation (9). While none of the reviewers asked specifically about this part, we felt this was worth expanding on, because the definition of this sequence is the crucial starting point for the entire proof in Section 5 (e.g., the notion of `k-dependendence' is based on it), and other colleagues found that the prose description alone was very dense.}
 
@@ -263,10 +272,9 @@ these literature and techniques.}
 \response{Minor Changes:}
 \begin{enumerate}
 \item \response{We have changed notation so that heads are represented as tuples $(h,i)$ (number of head and position) instead of single indices ranging over $\{1, \dots, Hn\}$.}
-\item \response{We have replaced $(1-\eta)^2$ by $(1-2\eta)$.}
+\item \response{We have replaced $(1-\eta)^2$ by $(1-2\eta)$, as this fits better with the reorganization of the proof in Section 5 (without making a difference for the success of the proof).}
 \end{enumerate}
 
-%\response{Additionally, we have expanded the proof to give an explicit bound on the input length starting at which our results provide limitations in the hard attention case. Reviewer C had noted that our original proof provided an exponential tower upper bound; we now show that a much gentler growth can be shown. This increased the complexity of the proof only minimally, and -- more importantly -- we feel that this provides a more informative answer to the question of practical relevance.}
 
 \section{Reviewer A:}
 

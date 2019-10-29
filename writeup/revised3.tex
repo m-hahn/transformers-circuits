@@ -435,7 +435,6 @@ Given a $c$-transformer with $L$ layers, and some restriction $\rho$ such that
 \end{equation}
 ($C \in (0,1]$)
 for all sufficiently large $n$.
-%with some restriction $\rho^0_n$ already applied, which hits a linear fraction of inputs (TODO clarify how this relates to having more heads).
 Choose any $C' < C$.
 Then there is a restriction $\rho'$ 
 such that
@@ -818,7 +817,7 @@ In the soft attention setting, our results are slightly less general, but still 
 Our results are asymptotic, in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is \emph{sufficiently long}.
 A transformer may nonetheless be able to perform well on on short inputs; indeed, given any bound $N$ on the input length, it is possible to construct a transformer that will achieve perfect accuracy or cross-entropy on all examples of length $n \leq N$; our results show that the number of heads and layers, or the parameter norms, will have to increase with $N$.
 Practical implementations of transformers might thus be able circumvent such asymptotic limitations by using large numbers of layers and heads, in relation to the sentence lengths typically occurring in natural language.
-Therefore, our results do not constitute conclusive evidence for practical limitations of real-world NLP systems.
+Therefore, the results reported here do not constitute conclusive evidence for practical limitations of real-world NLP systems.
 
 %How long does an input have to be for such limitations to start becoming relevant? Our proofs do not provide a definitive answer to this question. Iteratively applying the Depth Reduction Lemma to bound $c$ after successive reduction of layers only bounds the necessary input length $n$ by a tetration (of the order of $^L H$), far beyond the scale relevant to real-world NLP when considering the size of NLP models such as BERT (12 heads and layers, \citet{devlin2018bert}).
 
@@ -842,7 +841,7 @@ In linguistics, such asymptotic expressibility in the limit of long sentences ha
 For instance, while regular languages are sufficient to model language up to any finite bound on sequence length, it has typically been argued that more powerful formalisms at the level of context-free grammars or beyond are necessary to construct generalizable descriptions of natural language syntax~\citep{chomsky1957syntactic,shieber1985evidence}.
 Transformers are currently used as NLP systems, not as the basis of linguistic descriptions of grammar.
 Nonetheless, this same reasoning would suggest that transformers are inherently limited in their capacity to induce generalizable representations of syntactic structure.
-Whether this hampers their ability to generalize and to provide interpretable representations in practice is an interesting question for empirical research. (TODO cite some empirical papers)
+Whether this hampers their ability to generalize and to provide interpretable representations in practice is an interesting question for empirical research. % (TODO cite some empirical papers)
 
 %Our results pose the question of how the empirical success of transformers should be reconciled with their asymptotic limitations.
 
