@@ -810,18 +810,14 @@ In the hard attention setting, our results hold independently of activation func
 In the soft attention setting, our results are slightly less general, but still show that transformers cannot achieve good cross-entropies when modeling distributions over these formal languages.
 
 
-
-
-%How should we reconcile this with the success of transformers at many NLP tasks?
-%One possible source of this apparent divergence is that  
 Our results are asymptotic, in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is \emph{sufficiently long}.
 A transformer may nonetheless be able to perform well on on short inputs; indeed, given any bound $N$ on the input length, it is possible to construct a transformer that will achieve perfect accuracy or cross-entropy on all examples of length $n \leq N$; our results show that the number of heads and layers, or the parameter norms, will have to increase with $N$.
 Practical implementations of transformers might thus be able circumvent such asymptotic limitations by using large numbers of layers and heads, in relation to the sentence lengths typically occurring in natural language.
-Therefore, the results reported here may not constitute conclusive evidence for practical limitations of real-world NLP systems.
+Therefore, pending tighter nonasymptotic bounds, the results reported here need not constitute conclusive evidence for practical limitations of real-world NLP systems.
 
 
 
-In linguistics, such asymptotic expressibility in the limit of long sentences has often been understood as formalizing the existence of \emph{generalizable descriptions}:
+In linguistics, asymptotic expressibility in the limit of long sentences has often been understood as formalizing the existence of \emph{generalizable descriptions}:
 For instance, while regular languages are sufficient to model language up to any finite bound on sequence length, it has typically been argued that more powerful formalisms at the level of context-free grammars or beyond are necessary to construct generalizable descriptions of natural language syntax~\citep{chomsky1957syntactic,shieber1985evidence}.
 Transformers are currently used as NLP systems, not as the basis of linguistic descriptions of grammar.
 Nonetheless, this same reasoning would suggest that transformers are inherently limited in their capacity to induce generalizable representations of syntactic structure.
@@ -830,15 +826,14 @@ Whether this hampers their ability to generalize and to provide interpretable re
 %How long does an input have to be for such limitations to start becoming relevant? Our proofs do not provide a definitive answer to this question. Iteratively applying the Depth Reduction Lemma to bound $c$ after successive reduction of layers only bounds the necessary input length $n$ by a tetration (of the order of $^L H$), far beyond the scale relevant to real-world NLP when considering the size of NLP models such as BERT (12 heads and layers, \citet{devlin2018bert}).
 
 We believe that the most imminent implications of our results are theoretical in nature.
-They showcase mathematical techniques for analyzing the capabilities of self-attention, an architecture at the heart of recent and significant advances in NLP.
+First, they showcase mathematical techniques for analyzing the capabilities of self-attention, an architecture at the heart of recent and significant advances in NLP.
 These tools provide theoretical understanding of differences between self-attention and theoretically more well-studied recurrent architectures:
 Recurrent networks such as LSTMs can perfectly emulate finite-state automata, and therefore can model any finite state language with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with perfect accuracy and cross-entropy, independent of the input length.
 Furthermore, infinite-precision RNNs and LSTMs can model stacks \cite{tabor2000fractal,gruning2006stack,kirov2012processing} and thus are theoretically capable of modeling \textsc{2Dyck} and other deterministic context-free languages perfectly.
 The results presented here thus theoretically confirm the intuition that models entirely built on self-attention may have restricted expressivity when compared to recurrent architectures~\cite{tran2018importance,dehghani2018universal,shen2018disan,chen2018best,hao2019modeling}.
 
-
-
+Second, our results suggest that language can be modeled well quantitatively with techniques that are theoretically too weak for for the formal languages typically assumed in theoretical linguistics.
 Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
 Our results entail that self-attention is limited in its ability to model context-free languages or evaluate logical formulas.
 In particular, self-attention cannot in general emulate stacks or arbitrary finite-state automata.
@@ -873,7 +868,7 @@ Coupled with the empirical success of transformers, one interpretation of our re
 
 
 
-Another potential interpretation is that language, while having recursive structure, uses it in relatively restricted ways due to cognitive factors.
+Beyond general limitations of asymptotic analysis, a second possible reason for this phenomenon is that language, while having recursive structure, uses it in relatively restricted ways due to cognitive factors.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
 Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
