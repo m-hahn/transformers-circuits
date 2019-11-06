@@ -807,7 +807,7 @@ This proves the inductive step for $k>0$.
 
 We have shown that, even with infinite precision, transformers cannot robustly model non-counter-free regular languages, nor basic hierarchical structure.
 In the hard attention setting, our results hold independently of activation functions and the magnitude of the parameters, and show that no transformer   can accurately classify strings as belonging to such languages.
-In the soft attention setting, our results are slightly less general, but still show that transformers cannot achieve good cross-entropies when modeling distributions over these formal languages.
+In the soft attention setting, our results are slightly less general, but still show that transformers cannot achieve perfect cross-entropies when modeling distributions over these formal languages.
 
 
 Our results are asymptotic, in the sense that they show that any transformer will make mistakes on modeling \textsc{Parity} and \textsc{2Dyck} when the input is \emph{sufficiently long}.
@@ -838,6 +838,12 @@ Hierarchical structure, at least at the level of context-free languages, is wide
 Our results entail that self-attention is limited in its ability to model context-free languages or evaluate logical formulas.
 In particular, self-attention cannot in general emulate stacks or arbitrary finite-state automata.
 Coupled with the empirical success of transformers, one interpretation of our results is therefore that natural language can be modeled well quantitatively with models that are asymptotically too weak for the formal languages typically assumed in theoretical linguistics.
+Beyond general limitations of asymptotic analysis, a possible reason for this phenomenon is that language, while having recursive structure, uses it in relatively restricted ways due to cognitive factors.
+For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
+Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
+Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
+
+
 
 
 % (TODO some citations on how this has been observed).
@@ -866,12 +872,6 @@ Coupled with the empirical success of transformers, one interpretation of our re
 
 %How do our results compare to what is known about LSTMs?
 
-
-
-Beyond general limitations of asymptotic analysis, a second possible reason for this phenomenon is that language, while having recursive structure, uses it in relatively restricted ways due to cognitive factors.
-For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
-Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
-Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
 
 
 %Another possibility is that strong quantitative performance on NLP tasks can be achieved with imperfect understanding of syntactic structure, as has been suggested for other neural network models that show limited knowledge of syntax despite delivering strong perplexity  \cite{linzen2016assessing,marvin2018targeted}.
