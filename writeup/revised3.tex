@@ -838,7 +838,7 @@ Hierarchical structure, at least at the level of context-free languages, is wide
 Our results entail that self-attention is limited in its ability to model context-free languages or evaluate logical formulas.
 In particular, self-attention cannot in general emulate stacks or arbitrary finite-state automata.
 Coupled with the empirical success of transformers, one interpretation of our results is therefore that natural language can be modeled well quantitatively with models that are asymptotically too weak for the formal languages typically assumed in theoretical linguistics.
-Beyond general limitations of asymptotic analysis, a possible reason for this phenomenon is that language, while having recursive structure, uses it in relatively restricted ways due to cognitive factors.
+Beyond general limitations of asymptotic analysis, a possible reason for this phenomenon is that language uses recursive structure only in restricted ways due to cognitive factors.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
 Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
