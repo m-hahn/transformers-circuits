@@ -170,7 +170,7 @@
 \maketitle 
 
 \response{We thank the reviewers and the editor for their helpful feedback.
-We are also grateful for the decision to grant us two additional pages, which we used to expand and clarify the mathematical presentation, and expand the discussion of the relevance of our results.}
+We are also grateful for the editor's decision to grant us two additional pages, which we used to expand and clarify the mathematical presentation, and expand the discussion of the relevance of our results.}
 
 \section{Editor's Comments}
 
@@ -187,7 +187,7 @@ of the transformer model that do not use this terminology.}
 \response{\newtext{Specifically, the implementation described by Vaswani et al. (2017, p. 5) linearly transforms the position-wise activations $y_i^{(k-1)}$ separately into `query' vectors $Q y_i^{(k-1)}$ and `key' vectors $K y_i^{(k-1)}$ (for some parameter matrices $K, Q$); the attention score $a_{i,j}^{(k,h)}$ is then implemented as a scaled dot product of query $Q y_i^{(k-1)}$ and key $K y_j^{(k-1)}$.}}
 \newline
 
-\item \response{Second, we added the following behind Equation (2):}
+\item \response{Second, we added the following after Equation (2):}
 
 \response{\newtext{We note that the implementation described by Vaswani et al. (2017) first linearly transforms the activations $y_j^{(k-1)}$ into `value vectors' before multiplying with $ \hat{a}_{i,j}^{(k,h)}$; this is mathematically equivalent to applying this linear transformation to $b_{i,k,h}$ as part of the map $f^{act}$ we describe below.}}
 \end{enumerate}
@@ -210,15 +210,15 @@ residual connections.}
 \newline
 
 \item \response{In Figures 1 and 2: We added dashed connections marking skip connections, and added the following phrases to the caption: \newtext{[...] plus the input that feeds into it via a skip connection (dashed
-connections) [...]} for Figure 1, and \newtext{[...] plus the input x j that feeds into it
+connections) [...]} for Figure 1, and \newtext{[...] plus the input $x_j$ that feeds into it
 via a skip-connection. [...]} for Figure 2.}
 \newline
 
-\item \response{In the last paragraph of Section 5, we changed the phrasing to specifically point out skip connections:}
+\item \response{In the last paragraph of Section 5.1 (around line 870), we changed the phrasing to specifically point out skip connections:}
 
 \response{\newtext{Thus, each layer-1 activation $y_j^{(1)}$ only depends on $\leq c\cdot (2^ckH+1)$ input bits: There are $\leq H\cdot c \cdot 2^c \cdot k$ input bits that the $H$ different attention heads $k$-depend on, plus a skip-connection from $y_j^{(0)}$, which itself depends on $\leq c$ input bits.}}
 
-\response{In line with this change, we changed the Depth Reduction Lemma, replacing the term $(H\cdot c\cdot(2^ck+1))$ in the conclusion with the (smaller) $( c\cdot(2^ckH+1))$, as this (slightly stronger) conclusion follows naturally from the expanded reasoning quoted above.}
+\response{In line with this change, we changed the Depth Reduction Lemma (Lemma 4, around line 590), replacing the term $(H\cdot c\cdot(2^ck+1))$ in the conclusion with the (smaller) $( c\cdot(2^ckH+1))$, as this (slightly stronger) conclusion follows naturally from the expanded reasoning quoted above.}
 \end{enumerate}
 
 
@@ -226,7 +226,7 @@ via a skip-connection. [...]} for Figure 2.}
 
 \original{(c) Expand the discussion on the relevancy of the result.}
 
-\response{We have extended and restructured the discussion. We have left the first two paragraphs and the last one mostly as they were, but restructured the remainder of the discussion to provide a clearer statement of which implications we see (and which ones we don't see). In particular, the second and third paragraph now clearly state that we believe that the most direct implications are theoretical in nature, and that the results currently do not provide conclusive evidence for limitations in real-world NLP settings.}
+\response{We have extended and restructured the discussion. We have left the first two paragraphs and the last one mostly as they were, but restructured the remainder of the discussion to provide a clearer statement of which implications we see. In particular, the second and third paragraph now clearly state that we believe that the most direct implications are theoretical in nature, and that the current results do not provide conclusive evidence for limitations in real-world NLP settings.}
 
 \original{In particular:
 - (c1) Expand on your thoughts on what the value of showing such an
@@ -245,11 +245,13 @@ is indeed the case, it needs to be stated explicitly.}
 
 \response{We have acted on this as follows.}
 \begin{enumerate}
-    \item \response{In order the explicitly state that there may be no imminent implications for practical NLP work, we have made the following changes. At the end of the second paragraph (which discusses the asymptotic nature of the results), we now state: ``Therefore, our results do not constitute conclusive evidence for practical limitations of real-world NLP systems.'' Furthermore, the third paragraph now starts with ``We  believe  that  the  main  implications  of  our results  are  theoretical  in  nature.''}
+    \item \response{In order the explicitly state that there may be no imminent implications for practical NLP work, we have made the following changes. At the end of the second paragraph (which discusses the asymptotic nature of the results), we now state: \newtext{Therefore, pending tighter nonasymptotic bounds, the results reported here need not constitute conclusive evidence for practical limitations of real-world NLP systems.} Furthermore, the third paragraph now starts with \newtext{We  believe  that  the  main  implications  of  our results  are  theoretical  in  nature.}}
 
-\item \response{In the third paragraph, we  explain how our results contrast with known asymptotic properties of recurrent architectures. We discuss that we view asymptotic techniques as a first step towards a deeper understanding of these architectural differences, which may be corroborated by empirical studies and/or non-asymptotic extensions of our methods.}
+\item \response{In the third paragraph, we  explain how our results contrast with known asymptotic properties of recurrent architectures. We explain that we view asymptotic techniques as a first step towards a deeper understanding of these architectural differences, which may be corroborated by empirical studies and/or non-asymptotic extensions of our methods.}
 
-\item \response{In the fifth paragraph, we discuss what we see as the traditional role of asymptotic properties in linguistics (providing generalizable descriptions), and discuss whether this interpretation is relevant for NLP models such as transformers. We explain that do not think that there are definite and unambiguous conclusions for empirical NLP research, but think that our results might point to interesting questions for empirical studies. }
+\item \response{In the fourth paragraph, we discuss how the results relate to the formal language classes typically assumed in theoretical linguistics. This paragraph is largely taken over from the previous version.}
+
+%\response{We also considered discussing the relation between asymptotic properties and generalizable descriptions (as noted by the editor), but chose to not include this because transformers are currently used as NLP methods, not as the basis of grammatical description.}
 \end{enumerate}
 
 \original{(d) Attempt to Improve / simplify / expand the presentation of mathematics
@@ -258,21 +260,18 @@ these literature and techniques.}
 
 \response{We have used the additional space to expand and improve various parts of Sections 5 and 6:}
 
-\response{Major Changes:}
 \begin{enumerate}
 \item \response{We have organized the proof of the Depth Reduction Lemma into three stages, and notationally separated the restrictions constructed in the three stages. While we have left the third part (formerly `Constructing Restrictions') mostly unchanged, we have reworked the presentation of the first two stages. We have moved one paragraph from the middle of the proof to the first stage, as it is the simplest part of the proof, and independent of the rest. We have fully rewritten the argument showing that we can restrict to heads with few $k$-neighbors, using a notion of being `satisfied'. We believe that this part of the argument was somewhat ambiguous before, and is now fully rigorous.}
 
+\response{We also have replaced $(1-\eta)^2$ by $(1-2\eta)$, as this fits better with the reorganization of the proof (without making a difference for the success of the proof).}
+
 \item \response{We added Figure 3, which explains how the sequence $i^{(z)}_1, \dots, i^{(z)}_k$ is constructed, and added a pointer to this figure in the paragraph below Equation (9). While none of the reviewers asked specifically about this part, we felt this was worth expanding on, because the definition of this sequence is the crucial starting point for the entire proof in Section 5 (e.g., the notion of `k-dependendence' is based on it), and other colleagues found that the prose description alone was very dense.}
 
-\item \response{We have changed the definition of the distributions used for \textsc{Parity} and \textsc{2Dyck}: For \textsc{Parity}, we originally had inadvertently defined the automaton in such a way that it would generate strings with both even and odd numbers of $1$s; we have fixed this in the revision. For \textsc{2Dyck}, we changed the definition of the PCFG to make the equivalence to the automaton-based description in Skachkova et al. (2018) clearer.}
+\item \response{Throughout Section 5.1, we have changed notation so that heads are represented as tuples $(h,i)$ (index of head $h \in \{1,\dots, H\}$ and position $i \in \{1, \dots n\}$) instead of single indices ranging over $\{1, \dots, Hn\}$.}
 
-\item \response{We have expanded the proof of Theorem 7. Reviewer B had noted that both the role of the probability distributions, and the role of the PCFG were opaque. We now explain in more detail the argument for \textsc{Parity} and \textsc{2Dyck}. We weakened the statement of the theorem (suboptimal cross-entropy, instead of unigram baseline level, for 2Dyck), in order to be able to present the argument in full detail. We nonetheless chose to put one part of the argument into a footnote, as we feel it is specific to PCFGs, and seems tangential to the properties of self-attention.}
-\end{enumerate}
+\item \response{We have changed the definition of the distributions used for \textsc{Parity} and \textsc{2Dyck} in Section 6: For \textsc{Parity}, we originally had inadvertently defined the automaton in such a way that it would generate strings with both even and odd numbers of $1$s; we have fixed this in the revision. For \textsc{2Dyck}, we changed the definition of the PCFG to make the equivalence to the automaton-based description in Skachkova et al. (2018) more transparent.}
 
-\response{Minor Changes:}
-\begin{enumerate}
-\item \response{We have changed notation so that heads are represented as tuples $(h,i)$ (number of head and position) instead of single indices ranging over $\{1, \dots, Hn\}$.}
-\item \response{We have replaced $(1-\eta)^2$ by $(1-2\eta)$, as this fits better with the reorganization of the proof in Section 5 (without making a difference for the success of the proof).}
+\item \response{We have expanded the proof of Theorem 7. Reviewer B had noted that both the role of the probability distributions, and the role of the PCFG were opaque. We now explain in more detail the argument for \textsc{Parity} and \textsc{2Dyck}. We weakened the statement of the theorem (suboptimal cross-entropy, instead of unigram baseline level, for \textsc{2Dyck}), in order to be able to present the argument in full detail. We nonetheless chose to put one part of the argument into a footnote, as we feel it is specific to PCFGs, and seems tangential to the properties of self-attention. While we did not find specific style instructions about footnotes on the TACL website, we would also be happy to reformat this footnote if needed for compliance with the style typically found in TACL papers.}
 \end{enumerate}
 
 
