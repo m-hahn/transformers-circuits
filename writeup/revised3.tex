@@ -842,6 +842,7 @@ While regular languages are sufficient to model language up to any finite bound 
 Our results entail that self-attention is limited in its ability to model context-free languages or evaluate logical formulas.
 In particular, self-attention cannot in general emulate stacks or arbitrary finite-state automata.
 Coupled with the empirical success of transformers, one interpretation of our results is therefore that natural language can be modeled well quantitatively with models that are formally too weak for the formal languages typically assumed in theoretical linguistics.
+%This echoes empirical findings suggesting that quantitative performance on measures such as perplexity can be dissociated from detailed grammatical knowledge \cite{kuncoro2018lstms, tran2018importance}.
 Beyond general limitations of asymptotic analysis, a possible reason for this phenomenon is that language uses recursive structure only in restricted ways due to cognitive factors.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
