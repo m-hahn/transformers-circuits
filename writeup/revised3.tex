@@ -821,7 +821,7 @@ Therefore, pending tighter nonasymptotic bounds, the results reported here need 
 %How long does an input have to be for such limitations to start becoming relevant? Our proofs do not provide a definitive answer to this question. Iteratively applying the Depth Reduction Lemma to bound $c$ after successive reduction of layers only bounds the necessary input length $n$ by a tetration (of the order of $^L H$), far beyond the scale relevant to real-world NLP when considering the size of NLP models such as BERT (12 heads and layers, \citet{devlin2018bert}).
 
 We believe that the most imminent implications of our results are theoretical in nature.
-First, they showcase mathematical techniques for analyzing the capabilities of self-attention, an architecture at the heart of recent advances in NLP.
+They showcase mathematical techniques for analyzing the capabilities of self-attention, an architecture at the heart of recent advances in NLP.
 These tools provide theoretical understanding of differences between self-attention and theoretically more well-studied recurrent architectures:
 Recurrent networks such as LSTMs can perfectly emulate finite-state automata, and therefore can model any finite state language with optimal cross-entropy, as long as the state transition and symbol emission distributions are Markovian.
 In particular, \textsc{Parity} of i.i.d. bitstrings can be predicted with perfect accuracy and cross-entropy, independent of the input length.
@@ -831,14 +831,14 @@ The results presented here thus theoretically confirm the intuition that models 
 Complementing the asymptotic methods developed here with empirical studies or non-asymptotic extensions is an interesting avenue for future research.
 
 
-Second, our results suggest that language can be modeled well quantitatively with techniques that are too weak for for the formal language classes typically assumed in theoretical linguistics.
+%Second, our results suggest that language can be modeled well quantitatively with techniques that are too weak for for the formal language classes typically assumed in theoretical linguistics.
 %Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
 While finite languages are sufficient to model language up to any finite bound on sequence length, it has typically been argued that asymptotically more powerful formalisms at the level of context-free grammars or beyond are necessary to properly capture generalizations about the syntax and meaning of natural language~(e.g., \citet{chomsky1957syntactic,shieber1985evidence}).
 Our results entail that self-attention is limited in its ability to model context-free languages or evaluate logical formulas.
 In particular, self-attention cannot in general emulate stacks or arbitrary finite-state automata.
 Whether this hinders its capacity for syntactic generalization in practice is an interesting question; empirical research suggests that models with strong quantitative performance -- both recurrent and transformer models -- continue to struggle with syntactic generalization and that quantitative performance metrics such as perplexity can partly be dissociated from syntactic knowledge displayed on more challenging benchmarks (e.g., \citet{kuncoro2018lstms,marvin2018targeted, tran2018importance,mccoy2019berts}).
 
-Nonetheless, the success of transformers across many NLP tasks suggests that many aspects of natural language can be modeled well quantitatively with models that are formally too weak for the formal languages typically assumed in theoretical linguistics.
+Nonetheless, the success of transformers across NLP tasks suggests that many aspects of natural language can be modeled well with methods that are formally too weak for the formal languages typically assumed in theoretical linguistics.
 Beyond general limitations of asymptotic analysis, a possible reason for this phenomenon is that language uses recursive structure only in restricted ways due to cognitive factors.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
