@@ -460,7 +460,7 @@ Then, after applying the resulting restriction, the final activation $y_{n}^{(L)
 
 %\begin{proof}
 \subsection{Proving the Depth Reduction Lemma}
-This section will be devoted to proving the Depth Reduction Lemma.
+In this section, we will prove the Depth Reduction Lemma.
 %We will do the first part of the argument for all integers $k \in \mathbb{N}$.
 %In the second part, we will select a sufficiently large $k$. % that will work for all input lengths $n$.
 %The aim is that $c' := ck$.
@@ -491,11 +491,11 @@ For each possible value $z$,  and each position $j \in \{1, \dots, n\}$, we comp
 \begin{equation}\label{eq:max-att}
 \max_{x_1\dots x_n\ :\ y^{(0)}_i=z} f^{att}_{1,h}(z, y^{(0)}_j)
 \end{equation}
-considering only inputs $x_1\dots x_n$ that are compatible with the restriction $\rho^{(1)}_n$ as constructed at Stage 1.
-For each value $z$, we order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1^{(z)}, \dots, j_n^{(z)}$ for each layer-1 attention head $h$ at a position $i$ and possible value $z$ of $y^{(0)}_i$ (In the case of ties, we order by  position, by Footnote 1).
-For each layer-1 attention head and each $z$, we then select a sequence $1 \leq i_1^{(z)} < i_2^{(z)} < \dots < i_{k}^{(z)} \leq n$ such that (1) for each $i_s^{(z)}$, there is at least one input bit $x_q$ that only feeds into the activation at position $j_{i_s^{(z)}}^{(z)}$ and no $j_{i_{s'}^{(z)}}^{(z)}$ ($s\neq s'$), and (2) $i_{k}^{(z)}$ is minimal, i.e. there is no subsequence with smaller $i_{k}^{(z)}$ that also satisfies (1).
+considering only inputs $x_1\dots x_n$ that are compatible with the restriction $\rho^{(1)}_n$ constructed at Stage 1.
+For each value $z$, we order the positions $\{1, \dots, n\}$ downwards by this value, obtaining a sequence $j_1^{(z)}, \dots, j_n^{(z)}$ for each layer-1 attention head $h$ at a position $i$ and each possible value $z$ of $y^{(0)}_i$ (In the case of ties, we order by  position, by Footnote 1).
+For each layer-1 attention head and each $z$, we select a sequence $1 \leq i_1^{(z)} < i_2^{(z)} < \dots < i_{k}^{(z)} \leq n$ such that (1) for each $i_s^{(z)}$, there is at least one input $x_q$ that only feeds into the activation at position $j_{i_s^{(z)}}^{(z)}$ and no $j_{i_{s'}^{(z)}}^{(z)}$ ($s\neq s'$), and (2) $i_{k}^{(z)}$ is minimal, i.e. there is no subsequence with smaller $i_{k}^{(z)}$ that also satisfies (1).
 This construction is visualized in an example in Figure~\ref{fig:selecting}.
-We can find such a subsequence unless $n \leq ck$, in which case the Depth Reduction Lemma is already satisfied for this input length $n$.
+Such a subsequence exists unless $n \leq ck$, in which case the Depth Reduction Lemma is already satisfied for this input length $n$.
 
 If $z$ is a possible value of the activation $y^{(0)}_i$, then we
 say that a pair $((i,h),z)$, of a head $h$ at position $i$ and a possible value $z$ of $y^{(0)}_i$, is \key{satisfied} if one of the layer-0 activations $y^{(0)}_{i_s^{(z)}}$ ($s \in \{1, \dots k\}$) is fixed by $\rho^{(1)}_n$ to the value achieving the maximum attention value (\ref{eq:max-att}).
@@ -515,8 +515,8 @@ Our aim will be to construct $\rho_n'$ so that each layer-1 head is satisfied.
         \includegraphics[height=0.1\textheight]{figures/select-2.png}&
         \end{tabular}
 	\caption{Selecting the sequence $i_{1}^{(z)} \dots i_{k}^{(z)}$: We have a $c$-transformer with $c=2$, i.e., each Layer 0 activation only depends on at most two input bits.
-	(a)  We fix some head in Layer 1 at position $i$ (here, $i=5$), and some value $z$ for $y^{(0)}_i$ (blue activation). For each other layer-0 activation $y^{(0)}_j$, we compute the maximal possible attention value between that activation and the Layer 1 head, assuming the fixed value $z$ for $y^{(0)}_i$ -- these maximum attention values are visualized by the thickness of the different lines.
-	(b) We select $k = 2$ activations from Layer 0, marked in yellow and green. For each of these, there is at least one (in fact, two in this example) input bits that feed into this one and no other selected activation, also marked in yellow and green, respectively.}
+	(a)  We fix a head in Layer 1 at position $i$ (here, $i=5$), and some value $z$ for $y^{(0)}_i$ (blue activation). For each other Layer-0 activation $y^{(0)}_j$, we compute the maximal possible attention value between that activation and the Layer 1 head, assuming the fixed value $z$ for $y^{(0)}_i$ -- these maximum attention values are visualized by the thickness of the different lines.
+	(b) We select $k = 2$ activations from Layer 0, marked in yellow and green. For each of these, there is at least one (in fact, two in the example) input bits (also marked in yellow and green) that feed into this one and no other selected activation.}
 	\label{fig:selecting}
 \end{figure}
 
@@ -529,11 +529,11 @@ Two layer-1 head are $k$-\textbf{neighbors} if some $j_{i_s^{(z)}}$ for one and 
 We will construct $\rho'_n$ using probabilistic arguments over randomly chosen restrictions.
 For this approach to succeed, we require a  sufficient amount of independence between the activations of different heads in layer 1.
 We thus need to ensure that the number of $k$-neighbors of each head is bounded.
-Recall the parameter $\eta \in (0,\frac{1}{2})$, and let $H$ be the number of attention heads in each position of layer 1.
+Recall $\eta \in (0,\frac{1}{2})$, and let $H$ be the number of attention heads in each position of layer 1.
 
 
 
-To this end, we modify $\rho^{(1)}_n$ into $\rho^{(2)}_n$ so that each layer-0 head has at most $\leq 2^c kH$ many $k$-depending unsatisfied layer-1 heads.
+We modify $\rho^{(1)}_n$ into $\rho^{(2)}_n$ so that each layer-0 head has at most $\leq 2^c kH$ many $k$-depending unsatisfied layer-1 heads.
 Assume that indeed some layer-0 head  has more than $2^c kH$ many $k$-depending unsatisfied layer-1 heads. % $(h,i)$ such that some $((h,i),z)$ does not yet satisfy the Depth Reduction Lemma.
 By fixing $\leq c$ input bits and appealing to the Pigeonhole principle, we can fix this head to a value that achieves the maximum attention value for at least $> kH$ many of these $k$-depending layer-1 heads.
 Let $\rho^{(2)}_n$ be the restriction resulting from adding this to $\rho^{(1)}_n$.
@@ -550,11 +550,11 @@ Thus each input bit now has at most $\leq \frac{2^c}{\eta}kcH/C$ many $k$-depend
 Consequently, every unsatisfied layer-1 head has at most $f \leq \frac{2^{2c}}{\eta}c^2k^2H/C$ many unsatisfied $k$-neighbors.
 
 \paragraph{Stage 3}
-In order to construct the third and final restriction $\rho^{(3)}_n$, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho^{(3)}_n$, and show that the probability mass assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
-For each input length $n$, define the distribution over restrictions $\rho_n^{(3)}$ that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $1$ or $0$ with probability $q/2$ each ($q \in (0,1)$ to be chosen later), and $*$ with probability $1-q$.
+In order to construct the third and final restriction $\rho^{(3)}_n$, we apply the ``probabilistic method'': We define a probability distribution over restrictions $\rho^{(3)}_n$, and show that the probability assigned to restrictions of the type we require is strictly greater than zero, showing that such a restriction exists.
+For each input length $n$, define the distribution over restrictions $\rho_n^{(3)}$ that independently assigns to each input position $i \in \{1, \dots, n\}$ the symbol $1$ or $0$ with probability $q/2$ each ($q \in (0,1)$ chosen later), and $*$ with probability $1-q$.
 On those input bits where $\rho_n^{(2)}(i) \neq *$, we restrict this random restriction to agree with $\rho_n^{(2)}(i)$.
 For an layer-1 attention head $(h,i)$ and for each value $z$ (there are at most $2^c$ such), define $X_{i,h}^{(z)}$ to be the event that, for this head, none of $y_{j_{i_1^{(z)}}}^{(0)}, \dots, y_{j_{i_k^{(z)}}}^{(0)}$ are fixed to the value that produces the highest attention weight.
-Define $X_0$ to be the event that a fraction greater than $(1+\delta)q$ of the input bits that $\rho_n^{(2)}$ maps to $*$ are set to $0/1$ by $\rho_n^{(3)}$ (where $\delta \in (0,1)$, to be fixed later).
+Define $X_0$ to be the event that more than $(1+\delta)q$ of the input bits that $\rho_n^{(2)}$ maps to $*$ are set to $0/1$ by $\rho_n^{(3)}$ (where $\delta \in (0,1)$, to be fixed later).
 Our goal will be to show that a nonzero amount of probability mass is assigned to restrictions $\rho_n'$ avoiding all events $\{X_0\} \cup \{X_{i,h}^{(z)} : i, z\}$.
 
 First, a Chernoff bound gives~\cite[Theorem 4.4]{mitzenmacherprobability}
@@ -817,11 +817,6 @@ Therefore, pending tighter nonasymptotic bounds, the results reported here need 
 
 
 
-%In linguistics, asymptotic expressibility in the limit of long sentences has often been understood as formalizing the existence of \emph{generalizable descriptions}:
-%For instance, while regular languages are sufficient to model language up to any finite bound on sequence length, it has typically been argued that more powerful formalisms at the level of context-free grammars or beyond are necessary to construct generalizable descriptions of natural language syntax~(e.g., \citet{chomsky1957syntactic,shieber1985evidence}).
-%Transformers are currently used as NLP systems, not as the basis of linguistic descriptions of grammar.
-%Nonetheless, this same reasoning might suggest inherent limited in the capacity of transformers to induce generalizable representations of syntactic structure.
-%Whether this hampers their ability to generalize and to provide interpretable representations in practice is an interesting question for empirical research. % (TODO cite some empirical papers)
 
 %How long does an input have to be for such limitations to start becoming relevant? Our proofs do not provide a definitive answer to this question. Iteratively applying the Depth Reduction Lemma to bound $c$ after successive reduction of layers only bounds the necessary input length $n$ by a tetration (of the order of $^L H$), far beyond the scale relevant to real-world NLP when considering the size of NLP models such as BERT (12 heads and layers, \citet{devlin2018bert}).
 
@@ -836,18 +831,31 @@ The results presented here thus theoretically confirm the intuition that models 
 Complementing the asymptotic methods developed here with empirical studies or non-asymptotic extensions is an interesting avenue for future research.
 
 
-Second, our results suggest that language can be modeled well quantitatively with techniques that are formally too weak for for the formal language classes typically assumed in theoretical linguistics.
-Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
-While regular languages are sufficient to model language up to any finite bound on sequence length, it has typically been argued that more powerful formalisms at the level of context-free grammars or beyond are necessary to construct generalizable descriptions of natural language syntax~(e.g., \citet{chomsky1957syntactic,shieber1985evidence}).
+Second, our results suggest that language can be modeled well quantitatively with techniques that are too weak for for the formal language classes typically assumed in theoretical linguistics.
+%Hierarchical structure, at least at the level of context-free languages, is widely thought to be essential to modeling the structure~\cite{everaert2015structures} and meaning~\cite{montague1973proper} of natural language.
+While finite languages are sufficient to model language up to any finite bound on sequence length, it has typically been argued that asymptotically more powerful formalisms at the level of context-free grammars or beyond are necessary to properly capture generalizations about the syntax and meaning of natural language~(e.g., \citet{chomsky1957syntactic,shieber1985evidence}).
 Our results entail that self-attention is limited in its ability to model context-free languages or evaluate logical formulas.
 In particular, self-attention cannot in general emulate stacks or arbitrary finite-state automata.
-Coupled with the empirical success of transformers, one interpretation of our results is therefore that natural language can be modeled well quantitatively with models that are formally too weak for the formal languages typically assumed in theoretical linguistics.
-%This echoes empirical findings suggesting that quantitative performance on measures such as perplexity can be dissociated from detailed grammatical knowledge \cite{kuncoro2018lstms, tran2018importance}.
+Whether this hinders its capacity for syntactic generalization in practice is an interesting question; empirical research suggests that models with strong quantitative performance -- both recurrent and transformer models -- continue to struggle with syntactic generalization and that quantitative performance metrics such as perplexity can partly be dissociated from syntactic knowledge displayed on more challenging benchmarks (e.g., \citet{kuncoro2018lstms,marvin2018targeted, tran2018importance,mccoy2019berts}).
+
+Nonetheless, the success of transformers across many NLP tasks suggests that many aspects of natural language can be modeled well quantitatively with models that are formally too weak for the formal languages typically assumed in theoretical linguistics.
 Beyond general limitations of asymptotic analysis, a possible reason for this phenomenon is that language uses recursive structure only in restricted ways due to cognitive factors.
 For instance, it has long been noted that center embeddings, syntactic structures exhibiting iterated bracketing, are very challenging for humans to process \cite{miller-finitary-1963,gibson1999memory}.
 Intriguingly, self-attention bears some resemblance to psycholinguistic models of memory in human sentence processing that assume that humans, while processing a word, attend to chunks that were stored in memory when processing some previous words \cite{lewis2005activation,parker2017cue}.
 Such processing models predict difficulty with center embedding because they cannot count brackets \cite{lewis2005activation}, akin to what we have shown theoretically for neural network models based on self-attention.
 
+
+
+
+%This echoes empirical findings suggesting that quantitative performance on measures such as perplexity can be dissociated from detailed grammatical knowledge (e.g., \citet{kuncoro2018lstms, tran2018importance,mccoy2019berts}).
+%
+%In linguistics, asymptotic expressibility in the limit of long sentences has often been understood as formalizing the existence of \emph{generalizable descriptions}:
+%For instance, while regular languages are sufficient to model language up to any finite bound on sequence length, it has typically been argued that more powerful formalisms at the level of context-free grammars or beyond are necessary to construct generalizable descriptions of natural language syntax~(e.g., \citet{chomsky1957syntactic,shieber1985evidence}).
+%Transformers are currently used as NLP systems, not as the basis of linguistic descriptions of grammar.
+%Nonetheless, this same reasoning might suggest inherent limited in the capacity of transformers to induce generalizable representations of syntactic structure.
+%Whether this hampers their ability to generalize and to provide interpretable representations in practice is an interesting question for empirical research. % (TODO cite some empirical papers)
+% 
+%There are several possible explanations for this.
 
 
 % (TODO some citations on how this has been observed).
