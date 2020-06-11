@@ -1,6 +1,11 @@
 # from Alexander Rush's annotated transformer
 
 
+# ./python36 16-transformer.py --V 10 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 100 --epochCount 1000 --n_layers 1 --d_model_global 16 --d_ff_global 16 --h_global 1 --dropout_global 0.0 --sequence_length 200
+
+
+
+
 
 # !pip install http://download.pytorch.org/whl/cu80/torch-0.3.0.post4-cp36-cp36m-linux_x86_64.whl numpy matplotlib spacy torchtext seaborn 
 
@@ -23,7 +28,7 @@ import argparse
 
 
 parser=argparse.ArgumentParser()
-parser.add_argument("--V", dest="V", type=int, default=4)
+parser.add_argument("--V", dest="V", type=int, default=10)
 parser.add_argument("--beta1", dest="beta1", type=float, default=0.9)
 parser.add_argument("--beta2", dest="beta2", type=float, default=0.98)
 parser.add_argument("--eps", dest="eps", type=float, default=1e-9)
@@ -44,7 +49,7 @@ args=parser.parse_args()
 print(args)
 
 V = args.V
-assert V == 4
+assert V == 10
 beta1 = args.beta1
 beta2 =  args.beta2 #0.98
 eps= args.eps #1e-9
@@ -464,21 +469,21 @@ def data_gen(V, batch, nbatches):
         data = []
         target = []
         for j in range(batch):
-           k = random.randint(1,sequence_length)
-           if random.random() > 0.5:
-              l = k
-              target.append([1,1])
+         point = []
+         stack = []
+
+         for k in range(sequence_length):
+           if len(stack) == 0 or (random.random() < 0.5 and (sequence_length-k) > 1):
+              stack.append((random.randint(1,4), k))
+              point.append(stack[-1][0])
            else:
-              l = k
-              while l == k or abs(l-k) > 10:
-                 l = random.randint(1,sequence_length)
-              target.append([1,2])
-           x = ([1]*k) + ([2]*l)
-           while len(x) < 2*sequence_length:
-              p = random.randint(0, len(x)-1)
-              x = x[:p] + [3] + x[p:]
-           data.append([3]+x)
-        
+              last, lastJ = stack[-1]
+#              print(k-lastJ)
+              point.append(last+4)
+              del stack[-1]
+         data.append(point)
+         target.append([1, stack[-1][0] if len(stack) > 0 else 9])
+#         print(point, target[-1])
         data = torch.LongTensor(data).cuda()
         src = Variable(data, requires_grad=False)
         tgt = Variable(torch.LongTensor(target).cuda(), requires_grad=False)
@@ -502,8 +507,9 @@ class SimpleLossCompute:
         #print(x)
         #print(y)
         #print(norm, loss)
-        if float(loss) != float(loss):
-          quit()
+  #      floatLoss = float(loss)
+#        if floatLoss != floatLoss:
+ #         quit()
         loss.backward()
 
         _, predictions = torch.max(x.contiguous().view(-1, x.size(-1)), dim=1)
@@ -547,9 +553,9 @@ for epoch in range(epochCount):
 
 smoothed_best = sorted(all_accuracies)[-2:]
 smoothed_best = sum(smoothed_best) / len(smoothed_best)
-with open("logs/per_run/"+__file__+"_model_"+str(args.myID)+".txt", "w") as outFile:
-   print(sum(accuracies)/float(len(accuracies)), file=outFile)
-   print(smoothed_best, file=outFile)
+#with open("logs/per_run/"+__file__+"_model_"+str(args.myID)+".txt", "w") as outFile:
+#   print(sum(accuracies)/float(len(accuracies)), file=outFile)
+#   print(smoothed_best, file=outFile)
 
 print(sum(accuracies)/float(len(accuracies)))
 print(smoothed_best)

@@ -1,4 +1,20 @@
 # from Alexander Rush's annotated transformer
+# Adapted for PARITY by Michael Hahn (2020)
+
+# Works pretty well:
+# ./python36 13-transformer.py --V 3 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 500 --epochCount 10000 --n_layers 2 --d_model_global 64 --d_ff_global 1024 --h_global 2 --dropout_global 0.0 --sequence_length 10
+
+# Also works:
+# ./python36 13-transformer.py --V 3 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 500 --epochCount 10000 --n_layers 2 --d_model_global 64 --d_ff_global 64 --h_global 1 --dropout_global 0.0 --sequence_length 10
+
+# With one layer and one head:
+# ./python36 13-transformer.py --V 3 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 500 --epochCount 100 --n_layers 1 --d_model_global 64 --d_ff_global 64 --h_global 1 --dropout_global 0.0 --sequence_length 10 --curriculum_speed 16 
+
+# Even slimmer (doesn't always work?)
+# ./python36 13-transformer.py --V 3 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 500 --epochCount 1000 --n_layers 1 --d_model_global 16 --d_ff_global 16 --h_global 1 --dropout_global 0.0 --sequence_length 10 --curriculum_speed 20
+
+
+
 
 
 
@@ -23,7 +39,7 @@ import argparse
 
 
 parser=argparse.ArgumentParser()
-parser.add_argument("--V", dest="V", type=int, default=4)
+parser.add_argument("--V", dest="V", type=int, default=3)
 parser.add_argument("--beta1", dest="beta1", type=float, default=0.9)
 parser.add_argument("--beta2", dest="beta2", type=float, default=0.98)
 parser.add_argument("--eps", dest="eps", type=float, default=1e-9)
@@ -38,13 +54,12 @@ parser.add_argument("--h_global", dest="h_global", type=int, default=8)
 parser.add_argument("--dropout_global", dest="dropout_global", type=float, default=0.05)
 parser.add_argument("--sequence_length", dest="sequence_length", type=int, default=10)
 parser.add_argument("--myID", type=int, default=random.randint(0,1000000000))
-#parser.add_argument("--curriculum_speed", dest="curriculum_speed", type=int, default=4)
+parser.add_argument("--curriculum_speed", dest="curriculum_speed", type=int, default=4)
 
 args=parser.parse_args()
 print(args)
 
 V = args.V
-assert V == 4
 beta1 = args.beta1
 beta2 =  args.beta2 #0.98
 eps= args.eps #1e-9
@@ -337,7 +352,7 @@ class Batch:
             self.trg_mask = \
                 self.make_std_mask(self.trg, pad)
             self.ntokens = (self.trg_y != pad).data.sum()
-
+    
     @staticmethod
     def make_std_mask(tgt, pad):
         "Create a mask to hide padding and future words."
@@ -360,11 +375,11 @@ def run_epoch(data_iter, model, loss_compute):
         out = model.forward(batch.src, batch.trg, 
                             batch.src_mask, batch.trg_mask)
  #       print("loss_compute")
-       # if random.random() > 0.98:
-       #    h = 0
-       #    layer = 0
-       #    print(model.encoder.layers[layer].self_attn.attn[0, h].data)
-       #    print(model.encoder.layers[layer].self_attn.attn[0, h].data.size())
+        if random.random() > 0.98:
+           h = 0
+           layer = 0
+#           print(model.encoder.layers[layer].self_attn.attn[0, h].data)
+           print("Dimensionality of self-attention weights: ", model.encoder.layers[layer].self_attn.attn[0, h].data.size())
 
         loss = loss_compute(out, batch.trg_y, batch.ntokens)
         total_loss += loss
@@ -457,33 +472,17 @@ def data_gen(V, batch, nbatches):
     "Generate random data for a src-tgt copy task."
     global epoch
     global sequence_length
-#    if epoch > 30:
-#       sequence_length = 10+int((epoch-30)/args.curriculum_speed)
+    if epoch > 30:
+       sequence_length = 10+int((epoch-30)/args.curriculum_speed)
 
     for i in range(nbatches):
-        data = []
-        target = []
-        for j in range(batch):
-           k = random.randint(1,sequence_length)
-           if random.random() > 0.5:
-              l = k
-              target.append([1,1])
-           else:
-              l = k
-              while l == k or abs(l-k) > 10:
-                 l = random.randint(1,sequence_length)
-              target.append([1,2])
-           x = ([1]*k) + ([2]*l)
-           while len(x) < 2*sequence_length:
-              p = random.randint(0, len(x)-1)
-              x = x[:p] + [3] + x[p:]
-           data.append([3]+x)
-        
-        data = torch.LongTensor(data).cuda()
+        data = torch.from_numpy(np.random.randint(1, V, size=(batch, sequence_length))).cuda()
+        data[:, 0] = 1
         src = Variable(data, requires_grad=False)
-        tgt = Variable(torch.LongTensor(target).cuda(), requires_grad=False)
-        #print(src)
-        #print(tgt)
+        tgt = (src.sum(dim=1) % 2 == 1).long().unsqueeze(1).repeat(1,2)
+#        print(src)
+ #       print(tgt)
+        tgt[:,0] = 1
         yield Batch(src, tgt, 0)
 
 
@@ -499,11 +498,6 @@ class SimpleLossCompute:
         x = self.generator(x)
         loss = self.criterion(x.contiguous().view(-1, x.size(-1)), 
                               y.contiguous().view(-1)) / norm
-        #print(x)
-        #print(y)
-        #print(norm, loss)
-        if float(loss) != float(loss):
-          quit()
         loss.backward()
 
         _, predictions = torch.max(x.contiguous().view(-1, x.size(-1)), dim=1)
@@ -531,7 +525,7 @@ model_opt = NoamOpt(model.src_embed[0].d_model, factor, warmup,
 
 all_accuracies = []
 for epoch in range(epochCount):
-    print(epoch)
+    print("Epoch", epoch)
     accuracies = []
     model.train()
     run_epoch(data_gen(V, batchSize, 50), model, 
@@ -541,15 +535,15 @@ for epoch in range(epochCount):
  #                   SimpleLossCompute(model.generator, criterion, None)))
 
     all_accuracies.append(sum(accuracies)/float(len(accuracies)))
-    print("ACCURACY", all_accuracies[-1])
+    print("ACCURACY", all_accuracies[-1], "Current sequence length:", sequence_length)
 
 
 
 smoothed_best = sorted(all_accuracies)[-2:]
 smoothed_best = sum(smoothed_best) / len(smoothed_best)
-with open("logs/per_run/"+__file__+"_model_"+str(args.myID)+".txt", "w") as outFile:
-   print(sum(accuracies)/float(len(accuracies)), file=outFile)
-   print(smoothed_best, file=outFile)
+#with open("logs/per_run/"+__file__+"_model_"+str(args.myID)+".txt", "w") as outFile:
+#   print(sum(accuracies)/float(len(accuracies)), file=outFile)
+#   print(smoothed_best, file=outFile)
 
 print(sum(accuracies)/float(len(accuracies)))
 print(smoothed_best)

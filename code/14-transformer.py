@@ -1,7 +1,7 @@
 # from Alexander Rush's annotated transformer
 
 
-# Works OK (reaches 97% in 70 epochs, reaches 99% in 200 epochs)
+# Works OK (reaches 97% in 70 epochs, reaches 99% in 200 epochs, certainly in 300 epochs)
 # ./python36 14-transformer.py --V 4 --beta1 0.95 --beta2 0.95 --warmup 2000 --batchSize 100 --epochCount 1000 --n_layers 1 --d_model_global 16 --d_ff_global 16 --h_global 1 --dropout_global 0.0 --sequence_length 200
 
 
