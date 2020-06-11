@@ -6,4 +6,6 @@
 *.swp
 *.out
 *.log
+code/python36
+small-john-job.sh
 
