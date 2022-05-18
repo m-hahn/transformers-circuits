@@ -1,0 +1,3 @@
+logs/*.txt
+*.swp
+logs/per_run/
