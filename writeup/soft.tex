@@ -1,0 +1,161 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{times,latexsym}
+\usepackage{url}
+\usepackage[T1]{fontenc}
+
+%% Package options:
+%% Short version: "hyperref" and "submission" are the defaults.
+%% More verbose version:
+%% Most compact command to produce a submission version with hyperref enabled
+%%    \usepackage[]{tacl2018v2}
+%% Most compact command to produce a "camera-ready" version
+%%    \usepackage[acceptedWithA]{tacl2018v2}
+%% Most compact command to produce a double-spaced copy-editor's version
+%%    \usepackage[acceptedWithA,copyedit]{tacl2018v2}
+%
+%% If you need to disable hyperref in any of the above settings (see Section
+%% "LaTeX files") in the TACL instructions), add ",nohyperref" in the square
+%% brackets. (The comma is a delimiter in case there are multiple options specified.)
+
+%\usepackage[acceptedWithA,nohyperref]{tacl2018v2} % 
+
+\usepackage{fullpage}
+
+%\renewcommand{\baselinestretch}{0.989}
+
+
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+\newcommand\BibTeX{B{\sc ib}\TeX}
+\newcommand\confname{EMNLP-IJCNLP 2019}
+\newcommand\conforg{SIGDAT}
+
+% Use the lineno option to display guide line numbers if required.
+
+\usepackage{amsmath}
+\usepackage{tikz-dependency}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\E}{\mathop{\mathbb{E}}}
+
+\usepackage{amssymb}% http://ctan.org/pkg/amssymb
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+
+\newcommand{\Prob}{\mathbb{P}}%
+
+%\usepackage{pslatex}
+%\usepackage{latexsym}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{url}
+%\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{rotating}
+\usepackage{multirow}
+
+
+
+
+
+\usepackage[T1]{fontenc}
+
+\usepackage{pslatex}
+%\usepackage{latexsym}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{url}
+%\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{rotating}
+%\usepackage{natbib}
+\usepackage{amssymb}
+
+
+\usepackage{amsthm}
+ 
+
+\allowdisplaybreaks
+
+\newcounter{theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{defin}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{thm}[theorem]{Theorem}
+
+
+\newcommand{\R}[0]{\mathbb{R}}
+\newcommand{\Ff}[0]{\mathcal{F}}
+\newcommand{\key}[1]{\textbf{#1}}
+
+
+\newcommand{\soft}[1]{}
+\newcommand{\nopreview}[1]{}
+\newcommand\comment[1]{{\color{red}#1}}
+\newcommand\mhahn[1]{{\color{red}(#1)}}
+\newcommand{\rljf}[1]{{\color{blue}[rljf: #1]}}
+
+\newcommand{\thetad}[0]{{\theta_d}}
+\newcommand{\thetal}[0]{{\theta_{LM}}}
+\newcommand{\thetap}[0]{{\theta_{P}}}
+
+
+\title{Theoretical Limitations of Self-Attention in Neural Sequence Models}
+\author{Michael Hahn \\ Stanford University \\ {\sf mhahn2@stanford.edu}}
+\begin{document}
+
+We want to show that
+\begin{equation}
+    \sum_{u\neq i} |\hat{a}_{j,u}^{k,h} - \hat{a}_{j,u}^{k,h}'| = O(1/n)
+\end{equation}
+
+To show this, we show that each term is $O(1/n^2)$.
+
+First, note $\hat{a}_{j,u}^{k,h} \in [\frac{\exp(-2A)}{n-1}, \frac{\exp(2A)}{n-1}]$ (the upper bound is given in the paper, the lower bound is analogous).
+
+Also, for the unnormalized attention weights, $|a_{j,u}^{k,h} - a_{j,u}^{k,h}'| \leq \frac{Q}{n}$ for some constant $Q$ depending on the parameter matrices and Lipschitz constant of $f^{att}$.
+
+Let's fix all indices but $u$, and write
+\begin{align}
+c_u &:= \exp(a_u) \in [\exp(-A), \exp(A)] \\
+d_u &:= \exp(a_u) - \exp(a_u') 
+\end{align}
+%Because $\exp(a_u)$ is bounded independently of $n$, $c_u$ is also.
+Because $|a_{j,u}^{k,h} - a_{j,u}^{k,h}'| \leq \frac{Q}{n}$, $a_u$ is bounded, and $\exp(\cdot)$ is continuous, therefore $|d_u| \in O(\frac{1}{n})$.
+
+
+
+Then
+\begin{align}
+\hat{a}_u - \hat{a}_u &= \frac{c_u}{\sum_y c_y} - \frac{c_u+d_u}{\sum_y c_y+d_y} = \frac{c_u (\sum_y c_y+d_y) - (c_u+d_u) \sum_y c_y }{\sum_y c_y (\sum_y c_y+d_y)} = \frac{c_u \sum_y d_y - d_u \sum_y c_y }{\sum_y c_y (\sum_y c_y+d_y)} \\
+&\leq \frac{c_u \sum_y |d_y| + \frac{C}{n} \sum_y c_y }{(\sum_y c_y)^2} \leq \frac{\exp(A) C + \frac{C}{n} \sum_y c_y }{(\sum_y c_y)^2}
+\end{align}
+(for some constant $C$).
+Considering that $c_u \geq \exp(-A)$, therefore $\sum_y c_y \geq n\exp(-A)$, and this is bounded as
+\begin{align}
+&\leq  \frac{\exp(A) C + \frac{C}{n} n\exp(A) }{n^2\exp(-2A)} = O(\frac{1}{n^2})
+\end{align}
+
+
+\end{document}
+
+
+
